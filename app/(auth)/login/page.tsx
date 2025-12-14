@@ -40,16 +40,18 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0f0f0f] px-4">
+    <div className="min-h-screen flex items-center justify-center bg-[rgb(var(--bg))] px-4">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">Đăng nhập</h1>
-          <p className="text-gray-400">Chào mừng bạn trở lại</p>
+          <h1 className="text-3xl font-bold text-[rgb(var(--text))] mb-2">
+            Đăng nhập
+          </h1>
+          <p className="text-[rgb(var(--text-muted))]">Chào mừng bạn trở lại</p>
         </div>
 
         {/* Login Form */}
-        <div className="bg-[#1a1a1a] border border-gray-800 rounded-xl p-8">
+        <div className="bg-[rgb(var(--card))] border border-[rgb(var(--border))] rounded-xl p-8">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             {/* Global Error */}
             {errorMessage && (

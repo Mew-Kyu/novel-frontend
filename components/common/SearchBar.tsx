@@ -92,18 +92,18 @@ export const SearchBar = () => {
     >
       {/* Search Input */}
       <div className="relative" suppressHydrationWarning>
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[rgb(var(--text-muted))]" />
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Bạn muốn đọc truyện gì? (Vd: Main bá đạo giấu nghề...)"
-          className="w-full pl-12 pr-12 py-3 bg-gray-800 border border-gray-700 rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+          className="w-full pl-12 pr-12 py-3 bg-[rgb(var(--card))] border border-[rgb(var(--border))] rounded-lg text-[rgb(var(--text))] placeholder:text-[rgb(var(--text-muted))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))] focus:border-transparent transition-all shadow-[0_1px_3px_0_rgb(0_0_0_/_0.1)] focus:shadow-[0_4px_6px_-1px_rgb(0_0_0_/_0.1)]"
         />
         {query && (
           <button
             onClick={handleClear}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors"
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-[rgb(var(--text-muted))] hover:text-[rgb(var(--text))] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -112,10 +112,10 @@ export const SearchBar = () => {
 
       {/* Results Dropdown */}
       {showResults && (
-        <div className="absolute top-full mt-2 w-full bg-gray-900 border border-gray-800 rounded-lg shadow-2xl max-h-96 overflow-y-auto z-50">
+        <div className="absolute top-full mt-2 w-full bg-[rgb(var(--card))] border border-[rgb(var(--border))] rounded-lg shadow-[0_10px_15px_-3px_rgb(0_0_0_/_0.1),_0_4px_6px_-4px_rgb(0_0_0_/_0.1)] max-h-96 overflow-y-auto z-50">
           {isLoading ? (
-            <div className="p-4 text-center text-gray-400">
-              <div className="animate-spin w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full mx-auto"></div>
+            <div className="p-4 text-center text-[rgb(var(--text-muted))]">
+              <div className="animate-spin w-6 h-6 border-2 border-[rgb(var(--primary))] border-t-transparent rounded-full mx-auto"></div>
               <p className="mt-2 text-sm">Đang tìm kiếm...</p>
             </div>
           ) : results.length > 0 ? (
@@ -124,7 +124,7 @@ export const SearchBar = () => {
                 <button
                   key={result.id}
                   onClick={() => handleResultClick(result.id)}
-                  className="w-full px-4 py-3 hover:bg-gray-800 transition-colors text-left flex gap-3"
+                  className="w-full px-4 py-3 hover:bg-[rgb(var(--border))] transition-colors text-left flex gap-3"
                 >
                   {/* Cover Image */}
                   {result.coverImageUrl ? (
@@ -135,23 +135,25 @@ export const SearchBar = () => {
                       className="w-12 h-16 object-cover rounded flex-shrink-0"
                     />
                   ) : (
-                    <div className="w-12 h-16 bg-gray-800 rounded flex-shrink-0 flex items-center justify-center">
-                      <span className="text-gray-600 text-xs">No Image</span>
+                    <div className="w-12 h-16 bg-[rgb(var(--border))] rounded flex-shrink-0 flex items-center justify-center">
+                      <span className="text-[rgb(var(--text-muted))] text-xs">
+                        No Image
+                      </span>
                     </div>
                   )}
 
                   {/* Story Info */}
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-medium text-white truncate">
+                    <h3 className="font-medium text-[rgb(var(--text))] truncate">
                       {result.translatedTitle || result.title}
                     </h3>
                     {result.translatedTitle && (
-                      <p className="text-sm text-gray-400 truncate">
+                      <p className="text-sm text-[rgb(var(--text-muted))] truncate">
                         {result.title}
                       </p>
                     )}
                     {result.description && (
-                      <p className="text-sm text-gray-500 line-clamp-2 mt-1">
+                      <p className="text-sm text-[rgb(var(--text-muted))] line-clamp-2 mt-1">
                         {result.description.substring(0, 100)}...
                       </p>
                     )}
@@ -160,7 +162,7 @@ export const SearchBar = () => {
               ))}
             </div>
           ) : (
-            <div className="p-4 text-center text-gray-400">
+            <div className="p-4 text-center text-[rgb(var(--text-muted))]">
               <p>Không tìm thấy kết quả</p>
             </div>
           )}

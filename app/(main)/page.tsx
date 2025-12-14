@@ -127,7 +127,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0f0f0f]">
+    <div className="min-h-screen bg-[rgb(var(--bg))] transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
         {/* Hero Section */}
         <HeroSection stories={featuredStories} />
@@ -150,7 +150,9 @@ export default function HomePage() {
 
         {/* All Stories */}
         <div className="space-y-4">
-          <h2 className="text-2xl font-bold text-white">Tất cả truyện</h2>
+          <h2 className="text-2xl font-bold text-[rgb(var(--text))]">
+            Tất cả truyện
+          </h2>
           <StoryGrid stories={stories} />
           <Pagination
             currentPage={currentPage}

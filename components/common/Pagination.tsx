@@ -67,7 +67,7 @@ export const Pagination: React.FC<PaginationProps> = ({
       {getPageNumbers().map((page, index) => (
         <div key={index}>
           {page === "..." ? (
-            <span className="px-3 py-1 text-gray-500">...</span>
+            <span className="px-3 py-1 text-[rgb(var(--text-muted))]">...</span>
           ) : (
             <Button
               variant={currentPage === page ? "primary" : "ghost"}

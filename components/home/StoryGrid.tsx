@@ -24,7 +24,7 @@ export const StoryGrid: React.FC<StoryGridProps> = ({ stories }) => {
   if (stories.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-500">Chưa có truyện</p>
+        <p className="text-[rgb(var(--text-muted))]">Chưa có truyện</p>
       </div>
     );
   }
@@ -48,14 +48,14 @@ export const StoryGrid: React.FC<StoryGridProps> = ({ stories }) => {
                 className="w-full h-full object-cover rounded-lg"
               />
             ) : (
-              <div className="w-full h-full bg-gray-800 rounded-lg flex items-center justify-center">
-                <span className="text-gray-600">No Image</span>
+              <div className="w-full h-full bg-[rgb(var(--border))] rounded-lg flex items-center justify-center">
+                <span className="text-[rgb(var(--text-muted))]">No Image</span>
               </div>
             )}
           </div>
 
           {/* Story Info */}
-          <h3 className="font-semibold text-white mb-2 line-clamp-2">
+          <h3 className="font-semibold text-[rgb(var(--text))] mb-2 line-clamp-2">
             {story.translatedTitle || story.title}
           </h3>
 
@@ -65,7 +65,7 @@ export const StoryGrid: React.FC<StoryGridProps> = ({ stories }) => {
               {story.genres.slice(0, 2).map((genre) => (
                 <span
                   key={genre.id}
-                  className="px-2 py-0.5 bg-gray-800 text-gray-300 text-xs rounded"
+                  className="px-2 py-0.5 bg-[rgb(var(--border))] text-[rgb(var(--text-muted))] text-xs rounded"
                 >
                   {genre.name}
                 </span>
@@ -75,13 +75,13 @@ export const StoryGrid: React.FC<StoryGridProps> = ({ stories }) => {
 
           {/* Description */}
           {(story.translatedDescription || story.description) && (
-            <p className="text-sm text-gray-400 mb-3 line-clamp-2">
+            <p className="text-sm text-[rgb(var(--text-muted))] mb-3 line-clamp-2">
               {story.translatedDescription || story.description}
             </p>
           )}
 
           {/* Stats */}
-          <div className="flex items-center justify-between text-xs text-gray-400 pt-3 border-t border-gray-800">
+          <div className="flex items-center justify-between text-xs text-[rgb(var(--text-muted))] pt-3 border-t border-[rgb(var(--border))]">
             <div className="flex items-center gap-1">
               <Star className="w-3 h-3 text-yellow-500" />
               <span>{story.averageRating?.toFixed(1) || "N/A"}</span>

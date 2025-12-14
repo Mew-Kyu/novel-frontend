@@ -54,13 +54,15 @@ export const StatsBar: React.FC<StatsBarProps> = ({ stats }) => {
         return (
           <div
             key={index}
-            className="bg-gray-900 border border-gray-800 rounded-xl p-6 text-center hover:border-gray-700 transition-colors"
+            className="bg-[rgb(var(--card))] border border-[rgb(var(--border))] rounded-xl p-6 text-center hover:border-[rgb(var(--primary))] transition-all shadow-[0_1px_3px_0_rgb(0_0_0_/_0.1)] hover:shadow-[0_4px_6px_-1px_rgb(0_0_0_/_0.1)]"
           >
             <Icon className={`w-8 h-8 mx-auto mb-3 ${item.color}`} />
-            <p className="text-2xl md:text-3xl font-bold text-white mb-1">
+            <p className="text-2xl md:text-3xl font-bold text-[rgb(var(--text))] mb-1">
               {formatNumber(item.value)}
             </p>
-            <p className="text-sm text-gray-400">{item.label}</p>
+            <p className="text-sm text-[rgb(var(--text-muted))]">
+              {item.label}
+            </p>
           </div>
         );
       })}

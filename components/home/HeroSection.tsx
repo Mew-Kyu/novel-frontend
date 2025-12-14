@@ -41,8 +41,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ stories }) => {
 
   if (stories.length === 0) {
     return (
-      <div className="w-full h-96 bg-gray-900 rounded-xl flex items-center justify-center">
-        <p className="text-gray-500">Không có truyện nổi bật</p>
+      <div className="w-full h-96 bg-[rgb(var(--card))] rounded-xl flex items-center justify-center border border-[rgb(var(--border))] shadow-[0_1px_3px_0_rgb(0_0_0_/_0.1)]">
+        <p className="text-[rgb(var(--text-muted))]">Không có truyện nổi bật</p>
       </div>
     );
   }
@@ -50,11 +50,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ stories }) => {
   const currentStory = stories[currentIndex];
 
   return (
-    <div className="relative w-full h-96 md:h-[500px] bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl overflow-hidden group">
+    <div className="relative w-full h-96 md:h-[500px] bg-gradient-to-br from-[rgb(var(--primary))]/10 via-[rgb(var(--card))] to-[rgb(var(--primary-light))] rounded-xl overflow-hidden group shadow-[0_4px_6px_-1px_rgb(0_0_0_/_0.1)] border border-[rgb(var(--border))]">
       {/* Background Image */}
       {currentStory.coverImageUrl && (
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-30"
+          className="absolute inset-0 bg-cover bg-center opacity-20 dark:opacity-30"
           style={{ backgroundImage: `url(${currentStory.coverImageUrl})` }}
         />
       )}
@@ -66,23 +66,25 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ stories }) => {
             {currentStory.genres?.slice(0, 3).map((genre) => (
               <span
                 key={genre.id}
-                className="px-3 py-1 bg-blue-600/80 text-white text-xs font-medium rounded-full"
+                className="px-3 py-1 bg-[rgb(var(--primary))]/80 text-white text-xs font-medium rounded-full"
               >
                 {genre.name}
               </span>
             ))}
           </div>
 
-          <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">
+          <h1 className="text-3xl md:text-5xl font-bold text-[rgb(var(--text))] mb-4">
             {currentStory.translatedTitle || currentStory.title}
           </h1>
 
           {currentStory.translatedTitle && (
-            <p className="text-lg text-gray-300 mb-4">{currentStory.title}</p>
+            <p className="text-lg text-[rgb(var(--text-muted))] mb-4">
+              {currentStory.title}
+            </p>
           )}
 
           {(currentStory.translatedDescription || currentStory.description) && (
-            <p className="text-gray-300 mb-6 line-clamp-3">
+            <p className="text-[rgb(var(--text-muted))] mb-6 line-clamp-3">
               {currentStory.translatedDescription || currentStory.description}
             </p>
           )}
