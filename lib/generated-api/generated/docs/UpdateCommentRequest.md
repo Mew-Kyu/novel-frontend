@@ -1,0 +1,20 @@
+# UpdateCommentRequest
+
+
+## Properties
+
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**content** | **string** |  | [default to undefined]
+
+## Example
+
+```typescript
+import { UpdateCommentRequest } from 'novel-api';
+
+const instance: UpdateCommentRequest = {
+    content,
+};
+```
+
+[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

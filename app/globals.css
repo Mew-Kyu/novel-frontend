@@ -1,26 +1,59 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
+/* Dark mode theme - Force dark by default */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  --background: 15 15 15; /* #0f0f0f */
+  --foreground: 229 229 229; /* #e5e5e5 */
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /* Dark mode color palette */
+  --dark-bg: 15 15 15;
+  --dark-card: 26 26 26;
+  --dark-border: 51 51 51;
+  --dark-text: 229 229 229;
+  --dark-muted: 160 160 160;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Primary colors */
+  --primary: 59 130 246; /* #3b82f6 */
+  --primary-dark: 37 99 235; /* #2563eb */
+
+  /* Base colors */
+  --color-background: rgb(var(--background));
+  --color-foreground: rgb(var(--foreground));
+
+  /* Dark theme colors */
+  --color-dark-bg: rgb(var(--dark-bg));
+  --color-dark-card: rgb(var(--dark-card));
+  --color-dark-border: rgb(var(--dark-border));
+  --color-dark-text: rgb(var(--dark-text));
+  --color-dark-muted: rgb(var(--dark-muted));
+
+  /* Primary colors */
+  --color-primary: rgb(var(--primary));
+  --color-primary-dark: rgb(var(--primary-dark));
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-dark-bg);
+  color: var(--color-dark-text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Utility classes */
+@layer components {
+  .container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .card-dark {
+    @apply bg-[rgb(var(--dark-card))] border border-[rgb(var(--dark-border))] rounded-lg;
+  }
+
+  .text-muted {
+    @apply text-[rgb(var(--dark-muted))];
+  }
 }
