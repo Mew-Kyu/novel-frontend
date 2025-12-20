@@ -24,16 +24,16 @@ import type { RatingDto } from './rating-dto';
 import type { SortObject } from './sort-object';
 
 export interface PageRatingDto {
-    'totalElements'?: number;
     'totalPages'?: number;
+    'totalElements'?: number;
     'size'?: number;
     'content'?: Array<RatingDto>;
     'number'?: number;
+    'numberOfElements'?: number;
+    'pageable'?: PageableObject;
+    'sort'?: SortObject;
     'first'?: boolean;
     'last'?: boolean;
-    'numberOfElements'?: number;
-    'sort'?: SortObject;
-    'pageable'?: PageableObject;
     'empty'?: boolean;
 }
 

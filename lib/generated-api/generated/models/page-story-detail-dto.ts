@@ -24,16 +24,16 @@ import type { SortObject } from './sort-object';
 import type { StoryDetailDto } from './story-detail-dto';
 
 export interface PageStoryDetailDto {
-    'totalElements'?: number;
     'totalPages'?: number;
+    'totalElements'?: number;
     'size'?: number;
     'content'?: Array<StoryDetailDto>;
     'number'?: number;
+    'numberOfElements'?: number;
+    'pageable'?: PageableObject;
+    'sort'?: SortObject;
     'first'?: boolean;
     'last'?: boolean;
-    'numberOfElements'?: number;
-    'sort'?: SortObject;
-    'pageable'?: PageableObject;
     'empty'?: boolean;
 }
 

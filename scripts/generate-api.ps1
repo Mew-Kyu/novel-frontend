@@ -51,12 +51,13 @@ if (-not $generatorInstalled) {
     npm install -g @openapitools/openapi-generator-cli
 }
 
-# Generate with simplified parameters (no warnings)
+# Generate with separate API files in /api folder
 openapi-generator-cli generate `
     -i "$OutputPath/openapi.json" `
     -g typescript-axios `
     -o "$OutputPath/generated" `
-    --skip-validate-spec
+    --skip-validate-spec `
+    --additional-properties="withSeparateModelsAndApi=true,apiPackage=api,modelPackage=models"
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "⚠️  Generator completed with warnings (this is normal)" -ForegroundColor Yellow
@@ -67,25 +68,70 @@ if ($LASTEXITCODE -ne 0) {
 # Create wrapper
 Write-Host "`n[4/4] Creating API wrapper..." -ForegroundColor Yellow
 
+# Automatically detect all API classes from generated files
+$apiClasses = @()
+$apiProperties = @()
+
+# Check both api.ts (main file) and individual api files
+$apiFilePaths = @(
+    "$OutputPath/generated/api.ts",
+    (Get-ChildItem -Path "$OutputPath/generated/api" -Filter "*-api.ts" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName)
+)
+
+foreach ($filePath in $apiFilePaths) {
+    if ($filePath -and (Test-Path $filePath)) {
+        $content = Get-Content $filePath -Raw
+        # Find all API class exports
+        $matches = [regex]::Matches($content, 'export class (\w+Api) extends BaseAPI')
+        
+        foreach ($match in $matches) {
+            $className = $match.Groups[1].Value
+            if ($apiClasses -notcontains $className) {
+                $apiClasses += $className
+                
+                # Generate property name (e.g., AdminControllerApi -> admin)
+                $propertyName = $className -replace 'ControllerApi$', '' -replace 'ManagementApi$', '' -replace 'Api$', ''
+                $propertyName = $propertyName.Substring(0,1).ToLower() + $propertyName.Substring(1)
+                
+                # Special case mappings for plural forms
+                if ($className -eq 'StoryManagementApi') { $propertyName = 'stories' }
+                if ($className -eq 'LatestChaptersControllerApi') { $propertyName = 'latestChapters' }
+                if ($className -eq 'ReadingHistoryControllerApi') { $propertyName = 'readingHistory' }
+                if ($className -eq 'CrawlJobControllerApi') { $propertyName = 'crawlJobs' }
+                if ($className -eq 'GenreControllerApi') { $propertyName = 'genres' }
+                if ($className -eq 'ChapterControllerApi') { $propertyName = 'chapters' }
+                if ($className -eq 'CommentControllerApi') { $propertyName = 'comments' }
+                if ($className -eq 'RatingControllerApi') { $propertyName = 'ratings' }
+                if ($className -eq 'FavoriteControllerApi') { $propertyName = 'favorites' }
+                
+                $apiProperties += @{
+                    ClassName = $className
+                    PropertyName = $propertyName
+                }
+            }
+        }
+    }
+}
+
+# Sort for consistent output
+$apiClasses = $apiClasses | Sort-Object
+$apiProperties = $apiProperties | Sort-Object -Property PropertyName
+
+# Generate imports
+$imports = ($apiClasses | ForEach-Object { "  $_," }) -join "`n"
+
+# Generate property declarations
+$properties = ($apiProperties | ForEach-Object { "  public $($_.PropertyName): $($_.ClassName);" }) -join "`n"
+
+# Generate property initializations
+$initializations = ($apiProperties | ForEach-Object { "    this.$($_.PropertyName) = new $($_.ClassName)(this.config);" }) -join "`n"
+
 $wrapperContent = @"
 // Custom API wrapper for easier usage
+// Auto-generated - do not edit manually
 import {
   Configuration,
-  AdminControllerApi,
-  AiControllerApi,
-  AuthControllerApi,
-  ChapterControllerApi,
-  CommentControllerApi,
-  CrawlControllerApi,
-  CrawlJobControllerApi,
-  FavoriteControllerApi,
-  GenreControllerApi,
-  HealthControllerApi,
-  LatestChaptersControllerApi,
-  RatingControllerApi,
-  ReadingHistoryControllerApi,
-  StatsControllerApi,
-  StoryManagementApi,
+$imports
 } from "./generated";
 
 export class NovelApiClient {
@@ -93,21 +139,7 @@ export class NovelApiClient {
   private token: string | null = null;
 
   // API controllers
-  public admin: AdminControllerApi;
-  public ai: AiControllerApi;
-  public auth: AuthControllerApi;
-  public chapters: ChapterControllerApi;
-  public comments: CommentControllerApi;
-  public crawl: CrawlControllerApi;
-  public crawlJobs: CrawlJobControllerApi;
-  public favorites: FavoriteControllerApi;
-  public genres: GenreControllerApi;
-  public health: HealthControllerApi;
-  public latestChapters: LatestChaptersControllerApi;
-  public ratings: RatingControllerApi;
-  public readingHistory: ReadingHistoryControllerApi;
-  public stats: StatsControllerApi;
-  public stories: StoryManagementApi;
+$properties
 
   constructor(basePath: string = "http://localhost:8080") {
     this.config = new Configuration({
@@ -116,21 +148,7 @@ export class NovelApiClient {
     });
 
     // Initialize all API controllers
-    this.admin = new AdminControllerApi(this.config);
-    this.ai = new AiControllerApi(this.config);
-    this.auth = new AuthControllerApi(this.config);
-    this.chapters = new ChapterControllerApi(this.config);
-    this.comments = new CommentControllerApi(this.config);
-    this.crawl = new CrawlControllerApi(this.config);
-    this.crawlJobs = new CrawlJobControllerApi(this.config);
-    this.favorites = new FavoriteControllerApi(this.config);
-    this.genres = new GenreControllerApi(this.config);
-    this.health = new HealthControllerApi(this.config);
-    this.latestChapters = new LatestChaptersControllerApi(this.config);
-    this.ratings = new RatingControllerApi(this.config);
-    this.readingHistory = new ReadingHistoryControllerApi(this.config);
-    this.stats = new StatsControllerApi(this.config);
-    this.stories = new StoryManagementApi(this.config);
+$initializations
   }
 
   // Authentication methods

@@ -13,16 +13,26 @@
  */
 
 
-// May contain unused imports in some cases
-// @ts-ignore
-import type { SortObject } from './sort-object';
 
-export interface PageableObject {
-    'offset'?: number;
-    'pageNumber'?: number;
-    'pageSize'?: number;
-    'sort'?: SortObject;
-    'unpaged'?: boolean;
-    'paged'?: boolean;
+/**
+ * Upload response
+ */
+export interface UploadResponse {
+    /**
+     * Upload success status
+     */
+    'success'?: boolean;
+    /**
+     * Response message
+     */
+    'message'?: string;
+    /**
+     * Cloudinary secure URL
+     */
+    'url'?: string;
+    /**
+     * Original filename
+     */
+    'originalFilename'?: string;
 }
 

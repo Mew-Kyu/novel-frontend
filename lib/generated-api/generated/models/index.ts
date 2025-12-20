@@ -50,4 +50,5 @@ export * from './update-history-request';
 export * from './update-rating-request';
 export * from './update-role-request';
 export * from './update-story-request';
+export * from './upload-response';
 export * from './user-dto';

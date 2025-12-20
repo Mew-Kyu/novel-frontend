@@ -24,16 +24,16 @@ import type { SortObject } from './sort-object';
 import type { UserDto } from './user-dto';
 
 export interface PageUserDto {
-    'totalElements'?: number;
     'totalPages'?: number;
+    'totalElements'?: number;
     'size'?: number;
     'content'?: Array<UserDto>;
     'number'?: number;
+    'numberOfElements'?: number;
+    'pageable'?: PageableObject;
+    'sort'?: SortObject;
     'first'?: boolean;
     'last'?: boolean;
-    'numberOfElements'?: number;
-    'sort'?: SortObject;
-    'pageable'?: PageableObject;
     'empty'?: boolean;
 }
 
