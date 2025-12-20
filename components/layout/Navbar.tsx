@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -13,10 +13,12 @@ import {
   Settings,
   Users,
   LogOut,
+  ChevronDown,
 } from "lucide-react";
 import { useAuthStore } from "@/lib/store/authStore";
 import { SearchBar } from "@/components/common/SearchBar";
 import { Button } from "@/components/ui/Button";
+import apiClient from "@/lib/generated-api";
 
 // Dynamic import ThemeToggle to prevent hydration issues
 const ThemeToggle = dynamic(
@@ -27,11 +29,31 @@ const ThemeToggle = dynamic(
   { ssr: false }
 );
 
+interface Genre {
+  id?: number;
+  name?: string;
+}
+
 export const Navbar = () => {
   const router = useRouter();
   const { isAuthenticated, user, logout, hasRole } = useAuthStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [genreMenuOpen, setGenreMenuOpen] = useState(false);
+  const [mobileGenresOpen, setMobileGenresOpen] = useState(false);
+  const [genres, setGenres] = useState<Genre[]>([]);
+
+  useEffect(() => {
+    const fetchGenres = async () => {
+      try {
+        const response = await apiClient.genres.getAllGenres();
+        setGenres(response.data || []);
+      } catch (error) {
+        console.error("Failed to fetch genres:", error);
+      }
+    };
+    fetchGenres();
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -51,13 +73,55 @@ export const Navbar = () => {
             suppressHydrationWarning
           >
             {/* Logo */}
-            <Link
-              href="/"
-              className="flex items-center gap-2 text-[rgb(var(--text))] font-bold text-xl hover:text-[rgb(var(--primary))] transition-colors"
-            >
-              <BookOpen className="w-6 h-6" />
-              <span className="hidden sm:inline">Novel Hub</span>
-            </Link>
+            <div className="flex items-center gap-6" suppressHydrationWarning>
+              <Link
+                href="/"
+                className="flex items-center gap-2 text-[rgb(var(--text))] font-bold text-xl hover:text-[rgb(var(--primary))] transition-colors"
+              >
+                <BookOpen className="w-6 h-6" />
+                <span className="hidden sm:inline">Novel Hub</span>
+              </Link>
+
+              {/* Genre Dropdown */}
+              <div
+                className="hidden lg:block relative"
+                suppressHydrationWarning
+                onMouseEnter={() => setGenreMenuOpen(true)}
+                onMouseLeave={() => setGenreMenuOpen(false)}
+              >
+                <button className="flex items-center gap-1 px-3 py-2 text-[rgb(var(--text-muted))] hover:text-[rgb(var(--text))] transition-colors">
+                  <span>Thể loại</span>
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+
+                {genreMenuOpen && (
+                  <div className="absolute left-0 top-full w-64 pt-2 z-50">
+                    <div className="bg-[rgb(var(--card))] border border-[rgb(var(--border))] rounded-lg shadow-xl py-2 max-h-96 overflow-y-auto no-scrollbar">
+                      {genres.length > 0 ? (
+                        <div className="grid grid-cols-2 gap-1 p-2">
+                          {genres
+                            .filter((g) => g.id && g.name)
+                            .map((genre) => (
+                              <Link
+                                key={genre.id}
+                                href={`/search?genreId=${genre.id}`}
+                                onClick={() => setGenreMenuOpen(false)}
+                                className="px-3 py-2 text-sm text-[rgb(var(--text-muted))] hover:bg-[rgb(var(--border))] rounded transition-colors"
+                              >
+                                {genre.name}
+                              </Link>
+                            ))}
+                        </div>
+                      ) : (
+                        <p className="px-4 py-2 text-sm text-[rgb(var(--text-muted))]">
+                          Đang tải...
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
 
             {/* Desktop Search Bar */}
             <div
@@ -84,90 +148,108 @@ export const Navbar = () => {
                   Đăng nhập
                 </Button>
               ) : (
-                <div className="relative">
-                  <button
-                    onClick={() => setUserMenuOpen(!userMenuOpen)}
-                    className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[rgb(var(--border))] transition-colors"
+                <>
+                  {/* Quick Access Icons */}
+                  <Link
+                    href="/library/favorites"
+                    className="p-2 hover:bg-[rgb(var(--border))] rounded-lg transition-colors"
+                    title="Tủ truyện"
                   >
-                    <div className="w-8 h-8 rounded-full bg-[rgb(var(--primary))] flex items-center justify-center">
-                      <span className="text-white text-sm font-medium">
-                        {user?.displayName?.charAt(0).toUpperCase() || "U"}
-                      </span>
-                    </div>
-                    <span className="text-[rgb(var(--text-muted))]">
-                      {user?.displayName}
-                    </span>
-                  </button>
-
-                  {/* User Dropdown Menu */}
-                  {userMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-56 bg-[rgb(var(--card))] border border-[rgb(var(--border))] rounded-lg shadow-xl py-2">
-                      <div className="px-4 py-2 border-b border-[rgb(var(--border))]">
-                        <p className="text-sm font-medium text-[rgb(var(--text))]">
-                          {user?.displayName}
-                        </p>
-                        <p className="text-xs text-[rgb(var(--text-muted))]">
-                          {user?.email}
-                        </p>
+                    <Heart className="w-5 h-5 text-[rgb(var(--text-muted))] hover:text-red-500" />
+                  </Link>
+                  <Link
+                    href="/library/history"
+                    className="p-2 hover:bg-[rgb(var(--border))] rounded-lg transition-colors"
+                    title="Lịch sử đọc"
+                  >
+                    <History className="w-5 h-5 text-[rgb(var(--text-muted))] hover:text-blue-500" />
+                  </Link>
+                  {/* User Avatar */}
+                  <div className="relative">
+                    <button
+                      onClick={() => setUserMenuOpen(!userMenuOpen)}
+                      className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[rgb(var(--border))] transition-colors"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-[rgb(var(--primary))] flex items-center justify-center">
+                        <span className="text-white text-sm font-medium">
+                          {user?.displayName?.charAt(0).toUpperCase() || "U"}
+                        </span>
                       </div>
+                      <span className="text-[rgb(var(--text-muted))]">
+                        {user?.displayName}
+                      </span>
+                    </button>
 
-                      {/* User Role Items */}
-                      <Link
-                        href="#"
-                        onClick={() => setUserMenuOpen(false)}
-                        className="flex items-center gap-3 px-4 py-2 text-[rgb(var(--text-muted))] hover:bg-[rgb(var(--border))] transition-colors"
-                      >
-                        <Heart className="w-4 h-4" />
-                        Tủ truyện
-                      </Link>
+                    {/* User Dropdown Menu */}
+                    {userMenuOpen && (
+                      <div className="absolute right-0 mt-2 w-56 bg-[rgb(var(--card))] border border-[rgb(var(--border))] rounded-lg shadow-xl py-2">
+                        <div className="px-4 py-2 border-b border-[rgb(var(--border))]">
+                          <p className="text-sm font-medium text-[rgb(var(--text))]">
+                            {user?.displayName}
+                          </p>
+                          <p className="text-xs text-[rgb(var(--text-muted))]">
+                            {user?.email}
+                          </p>
+                        </div>
 
-                      <Link
-                        href="#"
-                        onClick={() => setUserMenuOpen(false)}
-                        className="flex items-center gap-3 px-4 py-2 text-[rgb(var(--text-muted))] hover:bg-[rgb(var(--border))] transition-colors"
-                      >
-                        <History className="w-4 h-4" />
-                        Lịch sử đọc
-                      </Link>
+                        {/* User Role Items */}
+                        <Link
+                          href="/library/favorites"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-3 px-4 py-2 text-[rgb(var(--text-muted))] hover:bg-[rgb(var(--border))] transition-colors"
+                        >
+                          <Heart className="w-4 h-4" />
+                          Tủ truyện
+                        </Link>
 
-                      {/* Admin/Moderator Items */}
-                      {(hasRole("ADMIN") || hasRole("MODERATOR")) && (
-                        <>
-                          <div className="border-t border-[rgb(var(--border))] my-2"></div>
+                        <Link
+                          href="/library/history"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-3 px-4 py-2 text-[rgb(var(--text-muted))] hover:bg-[rgb(var(--border))] transition-colors"
+                        >
+                          <History className="w-4 h-4" />
+                          Lịch sử đọc
+                        </Link>
+
+                        {/* Admin/Moderator Items */}
+                        {(hasRole("ADMIN") || hasRole("MODERATOR")) && (
+                          <>
+                            <div className="border-t border-[rgb(var(--border))] my-2"></div>
+                            <Link
+                              href="#"
+                              onClick={() => setUserMenuOpen(false)}
+                              className="flex items-center gap-3 px-4 py-2 text-[rgb(var(--text-muted))] hover:bg-[rgb(var(--border))] transition-colors"
+                            >
+                              <Settings className="w-4 h-4" />
+                              Quản lý truyện
+                            </Link>
+                          </>
+                        )}
+
+                        {/* Admin Only */}
+                        {hasRole("ADMIN") && (
                           <Link
                             href="#"
                             onClick={() => setUserMenuOpen(false)}
                             className="flex items-center gap-3 px-4 py-2 text-[rgb(var(--text-muted))] hover:bg-[rgb(var(--border))] transition-colors"
                           >
-                            <Settings className="w-4 h-4" />
-                            Quản lý truyện
+                            <Users className="w-4 h-4" />
+                            Quản lý người dùng
                           </Link>
-                        </>
-                      )}
+                        )}
 
-                      {/* Admin Only */}
-                      {hasRole("ADMIN") && (
-                        <Link
-                          href="#"
-                          onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center gap-3 px-4 py-2 text-[rgb(var(--text-muted))] hover:bg-[rgb(var(--border))] transition-colors"
+                        <div className="border-t border-[rgb(var(--border))] my-2"></div>
+                        <button
+                          onClick={handleLogout}
+                          className="w-full flex items-center gap-3 px-4 py-2 text-red-400 hover:bg-[rgb(var(--border))] transition-colors"
                         >
-                          <Users className="w-4 h-4" />
-                          Quản lý người dùng
-                        </Link>
-                      )}
-
-                      <div className="border-t border-[rgb(var(--border))] my-2"></div>
-                      <button
-                        onClick={handleLogout}
-                        className="w-full flex items-center gap-3 px-4 py-2 text-red-400 hover:bg-[rgb(var(--border))] transition-colors"
-                      >
-                        <LogOut className="w-4 h-4" />
-                        Đăng xuất
-                      </button>
-                    </div>
-                  )}
-                </div>
+                          <LogOut className="w-4 h-4" />
+                          Đăng xuất
+                        </button>
+                      </div>
+                    )}
+                  </div>{" "}
+                </>
               )}
             </div>
 
@@ -247,6 +329,48 @@ export const Navbar = () => {
                 </div>
               )}
 
+              {/* Mobile Genres */}
+              <div className="space-y-1">
+                <button
+                  type="button"
+                  onClick={() => setMobileGenresOpen(!mobileGenresOpen)}
+                  className="w-full flex items-center justify-between px-4 py-3 text-[rgb(var(--text))] hover:bg-[rgb(var(--card))] rounded-xl transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <BookOpen className="w-5 h-5 text-[rgb(var(--primary))]" />
+                    <span className="font-medium">Thể loại</span>
+                  </div>
+                  <ChevronDown
+                    className={`w-5 h-5 transition-transform ${
+                      mobileGenresOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+
+                {mobileGenresOpen && (
+                  <div className="grid grid-cols-2 gap-2 px-4 py-2">
+                    {genres.length > 0 ? (
+                      genres
+                        .filter((g) => g.id && g.name)
+                        .map((genre) => (
+                          <Link
+                            key={genre.id}
+                            href={`/search?genreId=${genre.id}`}
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="px-3 py-2 text-sm text-[rgb(var(--text-muted))] bg-[rgb(var(--card))] border border-[rgb(var(--border))] rounded-lg text-center truncate"
+                          >
+                            {genre.name}
+                          </Link>
+                        ))
+                    ) : (
+                      <p className="col-span-2 text-sm text-[rgb(var(--text-muted))] text-center py-2">
+                        Đang tải...
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+
               {/* Navigation Links */}
               <div className="space-y-1">
                 <p className="px-2 text-xs font-semibold text-[rgb(var(--text-muted))] uppercase mb-2">
@@ -255,7 +379,7 @@ export const Navbar = () => {
                 {isAuthenticated && (
                   <>
                     <Link
-                      href="#"
+                      href="/library/favorites"
                       onClick={() => setMobileMenuOpen(false)}
                       className="flex items-center gap-3 px-4 py-3 text-[rgb(var(--text))] hover:bg-[rgb(var(--card))] rounded-xl transition-colors"
                     >
@@ -263,7 +387,7 @@ export const Navbar = () => {
                       Tủ truyện
                     </Link>
                     <Link
-                      href="#"
+                      href="/library/history"
                       onClick={() => setMobileMenuOpen(false)}
                       className="flex items-center gap-3 px-4 py-3 text-[rgb(var(--text))] hover:bg-[rgb(var(--card))] rounded-xl transition-colors"
                     >

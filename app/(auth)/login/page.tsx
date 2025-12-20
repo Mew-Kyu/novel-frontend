@@ -40,10 +40,13 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[rgb(var(--bg))] px-4">
-      <div className="w-full max-w-md">
+    <div
+      className="min-h-screen flex items-center justify-center bg-[rgb(var(--bg))] px-4"
+      suppressHydrationWarning
+    >
+      <div className="w-full max-w-md" suppressHydrationWarning>
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-8" suppressHydrationWarning>
           <h1 className="text-3xl font-bold text-[rgb(var(--text))] mb-2">
             Đăng nhập
           </h1>
@@ -51,7 +54,10 @@ export default function LoginPage() {
         </div>
 
         {/* Login Form */}
-        <div className="bg-[rgb(var(--card))] border border-[rgb(var(--border))] rounded-xl p-8">
+        <div
+          className="bg-[rgb(var(--card))] border border-[rgb(var(--border))] rounded-xl p-8"
+          suppressHydrationWarning
+        >
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             {/* Global Error */}
             {errorMessage && (
@@ -95,7 +101,7 @@ export default function LoginPage() {
             <p className="text-gray-400 text-sm">
               Chưa có tài khoản?{" "}
               <a
-                href="#"
+                href="/register"
                 className="text-blue-500 hover:text-blue-400 font-medium transition-colors"
               >
                 Đăng ký ngay

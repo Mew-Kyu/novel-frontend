@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { Search, X } from "lucide-react";
 import apiClient from "@/lib/generated-api";
 
@@ -13,6 +14,7 @@ interface SearchResult {
 }
 
 export const SearchBar = () => {
+  const router = useRouter();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -55,7 +57,17 @@ export const SearchBar = () => {
           limit: 10,
         });
 
-        setResults(response.data.results || []);
+        const mappedResults: SearchResult[] = (response.data.results || [])
+          .filter((story) => story.id !== undefined)
+          .map((story) => ({
+            id: story.id!,
+            title: story.title || "",
+            translatedTitle: story.translatedTitle || null,
+            description: story.description || null,
+            coverImageUrl: story.coverImageUrl || null,
+          }));
+
+        setResults(mappedResults);
         setShowResults(true);
       } catch (error) {
         console.error("Search error:", error);
@@ -79,9 +91,9 @@ export const SearchBar = () => {
   };
 
   const handleResultClick = (storyId: number) => {
-    console.log("Navigate to story:", storyId);
+    router.push(`/story/${storyId}`);
     setShowResults(false);
-    // TODO: Navigate to /story/[id] when implemented
+    setQuery("");
   };
 
   return (
@@ -104,6 +116,8 @@ export const SearchBar = () => {
           <button
             onClick={handleClear}
             className="absolute right-4 top-1/2 -translate-y-1/2 text-[rgb(var(--text-muted))] hover:text-[rgb(var(--text))] transition-colors"
+            aria-label="Clear search"
+            title="Clear search"
           >
             <X className="w-5 h-5" />
           </button>

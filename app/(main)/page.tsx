@@ -65,11 +65,11 @@ export default function HomePage() {
           apiClient.genres.getAllGenresWithCounts().catch(() => ({ data: [] })),
         ]);
 
-      setFeaturedStories(featuredRes.data);
-      setStats(statsRes.data);
-      setTrendingStories(trendingRes.data);
-      setLatestChapters(latestRes.data);
-      setGenres(genresRes.data);
+      setFeaturedStories(featuredRes.data as StoryDetail[]);
+      setStats(statsRes.data as StatsSummary);
+      setTrendingStories(trendingRes.data as StoryDetail[]);
+      setLatestChapters(latestRes.data as LatestChapter[]);
+      setGenres(genresRes.data as Genre[]);
     } catch (err: unknown) {
       console.error("Error loading homepage data:", err);
       setError("Không thể tải dữ liệu trang chủ");
@@ -86,7 +86,7 @@ export default function HomePage() {
         sort: ["createdAt,desc"],
       });
 
-      setStories(response.data.content || []);
+      setStories((response.data.content || []) as StoryDetail[]);
       setTotalPages(response.data.totalPages || 1);
     } catch (err) {
       console.error("Error loading stories:", err);
