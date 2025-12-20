@@ -12,7 +12,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { CreateCrawlJobRequest } from 'novel-api';
+import { CreateCrawlJobRequest } from './api';
 
 const instance: CreateCrawlJobRequest = {
     storyId,

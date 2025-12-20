@@ -27,7 +27,7 @@ All URIs are relative to *http://localhost:8080*
 import {
     AdminControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new AdminControllerApi(configuration);
@@ -77,7 +77,7 @@ const { status, data } = await apiInstance.activateUser(
 import {
     AdminControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new AdminControllerApi(configuration);
@@ -131,7 +131,7 @@ import {
     AdminControllerApi,
     Configuration,
     CreateRoleRequest
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new AdminControllerApi(configuration);
@@ -181,7 +181,7 @@ const { status, data } = await apiInstance.createRole(
 import {
     AdminControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new AdminControllerApi(configuration);
@@ -231,7 +231,7 @@ const { status, data } = await apiInstance.deactivateUser(
 import {
     AdminControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new AdminControllerApi(configuration);
@@ -281,7 +281,7 @@ void (empty response body)
 import {
     AdminControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new AdminControllerApi(configuration);
@@ -325,7 +325,7 @@ import {
     AdminControllerApi,
     Configuration,
     Pageable
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new AdminControllerApi(configuration);
@@ -375,7 +375,7 @@ const { status, data } = await apiInstance.getAllUsers(
 import {
     AdminControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new AdminControllerApi(configuration);
@@ -425,7 +425,7 @@ const { status, data } = await apiInstance.getRoleById(
 import {
     AdminControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new AdminControllerApi(configuration);
@@ -475,7 +475,7 @@ const { status, data } = await apiInstance.getUserById(
 import {
     AdminControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new AdminControllerApi(configuration);
@@ -518,7 +518,7 @@ This endpoint does not have any parameters.
 import {
     AdminControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new AdminControllerApi(configuration);
@@ -572,7 +572,7 @@ import {
     AdminControllerApi,
     Configuration,
     UpdateRoleRequest
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new AdminControllerApi(configuration);

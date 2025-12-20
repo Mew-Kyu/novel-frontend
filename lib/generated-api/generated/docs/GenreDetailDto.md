@@ -14,7 +14,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { GenreDetailDto } from 'novel-api';
+import { GenreDetailDto } from './api';
 
 const instance: GenreDetailDto = {
     id,

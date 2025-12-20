@@ -23,7 +23,7 @@ import {
     AiControllerApi,
     Configuration,
     TranslationRequest
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new AiControllerApi(configuration);
@@ -73,7 +73,7 @@ const { status, data } = await apiInstance.autoTranslate(
 import {
     AiControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new AiControllerApi(configuration);
@@ -116,7 +116,7 @@ This endpoint does not have any parameters.
 import {
     AiControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new AiControllerApi(configuration);
@@ -166,7 +166,7 @@ const { status, data } = await apiInstance.generateStoryEmbedding(
 import {
     AiControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new AiControllerApi(configuration);
@@ -209,7 +209,7 @@ This endpoint does not have any parameters.
 import {
     AiControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new AiControllerApi(configuration);
@@ -260,7 +260,7 @@ import {
     AiControllerApi,
     Configuration,
     SemanticSearchRequest
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new AiControllerApi(configuration);
@@ -311,7 +311,7 @@ import {
     AiControllerApi,
     Configuration,
     TranslationRequest
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new AiControllerApi(configuration);

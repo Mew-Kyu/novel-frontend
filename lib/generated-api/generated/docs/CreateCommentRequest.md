@@ -11,7 +11,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { CreateCommentRequest } from 'novel-api';
+import { CreateCommentRequest } from './api';
 
 const instance: CreateCommentRequest = {
     storyId,

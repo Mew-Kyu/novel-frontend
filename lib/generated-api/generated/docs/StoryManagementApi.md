@@ -31,7 +31,7 @@ Add a single genre to an existing story without affecting other genres. Requires
 import {
     StoryManagementApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new StoryManagementApi(configuration);
@@ -70,8 +70,8 @@ const { status, data } = await apiInstance.addGenreToStory(
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** | Genre added successfully |  -  |
 |**404** | Story or genre not found |  -  |
+|**200** | Genre added successfully |  -  |
 |**403** | Forbidden - requires ADMIN or MODERATOR role |  -  |
 |**401** | Unauthorized |  -  |
 
@@ -89,7 +89,7 @@ import {
     StoryManagementApi,
     Configuration,
     CreateStoryRequest
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new StoryManagementApi(configuration);
@@ -143,7 +143,7 @@ const { status, data } = await apiInstance.createStory(
 import {
     StoryManagementApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new StoryManagementApi(configuration);
@@ -193,7 +193,7 @@ void (empty response body)
 import {
     StoryManagementApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new StoryManagementApi(configuration);
@@ -244,7 +244,7 @@ import {
     StoryManagementApi,
     Configuration,
     Pageable
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new StoryManagementApi(configuration);
@@ -304,7 +304,7 @@ import {
     StoryManagementApi,
     Configuration,
     Pageable
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new StoryManagementApi(configuration);
@@ -363,7 +363,7 @@ const { status, data } = await apiInstance.getStoriesWithMetadata(
 import {
     StoryManagementApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new StoryManagementApi(configuration);
@@ -413,7 +413,7 @@ const { status, data } = await apiInstance.getStoryById(
 import {
     StoryManagementApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new StoryManagementApi(configuration);
@@ -466,7 +466,7 @@ const { status, data } = await apiInstance.getTrendingStories(
 import {
     StoryManagementApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new StoryManagementApi(configuration);
@@ -517,7 +517,7 @@ Remove a single genre from a story without affecting other genres. Requires ADMI
 import {
     StoryManagementApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new StoryManagementApi(configuration);
@@ -573,7 +573,7 @@ const { status, data } = await apiInstance.removeGenreFromStory(
 import {
     StoryManagementApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new StoryManagementApi(configuration);
@@ -627,7 +627,7 @@ Replace all existing genres with a new set of genres. Send an empty array to rem
 import {
     StoryManagementApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new StoryManagementApi(configuration);
@@ -685,7 +685,7 @@ import {
     StoryManagementApi,
     Configuration,
     TranslateStoryRequest
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new StoryManagementApi(configuration);
@@ -735,7 +735,7 @@ const { status, data } = await apiInstance.translateStory(
 import {
     StoryManagementApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new StoryManagementApi(configuration);
@@ -787,7 +787,7 @@ import {
     StoryManagementApi,
     Configuration,
     UpdateStoryRequest
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new StoryManagementApi(configuration);

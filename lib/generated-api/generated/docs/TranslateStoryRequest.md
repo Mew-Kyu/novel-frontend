@@ -12,7 +12,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { TranslateStoryRequest } from 'novel-api';
+import { TranslateStoryRequest } from './api';
 
 const instance: TranslateStoryRequest = {
     storyId,

@@ -23,7 +23,7 @@ import {
     RatingControllerApi,
     Configuration,
     CreateRatingRequest
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new RatingControllerApi(configuration);
@@ -73,7 +73,7 @@ const { status, data } = await apiInstance.createOrUpdateRating(
 import {
     RatingControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new RatingControllerApi(configuration);
@@ -123,7 +123,7 @@ void (empty response body)
 import {
     RatingControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new RatingControllerApi(configuration);
@@ -174,7 +174,7 @@ import {
     RatingControllerApi,
     Configuration,
     Pageable
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new RatingControllerApi(configuration);
@@ -225,7 +225,7 @@ import {
     RatingControllerApi,
     Configuration,
     Pageable
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new RatingControllerApi(configuration);
@@ -278,7 +278,7 @@ const { status, data } = await apiInstance.getRatingsByStory(
 import {
     RatingControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new RatingControllerApi(configuration);
@@ -329,7 +329,7 @@ import {
     RatingControllerApi,
     Configuration,
     UpdateRatingRequest
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new RatingControllerApi(configuration);

@@ -10,7 +10,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { UpdateRatingRequest } from 'novel-api';
+import { UpdateRatingRequest } from './api';
 
 const instance: UpdateRatingRequest = {
     rating,

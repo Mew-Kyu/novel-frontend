@@ -12,7 +12,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { SemanticSearchResponse } from 'novel-api';
+import { SemanticSearchResponse } from './api';
 
 const instance: SemanticSearchResponse = {
     query,

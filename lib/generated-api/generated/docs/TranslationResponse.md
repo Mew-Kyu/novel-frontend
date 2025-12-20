@@ -13,7 +13,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { TranslationResponse } from 'novel-api';
+import { TranslationResponse } from './api';
 
 const instance: TranslationResponse = {
     originalText,

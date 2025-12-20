@@ -11,7 +11,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { LoginRequest } from 'novel-api';
+import { LoginRequest } from './api';
 
 const instance: LoginRequest = {
     email,

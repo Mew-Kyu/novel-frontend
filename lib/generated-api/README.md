@@ -1,6 +1,6 @@
 ﻿# Auto-Generated TypeScript Client from OpenAPI
 
-Generated at: 2025-12-13 22:24:34
+Generated at: 2025-12-20 14:50:22
 
 ## Installation
 

@@ -11,7 +11,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { CreateGenreRequest } from 'novel-api';
+import { CreateGenreRequest } from './api';
 
 const instance: CreateGenreRequest = {
     name,

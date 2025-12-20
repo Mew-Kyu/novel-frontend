@@ -26,8 +26,16 @@
   "security": [{ "Bearer Authentication": [] }],
   "tags": [
     {
+      "name": "Export",
+      "description": "APIs for exporting stories to various formats"
+    },
+    {
       "name": "Story Management",
       "description": "APIs for managing stories and their genres"
+    },
+    {
+      "name": "Cloudinary",
+      "description": "Image upload management using Cloudinary CDN"
     }
   ],
   "paths": {
@@ -686,16 +694,16 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "Genre added successfully",
+          "404": {
+            "description": "Story or genre not found",
             "content": {
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/StoryDto" }
               }
             }
           },
-          "404": {
-            "description": "Story or genre not found",
+          "200": {
+            "description": "Genre added successfully",
             "content": {
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/StoryDto" }
@@ -1232,6 +1240,58 @@
             }
           }
         }
+      }
+    },
+    "/api/cloudinary/upload": {
+      "post": {
+        "tags": ["Cloudinary"],
+        "summary": "Upload novel cover image",
+        "description": "Upload an image to Cloudinary with automatic WebP conversion and optimization. Images are stored in the 'novel_covers' folder. Requires ADMIN or MODERATOR role.",
+        "operationId": "uploadImage",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": ["file"],
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "description": "Image file to upload (JPG, PNG, GIF, WebP supported)",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "Invalid file or file too large",
+            "content": { "application/json": {} }
+          },
+          "401": {
+            "description": "Unauthorized - JWT token missing or invalid",
+            "content": { "application/json": {} }
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions (requires ADMIN or MODERATOR role)",
+            "content": { "application/json": {} }
+          },
+          "200": {
+            "description": "Image uploaded successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UploadResponse" }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error during upload",
+            "content": { "application/json": {} }
+          }
+        },
+        "security": [{ "bearerAuth": [] }]
       }
     },
     "/api/auth/register": {
@@ -2193,6 +2253,47 @@
         }
       }
     },
+    "/api/export/{storyId}/epub": {
+      "get": {
+        "tags": ["Export"],
+        "summary": "Export story to EPUB format",
+        "description": "Generate and download an EPUB file for a story. Optionally specify chapter range.",
+        "operationId": "exportToEpub",
+        "parameters": [
+          {
+            "name": "storyId",
+            "in": "path",
+            "description": "Story ID",
+            "required": true,
+            "schema": { "type": "integer", "format": "int64" }
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "description": "Start chapter index (optional, inclusive)",
+            "required": false,
+            "schema": { "type": "integer", "format": "int32" }
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "description": "End chapter index (optional, inclusive)",
+            "required": false,
+            "schema": { "type": "integer", "format": "int32" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "type": "string", "format": "byte" }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/crawl/health": {
       "get": {
         "tags": ["crawl-controller"],
@@ -2825,6 +2926,32 @@
           "content": { "maxLength": 5000, "minLength": 1, "type": "string" }
         }
       },
+      "UploadResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Upload success status",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Response message",
+            "example": "Image uploaded successfully"
+          },
+          "url": {
+            "type": "string",
+            "description": "Cloudinary secure URL",
+            "example": "https://res.cloudinary.com/demo/image/upload/v1234567890/novel_covers/abc123.webp"
+          },
+          "originalFilename": {
+            "type": "string",
+            "description": "Original filename",
+            "example": "cover.jpg"
+          }
+        },
+        "description": "Upload response"
+      },
       "RegisterRequest": {
         "required": ["displayName", "email", "password"],
         "type": "object",
@@ -2928,19 +3055,19 @@
       "PageStoryDto": {
         "type": "object",
         "properties": {
-          "totalElements": { "type": "integer", "format": "int64" },
           "totalPages": { "type": "integer", "format": "int32" },
+          "totalElements": { "type": "integer", "format": "int64" },
           "size": { "type": "integer", "format": "int32" },
           "content": {
             "type": "array",
             "items": { "$ref": "#/components/schemas/StoryDto" }
           },
           "number": { "type": "integer", "format": "int32" },
+          "numberOfElements": { "type": "integer", "format": "int32" },
+          "pageable": { "$ref": "#/components/schemas/PageableObject" },
+          "sort": { "$ref": "#/components/schemas/SortObject" },
           "first": { "type": "boolean" },
           "last": { "type": "boolean" },
-          "numberOfElements": { "type": "integer", "format": "int32" },
-          "sort": { "$ref": "#/components/schemas/SortObject" },
-          "pageable": { "$ref": "#/components/schemas/PageableObject" },
           "empty": { "type": "boolean" }
         }
       },
@@ -2948,11 +3075,11 @@
         "type": "object",
         "properties": {
           "offset": { "type": "integer", "format": "int64" },
-          "sort": { "$ref": "#/components/schemas/SortObject" },
-          "paged": { "type": "boolean" },
-          "unpaged": { "type": "boolean" },
+          "pageNumber": { "type": "integer", "format": "int32" },
           "pageSize": { "type": "integer", "format": "int32" },
-          "pageNumber": { "type": "integer", "format": "int32" }
+          "sort": { "$ref": "#/components/schemas/SortObject" },
+          "unpaged": { "type": "boolean" },
+          "paged": { "type": "boolean" }
         }
       },
       "SortObject": {
@@ -2976,19 +3103,19 @@
       "PageStoryDetailDto": {
         "type": "object",
         "properties": {
-          "totalElements": { "type": "integer", "format": "int64" },
           "totalPages": { "type": "integer", "format": "int32" },
+          "totalElements": { "type": "integer", "format": "int64" },
           "size": { "type": "integer", "format": "int32" },
           "content": {
             "type": "array",
             "items": { "$ref": "#/components/schemas/StoryDetailDto" }
           },
           "number": { "type": "integer", "format": "int32" },
+          "numberOfElements": { "type": "integer", "format": "int32" },
+          "pageable": { "$ref": "#/components/schemas/PageableObject" },
+          "sort": { "$ref": "#/components/schemas/SortObject" },
           "first": { "type": "boolean" },
           "last": { "type": "boolean" },
-          "numberOfElements": { "type": "integer", "format": "int32" },
-          "sort": { "$ref": "#/components/schemas/SortObject" },
-          "pageable": { "$ref": "#/components/schemas/PageableObject" },
           "empty": { "type": "boolean" }
         }
       },
@@ -3037,19 +3164,19 @@
       "PageRatingDto": {
         "type": "object",
         "properties": {
-          "totalElements": { "type": "integer", "format": "int64" },
           "totalPages": { "type": "integer", "format": "int32" },
+          "totalElements": { "type": "integer", "format": "int64" },
           "size": { "type": "integer", "format": "int32" },
           "content": {
             "type": "array",
             "items": { "$ref": "#/components/schemas/RatingDto" }
           },
           "number": { "type": "integer", "format": "int32" },
+          "numberOfElements": { "type": "integer", "format": "int32" },
+          "pageable": { "$ref": "#/components/schemas/PageableObject" },
+          "sort": { "$ref": "#/components/schemas/SortObject" },
           "first": { "type": "boolean" },
           "last": { "type": "boolean" },
-          "numberOfElements": { "type": "integer", "format": "int32" },
-          "sort": { "$ref": "#/components/schemas/SortObject" },
-          "pageable": { "$ref": "#/components/schemas/PageableObject" },
           "empty": { "type": "boolean" }
         }
       },
@@ -3064,19 +3191,19 @@
       "PageReadingHistoryDto": {
         "type": "object",
         "properties": {
-          "totalElements": { "type": "integer", "format": "int64" },
           "totalPages": { "type": "integer", "format": "int32" },
+          "totalElements": { "type": "integer", "format": "int64" },
           "size": { "type": "integer", "format": "int32" },
           "content": {
             "type": "array",
             "items": { "$ref": "#/components/schemas/ReadingHistoryDto" }
           },
           "number": { "type": "integer", "format": "int32" },
+          "numberOfElements": { "type": "integer", "format": "int32" },
+          "pageable": { "$ref": "#/components/schemas/PageableObject" },
+          "sort": { "$ref": "#/components/schemas/SortObject" },
           "first": { "type": "boolean" },
           "last": { "type": "boolean" },
-          "numberOfElements": { "type": "integer", "format": "int32" },
-          "sort": { "$ref": "#/components/schemas/SortObject" },
-          "pageable": { "$ref": "#/components/schemas/PageableObject" },
           "empty": { "type": "boolean" }
         }
       },
@@ -3093,19 +3220,19 @@
       "PageFavoriteDto": {
         "type": "object",
         "properties": {
-          "totalElements": { "type": "integer", "format": "int64" },
           "totalPages": { "type": "integer", "format": "int32" },
+          "totalElements": { "type": "integer", "format": "int64" },
           "size": { "type": "integer", "format": "int32" },
           "content": {
             "type": "array",
             "items": { "$ref": "#/components/schemas/FavoriteDto" }
           },
           "number": { "type": "integer", "format": "int32" },
+          "numberOfElements": { "type": "integer", "format": "int32" },
+          "pageable": { "$ref": "#/components/schemas/PageableObject" },
+          "sort": { "$ref": "#/components/schemas/SortObject" },
           "first": { "type": "boolean" },
           "last": { "type": "boolean" },
-          "numberOfElements": { "type": "integer", "format": "int32" },
-          "sort": { "$ref": "#/components/schemas/SortObject" },
-          "pageable": { "$ref": "#/components/schemas/PageableObject" },
           "empty": { "type": "boolean" }
         }
       },
@@ -3119,19 +3246,19 @@
       "PageCommentDto": {
         "type": "object",
         "properties": {
-          "totalElements": { "type": "integer", "format": "int64" },
           "totalPages": { "type": "integer", "format": "int32" },
+          "totalElements": { "type": "integer", "format": "int64" },
           "size": { "type": "integer", "format": "int32" },
           "content": {
             "type": "array",
             "items": { "$ref": "#/components/schemas/CommentDto" }
           },
           "number": { "type": "integer", "format": "int32" },
+          "numberOfElements": { "type": "integer", "format": "int32" },
+          "pageable": { "$ref": "#/components/schemas/PageableObject" },
+          "sort": { "$ref": "#/components/schemas/SortObject" },
           "first": { "type": "boolean" },
           "last": { "type": "boolean" },
-          "numberOfElements": { "type": "integer", "format": "int32" },
-          "sort": { "$ref": "#/components/schemas/SortObject" },
-          "pageable": { "$ref": "#/components/schemas/PageableObject" },
           "empty": { "type": "boolean" }
         }
       },
@@ -3151,19 +3278,19 @@
       "PageUserDto": {
         "type": "object",
         "properties": {
-          "totalElements": { "type": "integer", "format": "int64" },
           "totalPages": { "type": "integer", "format": "int32" },
+          "totalElements": { "type": "integer", "format": "int64" },
           "size": { "type": "integer", "format": "int32" },
           "content": {
             "type": "array",
             "items": { "$ref": "#/components/schemas/UserDto" }
           },
           "number": { "type": "integer", "format": "int32" },
+          "numberOfElements": { "type": "integer", "format": "int32" },
+          "pageable": { "$ref": "#/components/schemas/PageableObject" },
+          "sort": { "$ref": "#/components/schemas/SortObject" },
           "first": { "type": "boolean" },
           "last": { "type": "boolean" },
-          "numberOfElements": { "type": "integer", "format": "int32" },
-          "sort": { "$ref": "#/components/schemas/SortObject" },
-          "pageable": { "$ref": "#/components/schemas/PageableObject" },
           "empty": { "type": "boolean" }
         }
       }

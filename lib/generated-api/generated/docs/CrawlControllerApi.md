@@ -18,7 +18,7 @@ import {
     CrawlControllerApi,
     Configuration,
     CrawlNovelRequest
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new CrawlControllerApi(configuration);
@@ -68,7 +68,7 @@ const { status, data } = await apiInstance.crawlSyosetuNovel(
 import {
     CrawlControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new CrawlControllerApi(configuration);

@@ -13,7 +13,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { UpdateHistoryRequest } from 'novel-api';
+import { UpdateHistoryRequest } from './api';
 
 const instance: UpdateHistoryRequest = {
     storyId,

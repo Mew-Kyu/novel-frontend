@@ -10,7 +10,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { UpdateChapterTranslationRequest } from 'novel-api';
+import { UpdateChapterTranslationRequest } from './api';
 
 const instance: UpdateChapterTranslationRequest = {
     translatedContent,

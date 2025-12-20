@@ -23,7 +23,7 @@ import {
     CommentControllerApi,
     Configuration,
     CreateCommentRequest
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new CommentControllerApi(configuration);
@@ -73,7 +73,7 @@ const { status, data } = await apiInstance.createComment(
 import {
     CommentControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new CommentControllerApi(configuration);
@@ -123,7 +123,7 @@ void (empty response body)
 import {
     CommentControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new CommentControllerApi(configuration);
@@ -173,7 +173,7 @@ const { status, data } = await apiInstance.getCommentById(
 import {
     CommentControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new CommentControllerApi(configuration);
@@ -224,7 +224,7 @@ import {
     CommentControllerApi,
     Configuration,
     Pageable
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new CommentControllerApi(configuration);
@@ -278,7 +278,7 @@ import {
     CommentControllerApi,
     Configuration,
     Pageable
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new CommentControllerApi(configuration);
@@ -329,7 +329,7 @@ import {
     CommentControllerApi,
     Configuration,
     UpdateCommentRequest
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new CommentControllerApi(configuration);

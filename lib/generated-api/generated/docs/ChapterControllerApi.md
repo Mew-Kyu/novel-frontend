@@ -28,7 +28,7 @@ import {
     ChapterControllerApi,
     Configuration,
     CreateChapterRequest
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ChapterControllerApi(configuration);
@@ -81,7 +81,7 @@ const { status, data } = await apiInstance.createChapter(
 import {
     ChapterControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ChapterControllerApi(configuration);
@@ -134,7 +134,7 @@ void (empty response body)
 import {
     ChapterControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ChapterControllerApi(configuration);
@@ -187,7 +187,7 @@ const { status, data } = await apiInstance.getChapterById(
 import {
     ChapterControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ChapterControllerApi(configuration);
@@ -237,7 +237,7 @@ const { status, data } = await apiInstance.getChaptersByStoryId(
 import {
     ChapterControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ChapterControllerApi(configuration);
@@ -287,7 +287,7 @@ const { status, data } = await apiInstance.retryFailedTranslations(
 import {
     ChapterControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ChapterControllerApi(configuration);
@@ -337,7 +337,7 @@ const { status, data } = await apiInstance.translateAllChapters(
 import {
     ChapterControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ChapterControllerApi(configuration);
@@ -391,7 +391,7 @@ import {
     ChapterControllerApi,
     Configuration,
     UpdateChapterRequest
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ChapterControllerApi(configuration);
@@ -447,7 +447,7 @@ const { status, data } = await apiInstance.updateChapter(
 import {
     ChapterControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ChapterControllerApi(configuration);
@@ -500,7 +500,7 @@ void (empty response body)
 import {
     ChapterControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ChapterControllerApi(configuration);
@@ -556,7 +556,7 @@ const { status, data } = await apiInstance.updateRawContent(
 import {
     ChapterControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ChapterControllerApi(configuration);
@@ -610,7 +610,7 @@ import {
     ChapterControllerApi,
     Configuration,
     UpdateChapterTranslationRequest
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ChapterControllerApi(configuration);

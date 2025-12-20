@@ -23,7 +23,7 @@ import {
     GenreControllerApi,
     Configuration,
     CreateGenreRequest
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new GenreControllerApi(configuration);
@@ -73,7 +73,7 @@ const { status, data } = await apiInstance.createGenre(
 import {
     GenreControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new GenreControllerApi(configuration);
@@ -123,7 +123,7 @@ void (empty response body)
 import {
     GenreControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new GenreControllerApi(configuration);
@@ -166,7 +166,7 @@ This endpoint does not have any parameters.
 import {
     GenreControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new GenreControllerApi(configuration);
@@ -209,7 +209,7 @@ This endpoint does not have any parameters.
 import {
     GenreControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new GenreControllerApi(configuration);
@@ -259,7 +259,7 @@ const { status, data } = await apiInstance.getGenreById(
 import {
     GenreControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new GenreControllerApi(configuration);
@@ -310,7 +310,7 @@ import {
     GenreControllerApi,
     Configuration,
     UpdateGenreRequest
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new GenreControllerApi(configuration);

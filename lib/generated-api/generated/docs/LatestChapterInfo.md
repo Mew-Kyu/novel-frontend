@@ -14,7 +14,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { LatestChapterInfo } from 'novel-api';
+import { LatestChapterInfo } from './api';
 
 const instance: LatestChapterInfo = {
     id,

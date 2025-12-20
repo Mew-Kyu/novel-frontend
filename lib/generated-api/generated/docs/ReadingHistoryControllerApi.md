@@ -18,7 +18,7 @@ import {
     ReadingHistoryControllerApi,
     Configuration,
     Pageable
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ReadingHistoryControllerApi(configuration);
@@ -69,7 +69,7 @@ import {
     ReadingHistoryControllerApi,
     Configuration,
     UpdateHistoryRequest
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new ReadingHistoryControllerApi(configuration);

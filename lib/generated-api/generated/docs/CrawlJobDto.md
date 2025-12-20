@@ -18,7 +18,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { CrawlJobDto } from 'novel-api';
+import { CrawlJobDto } from './api';
 
 const instance: CrawlJobDto = {
     id,

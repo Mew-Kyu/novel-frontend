@@ -18,7 +18,7 @@ import {
     AuthControllerApi,
     Configuration,
     LoginRequest
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new AuthControllerApi(configuration);
@@ -69,7 +69,7 @@ import {
     AuthControllerApi,
     Configuration,
     RegisterRequest
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new AuthControllerApi(configuration);

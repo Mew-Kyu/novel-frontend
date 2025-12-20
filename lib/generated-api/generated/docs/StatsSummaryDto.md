@@ -14,7 +14,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { StatsSummaryDto } from 'novel-api';
+import { StatsSummaryDto } from './api';
 
 const instance: StatsSummaryDto = {
     totalStories,

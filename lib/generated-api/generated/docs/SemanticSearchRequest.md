@@ -11,7 +11,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { SemanticSearchRequest } from 'novel-api';
+import { SemanticSearchRequest } from './api';
 
 const instance: SemanticSearchRequest = {
     query,

@@ -16,7 +16,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { CrawlNovelResponse } from 'novel-api';
+import { CrawlNovelResponse } from './api';
 
 const instance: CrawlNovelResponse = {
     storyId,

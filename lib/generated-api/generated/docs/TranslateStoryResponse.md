@@ -17,7 +17,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { TranslateStoryResponse } from 'novel-api';
+import { TranslateStoryResponse } from './api';
 
 const instance: TranslateStoryResponse = {
     storyId,

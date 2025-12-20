@@ -13,7 +13,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { FavoriteDto } from 'novel-api';
+import { FavoriteDto } from './api';
 
 const instance: FavoriteDto = {
     id,

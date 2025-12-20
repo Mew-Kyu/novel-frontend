@@ -12,7 +12,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { AuthResponse } from 'novel-api';
+import { AuthResponse } from './api';
 
 const instance: AuthResponse = {
     accessToken,

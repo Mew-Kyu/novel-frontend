@@ -13,7 +13,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { RoleDto } from 'novel-api';
+import { RoleDto } from './api';
 
 const instance: RoleDto = {
     id,

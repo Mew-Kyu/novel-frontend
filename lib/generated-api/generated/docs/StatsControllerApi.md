@@ -16,7 +16,7 @@ All URIs are relative to *http://localhost:8080*
 import {
     StatsControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new StatsControllerApi(configuration);

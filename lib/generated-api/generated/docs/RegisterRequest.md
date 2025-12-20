@@ -13,7 +13,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { RegisterRequest } from 'novel-api';
+import { RegisterRequest } from './api';
 
 const instance: RegisterRequest = {
     email,

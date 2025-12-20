@@ -12,7 +12,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { Pageable } from 'novel-api';
+import { Pageable } from './api';
 
 const instance: Pageable = {
     page,

@@ -23,7 +23,7 @@ import {
     CrawlJobControllerApi,
     Configuration,
     CreateCrawlJobRequest
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new CrawlJobControllerApi(configuration);
@@ -73,7 +73,7 @@ const { status, data } = await apiInstance.createJob(
 import {
     CrawlJobControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new CrawlJobControllerApi(configuration);
@@ -123,7 +123,7 @@ void (empty response body)
 import {
     CrawlJobControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new CrawlJobControllerApi(configuration);
@@ -173,7 +173,7 @@ const { status, data } = await apiInstance.getAllJobs(
 import {
     CrawlJobControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new CrawlJobControllerApi(configuration);
@@ -223,7 +223,7 @@ const { status, data } = await apiInstance.getJobById(
 import {
     CrawlJobControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new CrawlJobControllerApi(configuration);
@@ -273,7 +273,7 @@ const { status, data } = await apiInstance.getJobsByChapter(
 import {
     CrawlJobControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new CrawlJobControllerApi(configuration);
@@ -326,7 +326,7 @@ const { status, data } = await apiInstance.getJobsByStory(
 import {
     CrawlJobControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new CrawlJobControllerApi(configuration);

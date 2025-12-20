@@ -12,7 +12,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { SortObject } from 'novel-api';
+import { SortObject } from './api';
 
 const instance: SortObject = {
     empty,

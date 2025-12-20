@@ -63,7 +63,7 @@ export class NovelApiClient {
     this.stories = new StoryManagementApi(this.config);
   }
 
-  // Authentication
+  // Authentication methods
   setToken(token: string) {
     this.token = token;
     if (typeof window !== "undefined") {
@@ -85,7 +85,7 @@ export class NovelApiClient {
     return this.token;
   }
 
-  // Legacy compatibility - for code that uses apiClient.raw
+  // Legacy compatibility
   get raw() {
     return this;
   }

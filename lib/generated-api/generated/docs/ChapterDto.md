@@ -22,7 +22,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { ChapterDto } from 'novel-api';
+import { ChapterDto } from './api';
 
 const instance: ChapterDto = {
     id,

@@ -20,7 +20,7 @@ All URIs are relative to *http://localhost:8080*
 import {
     FavoriteControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new FavoriteControllerApi(configuration);
@@ -70,7 +70,7 @@ const { status, data } = await apiInstance.addToFavorites(
 import {
     FavoriteControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new FavoriteControllerApi(configuration);
@@ -120,7 +120,7 @@ const { status, data } = await apiInstance.checkFavoriteStatus(
 import {
     FavoriteControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new FavoriteControllerApi(configuration);
@@ -171,7 +171,7 @@ import {
     FavoriteControllerApi,
     Configuration,
     Pageable
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new FavoriteControllerApi(configuration);
@@ -221,7 +221,7 @@ const { status, data } = await apiInstance.getUserFavorites(
 import {
     FavoriteControllerApi,
     Configuration
-} from 'novel-api';
+} from './api';
 
 const configuration = new Configuration();
 const apiInstance = new FavoriteControllerApi(configuration);

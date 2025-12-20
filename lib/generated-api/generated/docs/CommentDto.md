@@ -16,7 +16,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { CommentDto } from 'novel-api';
+import { CommentDto } from './api';
 
 const instance: CommentDto = {
     id,

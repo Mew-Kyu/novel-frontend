@@ -33,7 +33,7 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { StoryDetailDto } from 'novel-api';
+import { StoryDetailDto } from './api';
 
 const instance: StoryDetailDto = {
     id,
