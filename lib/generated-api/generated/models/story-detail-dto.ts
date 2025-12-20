@@ -36,6 +36,7 @@ export interface StoryDetailDto {
     'sourceSite'?: string;
     'createdAt'?: string;
     'updatedAt'?: string;
+    'status'?: StoryDetailDtoStatusEnum;
     'viewCount'?: number;
     'featured'?: boolean;
     'totalChapters'?: number;
@@ -46,4 +47,14 @@ export interface StoryDetailDto {
     'genres'?: Array<GenreDto>;
     'latestChapter'?: LatestChapterInfo;
 }
+
+export const StoryDetailDtoStatusEnum = {
+    Draft: 'DRAFT',
+    Published: 'PUBLISHED',
+    Completed: 'COMPLETED',
+    Archived: 'ARCHIVED'
+} as const;
+
+export type StoryDetailDtoStatusEnum = typeof StoryDetailDtoStatusEnum[keyof typeof StoryDetailDtoStatusEnum];
+
 

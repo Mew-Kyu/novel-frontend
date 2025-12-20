@@ -24,6 +24,7 @@ export const Card: React.FC<CardProps> = ({
           "transition-all duration-200 hover:border-[rgb(var(--primary))] hover:shadow-[0_4px_6px_-1px_rgb(0_0_0_/_0.1),_0_2px_4px_-2px_rgb(0_0_0_/_0.1)] cursor-pointer hover:bg-[rgb(var(--card-hover))]",
         className
       )}
+      suppressHydrationWarning
     >
       {children}
     </div>

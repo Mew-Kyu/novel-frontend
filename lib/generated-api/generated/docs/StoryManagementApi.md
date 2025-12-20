@@ -11,6 +11,7 @@ All URIs are relative to *http://localhost:8080*
 |[**getStories**](#getstories) | **GET** /api/stories | |
 |[**getStoriesWithMetadata**](#getstorieswithmetadata) | **GET** /api/stories/with-metadata | |
 |[**getStoryById**](#getstorybyid) | **GET** /api/stories/{id} | |
+|[**getStoryDetail**](#getstorydetail) | **GET** /api/stories/{id}/detail | Get story detail with metadata|
 |[**getTrendingStories**](#gettrendingstories) | **GET** /api/stories/trending | |
 |[**incrementViewCount**](#incrementviewcount) | **POST** /api/stories/{id}/view | |
 |[**removeGenreFromStory**](#removegenrefromstory) | **DELETE** /api/stories/{storyId}/genres/{genreId} | Remove a genre from a story|
@@ -71,8 +72,8 @@ const { status, data } = await apiInstance.addGenreToStory(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**404** | Story or genre not found |  -  |
-|**200** | Genre added successfully |  -  |
 |**403** | Forbidden - requires ADMIN or MODERATOR role |  -  |
+|**200** | Genre added successfully |  -  |
 |**401** | Unauthorized |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -125,8 +126,8 @@ const { status, data } = await apiInstance.createStory(
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**400** | Invalid request body |  -  |
 |**201** | Story created successfully |  -  |
+|**400** | Invalid request body |  -  |
 |**404** | Genre not found |  -  |
 |**403** | Forbidden - requires ADMIN or MODERATOR role |  -  |
 |**401** | Unauthorized |  -  |
@@ -403,6 +404,58 @@ const { status, data } = await apiInstance.getStoryById(
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **getStoryDetail**
+> StoryDetailDto getStoryDetail()
+
+Retrieve a single story with full metadata including view count, ratings, comments, favorites, genres, and latest chapter. Optimized with caching for better performance.
+
+### Example
+
+```typescript
+import {
+    StoryManagementApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new StoryManagementApi(configuration);
+
+let id: number; // (default to undefined)
+
+const { status, data } = await apiInstance.getStoryDetail(
+    id
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **id** | [**number**] |  | defaults to undefined|
+
+
+### Return type
+
+**StoryDetailDto**
+
+### Authorization
+
+[Bearer Authentication](../README.md#Bearer Authentication)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**404** | Story not found |  -  |
+|**200** | Story detail retrieved successfully |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **getTrendingStories**
 > Array<StoryDetailDto> getTrendingStories()
 
@@ -668,8 +721,8 @@ const { status, data } = await apiInstance.setGenresForStory(
 |-------------|-------------|------------------|
 |**404** | Story or genre not found |  -  |
 |**400** | Invalid request body |  -  |
-|**403** | Forbidden - requires ADMIN or MODERATOR role |  -  |
 |**200** | Genres updated successfully |  -  |
+|**403** | Forbidden - requires ADMIN or MODERATOR role |  -  |
 |**401** | Unauthorized |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

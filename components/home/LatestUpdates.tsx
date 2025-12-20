@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Clock } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
@@ -39,25 +40,26 @@ export const LatestUpdates: React.FC<LatestUpdatesProps> = ({ chapters }) => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {chapters.map((chapter) => (
-          <div
+          <Link
             key={chapter.id}
-            onClick={() => console.log("Navigate to chapter:", chapter.id)}
-            className="bg-[rgb(var(--card))] border border-[rgb(var(--border))] rounded-lg p-4 hover:border-[rgb(var(--primary))] hover:bg-[rgb(var(--border))] transition-all cursor-pointer"
+            href={`/story/${chapter.storyId}/chapter/${chapter.id}`}
           >
-            <h3 className="font-medium text-[rgb(var(--text))] mb-1 line-clamp-1">
-              {chapter.storyTranslatedTitle || chapter.storyTitle}
-            </h3>
-            <p className="text-sm text-[rgb(var(--text-muted))] mb-2">
-              Chương {chapter.chapterIndex}:{" "}
-              {chapter.translatedTitle || chapter.title}
-            </p>
-            <p className="text-xs text-[rgb(var(--text-muted))]">
-              {formatDistanceToNow(new Date(chapter.updatedAt), {
-                addSuffix: true,
-                locale: vi,
-              })}
-            </p>
-          </div>
+            <div className="bg-[rgb(var(--card))] border border-[rgb(var(--border))] rounded-lg p-4 hover:border-[rgb(var(--primary))] hover:bg-[rgb(var(--border))] transition-all cursor-pointer">
+              <h3 className="font-medium text-[rgb(var(--text))] mb-1 line-clamp-1">
+                {chapter.storyTranslatedTitle || chapter.storyTitle}
+              </h3>
+              <p className="text-sm text-[rgb(var(--text-muted))] mb-2">
+                Chương {chapter.chapterIndex}:{" "}
+                {chapter.translatedTitle || chapter.title}
+              </p>
+              <p className="text-xs text-[rgb(var(--text-muted))]">
+                {formatDistanceToNow(new Date(chapter.updatedAt), {
+                  addSuffix: true,
+                  locale: vi,
+                })}
+              </p>
+            </div>
+          </Link>
         ))}
       </div>
     </div>

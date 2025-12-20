@@ -67,3 +67,11 @@ body {
     @apply bg-[rgb(var(--primary))] hover:bg-[rgb(var(--primary-hover))] text-white;
   }
 }
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

@@ -20,6 +20,7 @@ Name | Type | Description | Notes
 **sourceUrl** | **string** | Source URL | [optional] [default to undefined]
 **sourceSite** | **string** | Source site name | [optional] [default to undefined]
 **createdAt** | **string** | Creation timestamp | [optional] [default to undefined]
+**status** | **string** | Story publication status | [optional] [default to undefined]
 **genres** | [**Array&lt;GenreDto&gt;**](GenreDto.md) | List of genres associated with this story | [optional] [default to undefined]
 
 ## Example
@@ -42,6 +43,7 @@ const instance: StoryDto = {
     sourceUrl,
     sourceSite,
     createdAt,
+    status,
     genres,
 };
 ```

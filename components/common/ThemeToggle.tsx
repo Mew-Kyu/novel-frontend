@@ -27,6 +27,7 @@ export const ThemeToggle = ({
       title={
         theme === "dark" ? "Chuyển sang chế độ sáng" : "Chuyển sang chế độ tối"
       }
+      suppressHydrationWarning
     >
       <div
         className={cn(
@@ -35,6 +36,7 @@ export const ThemeToggle = ({
             ? "bg-gray-800 text-yellow-400 border border-gray-700"
             : "bg-white text-blue-600 border border-gray-200"
         )}
+        suppressHydrationWarning
       >
         {theme === "dark" ? (
           <Sun className="w-5 h-5" />

@@ -78,8 +78,22 @@ export interface StoryDto {
      */
     'createdAt'?: string;
     /**
+     * Story publication status
+     */
+    'status'?: StoryDtoStatusEnum;
+    /**
      * List of genres associated with this story
      */
     'genres'?: Array<GenreDto>;
 }
+
+export const StoryDtoStatusEnum = {
+    Draft: 'DRAFT',
+    Published: 'PUBLISHED',
+    Completed: 'COMPLETED',
+    Archived: 'ARCHIVED'
+} as const;
+
+export type StoryDtoStatusEnum = typeof StoryDtoStatusEnum[keyof typeof StoryDtoStatusEnum];
+
 

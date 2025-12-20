@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -16,7 +17,15 @@ import {
 import { useAuthStore } from "@/lib/store/authStore";
 import { SearchBar } from "@/components/common/SearchBar";
 import { Button } from "@/components/ui/Button";
-import { ThemeToggle } from "@/components/common/ThemeToggle";
+
+// Dynamic import ThemeToggle to prevent hydration issues
+const ThemeToggle = dynamic(
+  () =>
+    import("@/components/common/ThemeToggle").then((mod) => ({
+      default: mod.ThemeToggle,
+    })),
+  { ssr: false }
+);
 
 export const Navbar = () => {
   const router = useRouter();
@@ -166,6 +175,8 @@ export const Navbar = () => {
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="md:hidden p-2 text-[rgb(var(--text-muted))] hover:text-[rgb(var(--text))] transition-colors"
+              aria-label={mobileMenuOpen ? "Đóng menu" : "Mở menu"}
+              title={mobileMenuOpen ? "Đóng menu" : "Mở menu"}
             >
               {mobileMenuOpen ? (
                 <X className="w-6 h-6" />
@@ -194,6 +205,8 @@ export const Navbar = () => {
               <button
                 onClick={() => setMobileMenuOpen(false)}
                 className="p-2 text-[rgb(var(--text-muted))] hover:text-[rgb(var(--text))]"
+                aria-label="Đóng menu"
+                title="Đóng menu"
               >
                 <X className="w-6 h-6" />
               </button>

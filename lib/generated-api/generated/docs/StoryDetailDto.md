@@ -20,6 +20,7 @@ Name | Type | Description | Notes
 **sourceSite** | **string** |  | [optional] [default to undefined]
 **createdAt** | **string** |  | [optional] [default to undefined]
 **updatedAt** | **string** |  | [optional] [default to undefined]
+**status** | **string** |  | [optional] [default to undefined]
 **viewCount** | **number** |  | [optional] [default to undefined]
 **featured** | **boolean** |  | [optional] [default to undefined]
 **totalChapters** | **number** |  | [optional] [default to undefined]
@@ -51,6 +52,7 @@ const instance: StoryDetailDto = {
     sourceSite,
     createdAt,
     updatedAt,
+    status,
     viewCount,
     featured,
     totalChapters,

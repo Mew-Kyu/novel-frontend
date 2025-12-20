@@ -1,0 +1,15 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "add_scrollbar_utility",
+			"type": "shell",
+			"command": "Add-Content",
+			"args": [
+				"app/globals.css",
+				".no-scrollbar::-webkit-scrollbar {\n  display: none;\n}\n\n.no-scrollbar {\n  -ms-overflow-style: none;\n  scrollbar-width: none;\n}\n"
+			],
+			"group": "none"
+		}
+	]
+}

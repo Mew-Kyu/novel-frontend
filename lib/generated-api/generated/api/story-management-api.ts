@@ -353,6 +353,44 @@ export const StoryManagementApiAxiosParamCreator = function (configuration?: Con
             };
         },
         /**
+         * Retrieve a single story with full metadata including view count, ratings, comments, favorites, genres, and latest chapter. Optimized with caching for better performance.
+         * @summary Get story detail with metadata
+         * @param {number} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getStoryDetail: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('getStoryDetail', 'id', id)
+            const localVarPath = `/api/stories/{id}/detail`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer Authentication required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 
          * @param {number} [limit] 
          * @param {number} [days] 
@@ -785,6 +823,19 @@ export const StoryManagementApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * Retrieve a single story with full metadata including view count, ratings, comments, favorites, genres, and latest chapter. Optimized with caching for better performance.
+         * @summary Get story detail with metadata
+         * @param {number} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getStoryDetail(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StoryDetailDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getStoryDetail(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['StoryManagementApi.getStoryDetail']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * 
          * @param {number} [limit] 
          * @param {number} [days] 
@@ -970,6 +1021,16 @@ export const StoryManagementApiFactory = function (configuration?: Configuration
             return localVarFp.getStoryById(id, options).then((request) => request(axios, basePath));
         },
         /**
+         * Retrieve a single story with full metadata including view count, ratings, comments, favorites, genres, and latest chapter. Optimized with caching for better performance.
+         * @summary Get story detail with metadata
+         * @param {number} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getStoryDetail(id: number, options?: RawAxiosRequestConfig): AxiosPromise<StoryDetailDto> {
+            return localVarFp.getStoryDetail(id, options).then((request) => request(axios, basePath));
+        },
+        /**
          * 
          * @param {number} [limit] 
          * @param {number} [days] 
@@ -1133,6 +1194,17 @@ export class StoryManagementApi extends BaseAPI {
      */
     public getStoryById(id: number, options?: RawAxiosRequestConfig) {
         return StoryManagementApiFp(this.configuration).getStoryById(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Retrieve a single story with full metadata including view count, ratings, comments, favorites, genres, and latest chapter. Optimized with caching for better performance.
+     * @summary Get story detail with metadata
+     * @param {number} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getStoryDetail(id: number, options?: RawAxiosRequestConfig) {
+        return StoryManagementApiFp(this.configuration).getStoryDetail(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
