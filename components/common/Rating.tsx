@@ -9,7 +9,8 @@ import { Configuration } from "@/lib/generated-api/generated/configuration";
 interface RatingProps {
   storyId: number;
   averageRating?: number;
-  onRate?: (rating: number) => void;
+  onRate?: (rating: number) => void | Promise<void>;
+  onRateSuccess?: () => void | Promise<void>;
   readonly?: boolean;
   size?: "sm" | "md" | "lg";
 }
@@ -18,6 +19,7 @@ export function Rating({
   storyId,
   averageRating = 0,
   onRate,
+  onRateSuccess,
   readonly = false,
   size = "md",
 }: RatingProps) {
@@ -79,7 +81,8 @@ export function Rating({
       });
 
       setUserRating(value);
-      if (onRate) onRate(value);
+      if (onRate) await onRate(value);
+      if (onRateSuccess) await onRateSuccess();
     } catch (error) {
       console.error("Failed to rate:", error);
     } finally {

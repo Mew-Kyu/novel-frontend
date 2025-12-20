@@ -291,7 +291,7 @@ export function StoryHero({
                     <Rating
                       storyId={story.id}
                       averageRating={story.averageRating}
-                      onRate={handleRateSuccess}
+                      onRateSuccess={handleRateSuccess}
                       size="sm"
                     />
                   ) : null}
