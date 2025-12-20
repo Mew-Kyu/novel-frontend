@@ -24,8 +24,8 @@ import type { SortObject } from './sort-object';
 import type { StoryDetailDto } from './story-detail-dto';
 
 export interface PageStoryDetailDto {
-    'totalElements'?: number;
     'totalPages'?: number;
+    'totalElements'?: number;
     'size'?: number;
     'content'?: Array<StoryDetailDto>;
     'number'?: number;

@@ -24,8 +24,8 @@ import type { ReadingHistoryDto } from './reading-history-dto';
 import type { SortObject } from './sort-object';
 
 export interface PageReadingHistoryDto {
-    'totalElements'?: number;
     'totalPages'?: number;
+    'totalElements'?: number;
     'size'?: number;
     'content'?: Array<ReadingHistoryDto>;
     'number'?: number;

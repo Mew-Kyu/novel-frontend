@@ -3,6 +3,10 @@ import { Metadata } from "next";
 import { StoryManagementApi } from "@/lib/generated-api/generated/api";
 import { Configuration } from "@/lib/generated-api/generated/configuration";
 import { StoryTabs } from "@/components/story/StoryTabs";
+
+// Disable caching for this page to always get fresh data
+export const revalidate = 0;
+export const dynamic = "force-dynamic";
 import { ChapterList } from "@/components/story/ChapterList";
 import { Comments } from "@/components/story/Comments";
 import { StorySidebar } from "@/components/story/StorySidebar";
@@ -58,8 +62,16 @@ export default async function StoryDetailPage({ params }: PageProps) {
 
     const storyApi = new StoryManagementApi(config);
 
-    // Use new getStoryDetail endpoint - returns full StoryDetailDto with metadata
-    story = (await storyApi.getStoryDetail(storyId)).data;
+    // Use new getStoryDetail endpoint with no-cache headers to always get fresh data
+    story = (
+      await storyApi.getStoryDetail(storyId, {
+        headers: {
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          Pragma: "no-cache",
+          Expires: "0",
+        },
+      })
+    ).data;
   } catch (error) {
     console.error("Failed to fetch story:", error);
     notFound();

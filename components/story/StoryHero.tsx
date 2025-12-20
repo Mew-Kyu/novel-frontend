@@ -1,17 +1,22 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
-import { Heart, Download, BookOpen, Star } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Heart, Download, BookOpen, Star, Eye, Library } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
+import { Rating } from "@/components/common/Rating";
 import {
   StoryDetailDto,
   StoryDetailDtoStatusEnum,
 } from "@/lib/generated-api/generated/models";
 import { formatNumber, formatRating } from "@/lib/utils/format";
-import { ExportApi } from "@/lib/generated-api/generated/api";
+import {
+  ExportApi,
+  StoryManagementApi,
+} from "@/lib/generated-api/generated/api";
 import { downloadBlob } from "@/lib/utils/format";
 import { Configuration } from "@/lib/generated-api/generated/configuration";
 
@@ -56,13 +61,48 @@ const getStatusBadge = (status?: string) => {
 };
 
 export function StoryHero({
-  story,
+  story: initialStory,
   isFavorite = false,
   onToggleFavorite,
 }: StoryHeroProps) {
+  const router = useRouter();
+  const [story, setStory] = useState(initialStory);
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [showDownloadModal, setShowDownloadModal] = useState(false);
+
+  useEffect(() => {
+    setStory(initialStory);
+  }, [initialStory]);
+
+  const handleRateSuccess = async () => {
+    if (!story.id) return;
+
+    try {
+      // Fetch updated story data immediately after rating
+      const config = new Configuration({
+        basePath:
+          process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080",
+      });
+      const storyApi = new StoryManagementApi(config);
+      const response = await storyApi.getStoryDetail(story.id, {
+        headers: {
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          Pragma: "no-cache",
+        },
+      });
+
+      if (response?.data) {
+        console.log("Refreshing story data after rating:", response.data);
+        setStory(response.data as StoryDetailDto);
+      }
+    } catch (error) {
+      console.error("Failed to refresh story:", error);
+    }
+
+    // Also refresh the router for server-side data
+    router.refresh();
+  };
   const [downloadMode, setDownloadMode] = useState<"all" | "range">("all");
   const [rangeStart, setRangeStart] = useState<string>("1");
   const [rangeEnd, setRangeEnd] = useState<string>(
@@ -231,16 +271,31 @@ export function StoryHero({
                   className="flex items-center gap-2 mb-1"
                   suppressHydrationWarning
                 >
-                  <Star className="w-4 h-4 text-yellow-500" />
                   <span className="text-sm text-muted-foreground">
                     Đánh giá
                   </span>
                 </div>
-                <p className="text-2xl font-bold">
-                  {story.averageRating
-                    ? formatRating(story.averageRating)
-                    : "N/A"}
-                </p>
+                <div
+                  className="flex items-center gap-2"
+                  suppressHydrationWarning
+                >
+                  <p className="text-2xl font-bold">
+                    {story.averageRating
+                      ? formatRating(story.averageRating)
+                      : "N/A"}
+                  </p>
+                  <Star className="w-6 h-6 text-yellow-500 fill-yellow-500" />
+                </div>
+                <div className="my-1" suppressHydrationWarning>
+                  {story.id ? (
+                    <Rating
+                      storyId={story.id}
+                      averageRating={story.averageRating}
+                      onRate={handleRateSuccess}
+                      size="sm"
+                    />
+                  ) : null}
+                </div>
                 <p className="text-xs text-muted-foreground">
                   {formatNumber(story.totalRatings || 0)} lượt
                 </p>
@@ -251,14 +306,22 @@ export function StoryHero({
                 suppressHydrationWarning
               >
                 <div
-                  className="text-sm text-muted-foreground mb-1"
+                  className="flex items-center gap-2 mb-1"
                   suppressHydrationWarning
                 >
-                  Lượt xem
+                  <span className="text-sm text-muted-foreground">
+                    Lượt xem
+                  </span>
                 </div>
-                <p className="text-2xl font-bold">
-                  {formatNumber(story.viewCount || 0)}
-                </p>
+                <div
+                  className="flex items-center gap-2"
+                  suppressHydrationWarning
+                >
+                  <p className="text-2xl font-bold">
+                    {formatNumber(story.viewCount || 0)}
+                  </p>
+                  <Eye className="w-6 h-6 text-blue-500" />
+                </div>
               </div>
 
               <div
@@ -266,14 +329,20 @@ export function StoryHero({
                 suppressHydrationWarning
               >
                 <div
-                  className="text-sm text-muted-foreground mb-1"
+                  className="flex items-center gap-2 mb-1"
                   suppressHydrationWarning
                 >
-                  Chương
+                  <span className="text-sm text-muted-foreground">Chương</span>
                 </div>
-                <p className="text-2xl font-bold">
-                  {formatNumber(story.totalChapters || 0)}
-                </p>
+                <div
+                  className="flex items-center gap-2"
+                  suppressHydrationWarning
+                >
+                  <p className="text-2xl font-bold">
+                    {formatNumber(story.totalChapters || 0)}
+                  </p>
+                  <Library className="w-6 h-6 text-purple-500" />
+                </div>
               </div>
 
               <div
@@ -281,14 +350,22 @@ export function StoryHero({
                 suppressHydrationWarning
               >
                 <div
-                  className="text-sm text-muted-foreground mb-1"
+                  className="flex items-center gap-2 mb-1"
                   suppressHydrationWarning
                 >
-                  Yêu thích
+                  <span className="text-sm text-muted-foreground">
+                    Yêu thích
+                  </span>
                 </div>
-                <p className="text-2xl font-bold">
-                  {formatNumber(story.totalFavorites || 0)}
-                </p>
+                <div
+                  className="flex items-center gap-2"
+                  suppressHydrationWarning
+                >
+                  <p className="text-2xl font-bold">
+                    {formatNumber(story.totalFavorites || 0)}
+                  </p>
+                  <Heart className="w-6 h-6 text-pink-500 fill-pink-500" />
+                </div>
               </div>
             </div>
 

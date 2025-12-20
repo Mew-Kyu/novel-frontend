@@ -126,8 +126,8 @@ const { status, data } = await apiInstance.createStory(
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**201** | Story created successfully |  -  |
 |**400** | Invalid request body |  -  |
+|**201** | Story created successfully |  -  |
 |**404** | Genre not found |  -  |
 |**403** | Forbidden - requires ADMIN or MODERATOR role |  -  |
 |**401** | Unauthorized |  -  |
@@ -451,8 +451,8 @@ const { status, data } = await apiInstance.getStoryDetail(
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**404** | Story not found |  -  |
 |**200** | Story detail retrieved successfully |  -  |
+|**404** | Story not found |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -881,8 +881,8 @@ const { status, data } = await apiInstance.updateStory(
 |-------------|-------------|------------------|
 |**404** | Story or genre not found |  -  |
 |**400** | Invalid request body |  -  |
-|**200** | Story updated successfully |  -  |
 |**403** | Forbidden - requires ADMIN or MODERATOR role |  -  |
+|**200** | Story updated successfully |  -  |
 |**401** | Unauthorized |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

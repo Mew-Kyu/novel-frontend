@@ -24,8 +24,8 @@ import type { RatingDto } from './rating-dto';
 import type { SortObject } from './sort-object';
 
 export interface PageRatingDto {
-    'totalElements'?: number;
     'totalPages'?: number;
+    'totalElements'?: number;
     'size'?: number;
     'content'?: Array<RatingDto>;
     'number'?: number;

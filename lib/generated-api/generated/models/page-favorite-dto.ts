@@ -24,8 +24,8 @@ import type { PageableObject } from './pageable-object';
 import type { SortObject } from './sort-object';
 
 export interface PageFavoriteDto {
-    'totalElements'?: number;
     'totalPages'?: number;
+    'totalElements'?: number;
     'size'?: number;
     'content'?: Array<FavoriteDto>;
     'number'?: number;

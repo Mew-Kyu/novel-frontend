@@ -5,8 +5,8 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**totalElements** | **number** |  | [optional] [default to undefined]
 **totalPages** | **number** |  | [optional] [default to undefined]
+**totalElements** | **number** |  | [optional] [default to undefined]
 **size** | **number** |  | [optional] [default to undefined]
 **content** | [**Array&lt;StoryDto&gt;**](StoryDto.md) |  | [optional] [default to undefined]
 **number** | **number** |  | [optional] [default to undefined]
@@ -23,8 +23,8 @@ Name | Type | Description | Notes
 import { PageStoryDto } from './api';
 
 const instance: PageStoryDto = {
-    totalElements,
     totalPages,
+    totalElements,
     size,
     content,
     number,

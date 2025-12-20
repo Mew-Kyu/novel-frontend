@@ -5,8 +5,8 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**totalElements** | **number** |  | [optional] [default to undefined]
 **totalPages** | **number** |  | [optional] [default to undefined]
+**totalElements** | **number** |  | [optional] [default to undefined]
 **size** | **number** |  | [optional] [default to undefined]
 **content** | [**Array&lt;FavoriteDto&gt;**](FavoriteDto.md) |  | [optional] [default to undefined]
 **number** | **number** |  | [optional] [default to undefined]
@@ -23,8 +23,8 @@ Name | Type | Description | Notes
 import { PageFavoriteDto } from './api';
 
 const instance: PageFavoriteDto = {
-    totalElements,
     totalPages,
+    totalElements,
     size,
     content,
     number,
