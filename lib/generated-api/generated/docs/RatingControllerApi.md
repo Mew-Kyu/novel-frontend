@@ -4,13 +4,65 @@ All URIs are relative to *http://localhost:8080*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
+|[**adminDeleteRating**](#admindeleterating) | **DELETE** /api/ratings/admin/{ratingId} | |
 |[**createOrUpdateRating**](#createorupdaterating) | **POST** /api/ratings | |
 |[**deleteRating**](#deleterating) | **DELETE** /api/ratings/{ratingId} | |
+|[**getAllRatingsForAdmin**](#getallratingsforadmin) | **GET** /api/ratings/admin/all | |
 |[**getMyRatingForStory**](#getmyratingforstory) | **GET** /api/ratings/story/{storyId}/me | |
 |[**getMyRatings**](#getmyratings) | **GET** /api/ratings/user/me | |
 |[**getRatingsByStory**](#getratingsbystory) | **GET** /api/ratings/story/{storyId} | |
 |[**getStoryRating**](#getstoryrating) | **GET** /api/ratings/story/{storyId}/average | |
 |[**updateRating**](#updaterating) | **PUT** /api/ratings/{ratingId} | |
+
+# **adminDeleteRating**
+> adminDeleteRating()
+
+
+### Example
+
+```typescript
+import {
+    RatingControllerApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new RatingControllerApi(configuration);
+
+let ratingId: number; // (default to undefined)
+
+const { status, data } = await apiInstance.adminDeleteRating(
+    ratingId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **ratingId** | [**number**] |  | defaults to undefined|
+
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[Bearer Authentication](../README.md#Bearer Authentication)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: Not defined
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **createOrUpdateRating**
 > RatingDto createOrUpdateRating(createRatingRequest)
@@ -104,6 +156,57 @@ void (empty response body)
 
  - **Content-Type**: Not defined
  - **Accept**: Not defined
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getAllRatingsForAdmin**
+> PageRatingDto getAllRatingsForAdmin()
+
+
+### Example
+
+```typescript
+import {
+    RatingControllerApi,
+    Configuration,
+    Pageable
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new RatingControllerApi(configuration);
+
+let pageable: Pageable; // (default to undefined)
+
+const { status, data } = await apiInstance.getAllRatingsForAdmin(
+    pageable
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **pageable** | **Pageable** |  | defaults to undefined|
+
+
+### Return type
+
+**PageRatingDto**
+
+### Authorization
+
+[Bearer Authentication](../README.md#Bearer Authentication)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
 
 
 ### HTTP response details

@@ -40,6 +40,43 @@ export const RatingControllerApiAxiosParamCreator = function (configuration?: Co
     return {
         /**
          * 
+         * @param {number} ratingId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminDeleteRating: async (ratingId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'ratingId' is not null or undefined
+            assertParamExists('adminDeleteRating', 'ratingId', ratingId)
+            const localVarPath = `/api/ratings/admin/{ratingId}`
+                .replace(`{${"ratingId"}}`, encodeURIComponent(String(ratingId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer Authentication required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @param {CreateRatingRequest} createRatingRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -102,6 +139,48 @@ export const RatingControllerApiAxiosParamCreator = function (configuration?: Co
             // authentication Bearer Authentication required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {Pageable} pageable 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAllRatingsForAdmin: async (pageable: Pageable, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'pageable' is not null or undefined
+            assertParamExists('getAllRatingsForAdmin', 'pageable', pageable)
+            const localVarPath = `/api/ratings/admin/all`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer Authentication required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (pageable !== undefined) {
+                for (const [key, value] of Object.entries(pageable)) {
+                    localVarQueryParameter[key] = value;
+                }
+            }
 
 
     
@@ -330,6 +409,18 @@ export const RatingControllerApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
+         * @param {number} ratingId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async adminDeleteRating(ratingId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.adminDeleteRating(ratingId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['RatingControllerApi.adminDeleteRating']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @param {CreateRatingRequest} createRatingRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -350,6 +441,18 @@ export const RatingControllerApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.deleteRating(ratingId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['RatingControllerApi.deleteRating']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {Pageable} pageable 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getAllRatingsForAdmin(pageable: Pageable, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PageRatingDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getAllRatingsForAdmin(pageable, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['RatingControllerApi.getAllRatingsForAdmin']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -425,6 +528,15 @@ export const RatingControllerApiFactory = function (configuration?: Configuratio
     return {
         /**
          * 
+         * @param {number} ratingId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        adminDeleteRating(ratingId: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.adminDeleteRating(ratingId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @param {CreateRatingRequest} createRatingRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -440,6 +552,15 @@ export const RatingControllerApiFactory = function (configuration?: Configuratio
          */
         deleteRating(ratingId: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.deleteRating(ratingId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {Pageable} pageable 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAllRatingsForAdmin(pageable: Pageable, options?: RawAxiosRequestConfig): AxiosPromise<PageRatingDto> {
+            return localVarFp.getAllRatingsForAdmin(pageable, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -497,6 +618,16 @@ export const RatingControllerApiFactory = function (configuration?: Configuratio
 export class RatingControllerApi extends BaseAPI {
     /**
      * 
+     * @param {number} ratingId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public adminDeleteRating(ratingId: number, options?: RawAxiosRequestConfig) {
+        return RatingControllerApiFp(this.configuration).adminDeleteRating(ratingId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @param {CreateRatingRequest} createRatingRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -513,6 +644,16 @@ export class RatingControllerApi extends BaseAPI {
      */
     public deleteRating(ratingId: number, options?: RawAxiosRequestConfig) {
         return RatingControllerApiFp(this.configuration).deleteRating(ratingId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {Pageable} pageable 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getAllRatingsForAdmin(pageable: Pageable, options?: RawAxiosRequestConfig) {
+        return RatingControllerApiFp(this.configuration).getAllRatingsForAdmin(pageable, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
