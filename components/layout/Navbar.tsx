@@ -394,6 +394,28 @@ export const Navbar = () => {
                       <History className="w-5 h-5 text-blue-500" />
                       Lịch sử đọc
                     </Link>
+
+                    {/* Dashboard Link for Admin/Moderator */}
+                    {(hasRole("ADMIN") || hasRole("MODERATOR")) && (
+                      <>
+                        <div className="border-t border-[rgb(var(--border))] my-2"></div>
+                        <Link
+                          href="/dashboard"
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="flex items-center gap-3 px-4 py-3 text-[rgb(var(--text))] hover:bg-[rgb(var(--card))] rounded-xl transition-colors bg-purple-50 dark:bg-purple-900/20"
+                        >
+                          <Settings className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                          <div>
+                            <div className="font-medium text-purple-600 dark:text-purple-400">
+                              Content Dashboard
+                            </div>
+                            <div className="text-xs text-[rgb(var(--text-muted))]">
+                              Quản lý nội dung
+                            </div>
+                          </div>
+                        </Link>
+                      </>
+                    )}
                   </>
                 )}
               </div>

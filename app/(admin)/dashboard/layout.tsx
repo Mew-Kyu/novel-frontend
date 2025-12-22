@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -10,6 +10,8 @@ import {
   Settings,
   User,
   LogOut,
+  Menu,
+  X,
 } from "lucide-react";
 import { useAuthStore } from "@/lib/store/authStore";
 
@@ -20,6 +22,7 @@ export default function DashboardLayout({
 }) {
   const router = useRouter();
   const { user, logout, hasRole } = useAuthStore();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     // Role protection: Only ADMIN and MODERATOR can access
@@ -66,10 +69,35 @@ export default function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Mobile Header */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 h-16 flex items-center justify-between px-4">
+        <h1 className="text-lg font-bold text-gray-900 dark:text-white">
+          Dashboard
+        </h1>
+        <button
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+        >
+          {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+      </div>
+
+      {/* Overlay for mobile */}
+      {sidebarOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black/50 z-40 top-16"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="fixed left-0 top-0 h-full w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col">
-        {/* Logo/Header */}
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+      <aside
+        className={`fixed left-0 top-16 lg:top-0 h-[calc(100vh-4rem)] lg:h-full w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col transition-transform duration-300 z-40 ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        }`}
+      >
+        {/* Logo/Header - Hidden on mobile, shown on desktop */}
+        <div className="hidden lg:block p-6 border-b border-gray-200 dark:border-gray-700">
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">
             Content Dashboard
           </h1>
@@ -87,6 +115,7 @@ export default function DashboardLayout({
               <Link
                 key={item.href}
                 href={item.href}
+                onClick={() => setSidebarOpen(false)}
                 className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
               >
                 <item.icon size={20} />
@@ -122,8 +151,8 @@ export default function DashboardLayout({
       </aside>
 
       {/* Main Content */}
-      <main className="ml-64 min-h-screen">
-        <div className="p-8">{children}</div>
+      <main className="lg:ml-64 min-h-screen pt-16 lg:pt-0">
+        <div className="p-4 sm:p-6 lg:p-8">{children}</div>
       </main>
     </div>
   );
