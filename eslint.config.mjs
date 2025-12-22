@@ -13,6 +13,11 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  {
+    rules: {
+      "react/forbid-dom-props": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;

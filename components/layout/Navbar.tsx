@@ -216,12 +216,12 @@ export const Navbar = () => {
                           <>
                             <div className="border-t border-[rgb(var(--border))] my-2"></div>
                             <Link
-                              href="#"
+                              href="/dashboard"
                               onClick={() => setUserMenuOpen(false)}
                               className="flex items-center gap-3 px-4 py-2 text-[rgb(var(--text-muted))] hover:bg-[rgb(var(--border))] transition-colors"
                             >
                               <Settings className="w-4 h-4" />
-                              Quản lý truyện
+                              Content Dashboard
                             </Link>
                           </>
                         )}

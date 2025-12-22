@@ -67,6 +67,8 @@ body {
     @apply bg-[rgb(var(--primary))] hover:bg-[rgb(var(--primary-hover))] text-white;
   }
 }
+
+/* Scrollbar utility */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -75,12 +77,13 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
-.no-scrollbar::-webkit-scrollbar {
- display: none;
-}
 
-.no-scrollbar {
- -ms-overflow-style: none;
- scrollbar-width: none;
+/* Progress bar */
+@keyframes progress-indeterminate {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
-
