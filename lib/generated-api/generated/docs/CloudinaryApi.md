@@ -54,10 +54,10 @@ const { status, data } = await apiInstance.uploadImage(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | Image uploaded successfully |  -  |
-|**403** | Forbidden - Insufficient permissions (requires ADMIN or MODERATOR role) |  -  |
-|**500** | Internal server error during upload |  -  |
 |**401** | Unauthorized - JWT token missing or invalid |  -  |
 |**400** | Invalid file or file too large |  -  |
+|**500** | Internal server error during upload |  -  |
+|**403** | Forbidden - Insufficient permissions (requires ADMIN or MODERATOR role) |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

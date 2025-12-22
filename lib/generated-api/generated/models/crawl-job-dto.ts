@@ -24,5 +24,7 @@ export interface CrawlJobDto {
     'errorMessage'?: string;
     'createdAt'?: string;
     'updatedAt'?: string;
+    'createdBy'?: number;
+    'lastModifiedBy'?: number;
 }
 

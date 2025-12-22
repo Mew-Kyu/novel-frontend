@@ -6,8 +6,8 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **empty** | **boolean** |  | [optional] [default to undefined]
-**sorted** | **boolean** |  | [optional] [default to undefined]
 **unsorted** | **boolean** |  | [optional] [default to undefined]
+**sorted** | **boolean** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -16,8 +16,8 @@ import { SortObject } from './api';
 
 const instance: SortObject = {
     empty,
-    sorted,
     unsorted,
+    sorted,
 };
 ```
 

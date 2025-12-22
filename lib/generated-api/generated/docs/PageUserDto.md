@@ -13,8 +13,8 @@ Name | Type | Description | Notes
 **first** | **boolean** |  | [optional] [default to undefined]
 **last** | **boolean** |  | [optional] [default to undefined]
 **numberOfElements** | **number** |  | [optional] [default to undefined]
-**pageable** | [**PageableObject**](PageableObject.md) |  | [optional] [default to undefined]
 **sort** | [**SortObject**](SortObject.md) |  | [optional] [default to undefined]
+**pageable** | [**PageableObject**](PageableObject.md) |  | [optional] [default to undefined]
 **empty** | **boolean** |  | [optional] [default to undefined]
 
 ## Example
@@ -31,8 +31,8 @@ const instance: PageUserDto = {
     first,
     last,
     numberOfElements,
-    pageable,
     sort,
+    pageable,
     empty,
 };
 ```

@@ -32,8 +32,8 @@ export interface PageStoryDetailDto {
     'first'?: boolean;
     'last'?: boolean;
     'numberOfElements'?: number;
-    'pageable'?: PageableObject;
     'sort'?: SortObject;
+    'pageable'?: PageableObject;
     'empty'?: boolean;
 }
 

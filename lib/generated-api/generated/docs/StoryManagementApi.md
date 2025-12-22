@@ -126,9 +126,9 @@ const { status, data } = await apiInstance.createStory(
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**201** | Story created successfully |  -  |
 |**400** | Invalid request body |  -  |
 |**404** | Genre not found |  -  |
+|**201** | Story created successfully |  -  |
 |**403** | Forbidden - requires ADMIN or MODERATOR role |  -  |
 |**401** | Unauthorized |  -  |
 
@@ -719,9 +719,9 @@ const { status, data } = await apiInstance.setGenresForStory(
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
+|**200** | Genres updated successfully |  -  |
 |**404** | Story or genre not found |  -  |
 |**400** | Invalid request body |  -  |
-|**200** | Genres updated successfully |  -  |
 |**403** | Forbidden - requires ADMIN or MODERATOR role |  -  |
 |**401** | Unauthorized |  -  |
 
@@ -879,9 +879,9 @@ const { status, data } = await apiInstance.updateStory(
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** | Story updated successfully |  -  |
 |**404** | Story or genre not found |  -  |
 |**400** | Invalid request body |  -  |
+|**200** | Story updated successfully |  -  |
 |**403** | Forbidden - requires ADMIN or MODERATOR role |  -  |
 |**401** | Unauthorized |  -  |
 

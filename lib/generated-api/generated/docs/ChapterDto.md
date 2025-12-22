@@ -18,6 +18,9 @@ Name | Type | Description | Notes
 **translateStatus** | **string** |  | [optional] [default to undefined]
 **translateTime** | **string** |  | [optional] [default to undefined]
 **createdAt** | **string** |  | [optional] [default to undefined]
+**updatedAt** | **string** |  | [optional] [default to undefined]
+**createdBy** | **number** |  | [optional] [default to undefined]
+**lastModifiedBy** | **number** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -38,6 +41,9 @@ const instance: ChapterDto = {
     translateStatus,
     translateTime,
     createdAt,
+    updatedAt,
+    createdBy,
+    lastModifiedBy,
 };
 ```
 

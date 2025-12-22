@@ -28,5 +28,8 @@ export interface ChapterDto {
     'translateStatus'?: string;
     'translateTime'?: string;
     'createdAt'?: string;
+    'updatedAt'?: string;
+    'createdBy'?: number;
+    'lastModifiedBy'?: number;
 }
 

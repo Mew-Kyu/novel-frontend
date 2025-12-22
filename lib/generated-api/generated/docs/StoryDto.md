@@ -20,6 +20,9 @@ Name | Type | Description | Notes
 **sourceUrl** | **string** | Source URL | [optional] [default to undefined]
 **sourceSite** | **string** | Source site name | [optional] [default to undefined]
 **createdAt** | **string** | Creation timestamp | [optional] [default to undefined]
+**updatedAt** | **string** | Last update timestamp | [optional] [default to undefined]
+**createdBy** | **number** | ID of user who created this story | [optional] [default to undefined]
+**lastModifiedBy** | **number** | ID of user who last modified this story | [optional] [default to undefined]
 **status** | **string** | Story publication status | [optional] [default to undefined]
 **genres** | [**Array&lt;GenreDto&gt;**](GenreDto.md) | List of genres associated with this story | [optional] [default to undefined]
 
@@ -43,6 +46,9 @@ const instance: StoryDto = {
     sourceUrl,
     sourceSite,
     createdAt,
+    updatedAt,
+    createdBy,
+    lastModifiedBy,
     status,
     genres,
 };

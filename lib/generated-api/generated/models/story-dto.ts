@@ -78,6 +78,18 @@ export interface StoryDto {
      */
     'createdAt'?: string;
     /**
+     * Last update timestamp
+     */
+    'updatedAt'?: string;
+    /**
+     * ID of user who created this story
+     */
+    'createdBy'?: number;
+    /**
+     * ID of user who last modified this story
+     */
+    'lastModifiedBy'?: number;
+    /**
      * Story publication status
      */
     'status'?: StoryDtoStatusEnum;
