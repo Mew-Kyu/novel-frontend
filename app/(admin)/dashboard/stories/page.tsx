@@ -5,11 +5,17 @@ import apiClient from "@/lib/generated-api";
 import type { StoryDto } from "@/lib/generated-api/generated/models";
 import { Plus, Search, Edit, Trash2, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { Pagination } from "@/components/common/Pagination";
 
 export default function StoriesPage() {
   const [stories, setStories] = useState<StoryDto[]>([]);
+  const [allStories, setAllStories] = useState<StoryDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+  const pageSize = 12;
 
   useEffect(() => {
     fetchStories();
@@ -18,13 +24,13 @@ export default function StoriesPage() {
   const fetchStories = async () => {
     try {
       setLoading(true);
-      // Fetch all stories with pagination
       const response = await apiClient.stories.getStories({
         page: 0,
-        size: 100,
+        size: 1000, // Load all stories for admin dashboard
         sort: ["createdAt,DESC"],
       });
-      setStories(response.data.content || []);
+      const data = response.data;
+      setAllStories(data.content || []);
     } catch (error) {
       console.error("Failed to fetch stories:", error);
       alert("Lỗi khi tải danh sách truyện");
@@ -32,6 +38,22 @@ export default function StoriesPage() {
       setLoading(false);
     }
   };
+
+  // Handle search and pagination
+  useEffect(() => {
+    const filtered = allStories.filter((story) =>
+      story.title?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    setTotalElements(filtered.length);
+    const total = Math.ceil(filtered.length / pageSize);
+    setTotalPages(total);
+
+    // Get current page data
+    const start = currentPage * pageSize;
+    const end = start + pageSize;
+    setStories(filtered.slice(start, end));
+  }, [allStories, searchTerm, currentPage]);
 
   const handleDelete = async (storyId: number) => {
     if (!confirm("Bạn có chắc muốn xóa truyện này?")) return;
@@ -45,10 +67,6 @@ export default function StoriesPage() {
       alert("Lỗi khi xóa truyện");
     }
   };
-
-  const filteredStories = stories.filter((story) =>
-    story.title?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   const getStatusColor = (status?: string) => {
     switch (status) {
@@ -90,7 +108,10 @@ export default function StoriesPage() {
           <input
             type="text"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(0); // Reset to first page when searching
+            }}
             placeholder="Tìm kiếm truyện..."
             className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
           />
@@ -102,7 +123,7 @@ export default function StoriesPage() {
         <div className="flex justify-center py-12">
           <Loader2 className="animate-spin text-gray-400" size={32} />
         </div>
-      ) : filteredStories.length === 0 ? (
+      ) : stories.length === 0 ? (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-12 text-center">
           <p className="text-gray-500 dark:text-gray-400">
             {searchTerm ? "Không tìm thấy truyện nào" : "Chưa có truyện nào"}
@@ -110,7 +131,7 @@ export default function StoriesPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredStories.map((story) => (
+          {stories.map((story) => (
             <div
               key={story.id}
               className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden hover:shadow-lg transition"
@@ -181,6 +202,17 @@ export default function StoriesPage() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {!loading && totalPages > 1 && (
+        <div className="mt-8 flex justify-center">
+          <Pagination
+            currentPage={currentPage + 1}
+            totalPages={totalPages}
+            onPageChange={(page) => setCurrentPage(page - 1)}
+          />
         </div>
       )}
     </div>

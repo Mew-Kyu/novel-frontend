@@ -13,12 +13,17 @@ import {
   XCircle,
   Loader2,
 } from "lucide-react";
+import { Pagination } from "@/components/common/Pagination";
 
 export default function CrawlManagerPage() {
   const [jobs, setJobs] = useState<CrawlJobDto[]>([]);
+  const [allJobs, setAllJobs] = useState<CrawlJobDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [crawlUrl, setCrawlUrl] = useState("");
   const [crawling, setCrawling] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const pageSize = 20;
   const { user, hasRole } = useAuthStore();
 
   useEffect(() => {
@@ -26,7 +31,7 @@ export default function CrawlManagerPage() {
     // Auto-refresh every 5 seconds
     const interval = setInterval(fetchJobs, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [currentPage]);
 
   const fetchJobs = async () => {
     try {
@@ -40,7 +45,16 @@ export default function CrawlManagerPage() {
         );
       }
 
-      setJobs(jobsList);
+      setAllJobs(jobsList);
+
+      // Calculate pagination
+      const total = Math.ceil(jobsList.length / pageSize);
+      setTotalPages(total);
+
+      // Get current page data
+      const start = currentPage * pageSize;
+      const end = start + pageSize;
+      setJobs(jobsList.slice(start, end));
     } catch (error: any) {
       // Don't show error for 403 - it's handled by the interceptor
       if (error?.response?.status !== 403) {
@@ -316,6 +330,17 @@ export default function CrawlManagerPage() {
                 </div>
               ))}
           </div>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {!loading && totalPages > 1 && (
+        <div className="mt-8 flex justify-center">
+          <Pagination
+            currentPage={currentPage + 1}
+            totalPages={totalPages}
+            onPageChange={(page) => setCurrentPage(page - 1)}
+          />
         </div>
       )}
     </div>
