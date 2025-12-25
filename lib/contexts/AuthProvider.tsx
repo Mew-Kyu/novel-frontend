@@ -3,9 +3,11 @@
 import { useEffect } from "react";
 import { useAuthStore } from "@/lib/store/authStore";
 import apiClient from "@/lib/generated-api";
+import { useRouter } from "next/navigation";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const { user, isAuthenticated } = useAuthStore();
+  const { user, isAuthenticated, logout } = useAuthStore();
+  const router = useRouter();
 
   useEffect(() => {
     // Ensure token is loaded from localStorage and set in API client
@@ -15,7 +17,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (isAuthenticated && user && token) {
       apiClient.setToken(token);
     }
-  }, [isAuthenticated, user]);
+
+    // Setup callback for 403 errors
+    apiClient.setUnauthorizedCallback(() => {
+      logout();
+      router.push("/login");
+    });
+  }, [isAuthenticated, user, logout, router]);
 
   return <>{children}</>;
 }

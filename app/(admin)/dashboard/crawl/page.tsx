@@ -41,8 +41,11 @@ export default function CrawlManagerPage() {
       }
 
       setJobs(jobsList);
-    } catch (error) {
-      console.error("Failed to fetch jobs:", error);
+    } catch (error: any) {
+      // Don't show error for 403 - it's handled by the interceptor
+      if (error?.response?.status !== 403) {
+        console.error("Failed to fetch jobs:", error);
+      }
     } finally {
       setLoading(false);
     }
@@ -65,9 +68,11 @@ export default function CrawlManagerPage() {
       alert("Crawl job đã được tạo thành công!");
       setCrawlUrl("");
       fetchJobs();
-    } catch (error) {
-      console.error("Failed to start crawl:", error);
-      alert("Lỗi khi tạo crawl job. Vui lòng thử lại.");
+    } catch (error: any) {
+      if (error?.response?.status !== 403) {
+        console.error("Failed to start crawl:", error);
+        alert("Lỗi khi tạo crawl job. Vui lòng thử lại.");
+      }
     } finally {
       setCrawling(false);
     }
@@ -79,9 +84,11 @@ export default function CrawlManagerPage() {
       // await apiClient.crawlJob.retryJob(jobId);
       alert("Chức năng retry đang được phát triển...");
       fetchJobs();
-    } catch (error) {
-      console.error("Failed to retry job:", error);
-      alert("Lỗi khi retry job.");
+    } catch (error: any) {
+      if (error?.response?.status !== 403) {
+        console.error("Failed to retry job:", error);
+        alert("Lỗi khi retry job.");
+      }
     }
   };
 
@@ -92,9 +99,11 @@ export default function CrawlManagerPage() {
       await apiClient.crawlJobs.deleteJob(jobId);
       alert("Đã xóa job thành công!");
       fetchJobs();
-    } catch (error) {
-      console.error("Failed to delete job:", error);
-      alert("Lỗi khi xóa job.");
+    } catch (error: any) {
+      if (error?.response?.status !== 403) {
+        console.error("Failed to delete job:", error);
+        alert("Lỗi khi xóa job.");
+      }
     }
   };
 

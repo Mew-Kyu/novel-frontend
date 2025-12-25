@@ -20,10 +20,12 @@ import {
   StatsControllerApi,
   StoryManagementApi,
 } from "./generated";
+import axios, { AxiosError } from "axios";
 
 export class NovelApiClient {
   private config: Configuration;
   private token: string | null = null;
+  private onUnauthorized?: () => void;
 
   // API controllers
   public health: HealthControllerApi;
@@ -50,6 +52,9 @@ export class NovelApiClient {
       accessToken: () => this.token || "",
     });
 
+    // Setup axios interceptor for 403 errors
+    this.setupInterceptors();
+
     // Initialize all API controllers
     this.health = new HealthControllerApi(this.config);
     this.latestChapters = new LatestChaptersControllerApi(this.config);
@@ -68,6 +73,33 @@ export class NovelApiClient {
     this.crawlJobs = new CrawlJobControllerApi(this.config);
     this.cloudinary = new CloudinaryApi(this.config);
     this.comments = new CommentControllerApi(this.config);
+  }
+
+  // Setup axios interceptor to handle 403 errors
+  private setupInterceptors() {
+    axios.interceptors.response.use(
+      (response) => response,
+      (error: AxiosError) => {
+        // Handle 403 Forbidden errors (token expired or invalid)
+        if (error.response?.status === 403) {
+          console.warn(
+            "403 Forbidden - Token expired or invalid. Signing out..."
+          );
+
+          // Call the logout callback if it's set
+          if (this.onUnauthorized) {
+            this.onUnauthorized();
+          }
+        }
+
+        return Promise.reject(error);
+      }
+    );
+  }
+
+  // Set callback for unauthorized access
+  setUnauthorizedCallback(callback: () => void) {
+    this.onUnauthorized = callback;
   }
 
   // Authentication methods
