@@ -1,4 +1,4 @@
-# Content Operation Dashboard
+# Quản trị (Content Dashboard)
 
 Dashboard quản lý nội dung cho Web Novel Platform.
 
@@ -179,7 +179,7 @@ components/dashboard/
 
 ## Phát triển tiếp
 
-- [ ] Toast notifications thay cho alert
+- [x] Toast notifications thay cho alert
 - [ ] Pagination cho danh sách truyện
 - [ ] Advanced search/filter
 - [ ] Batch operations (delete multiple, translate multiple)

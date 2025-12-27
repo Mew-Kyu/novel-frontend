@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import apiClient from "@/lib/generated-api";
 import type { CrawlJobDto } from "@/lib/generated-api/generated/models";
 import { useAuthStore } from "@/lib/store/authStore";
@@ -67,7 +68,7 @@ export default function CrawlManagerPage() {
 
   const handleStartCrawl = async () => {
     if (!crawlUrl.trim()) {
-      alert("Vui lòng nhập URL Syosetu");
+      toast.error("Vui lòng nhập URL Syosetu");
       return;
     }
 
@@ -79,13 +80,13 @@ export default function CrawlManagerPage() {
         // Adjust this based on your actual API
       });
 
-      alert("Crawl job đã được tạo thành công!");
+      toast.success("Crawl job đã được tạo thành công!");
       setCrawlUrl("");
       fetchJobs();
     } catch (error: any) {
       if (error?.response?.status !== 403) {
         console.error("Failed to start crawl:", error);
-        alert("Lỗi khi tạo crawl job. Vui lòng thử lại.");
+        toast.error("Lỗi khi tạo crawl job. Vui lòng thử lại.");
       }
     } finally {
       setCrawling(false);
@@ -96,12 +97,12 @@ export default function CrawlManagerPage() {
     try {
       // Assuming there's a retry endpoint
       // await apiClient.crawlJob.retryJob(jobId);
-      alert("Chức năng retry đang được phát triển...");
+      toast.error("Chức năng retry đang được phát triển...");
       fetchJobs();
     } catch (error: any) {
       if (error?.response?.status !== 403) {
         console.error("Failed to retry job:", error);
-        alert("Lỗi khi retry job.");
+        toast.error("Lỗi khi retry job.");
       }
     }
   };
@@ -111,12 +112,12 @@ export default function CrawlManagerPage() {
 
     try {
       await apiClient.crawlJobs.deleteJob(jobId);
-      alert("Đã xóa job thành công!");
+      toast.success("Đã xóa job thành công!");
       fetchJobs();
     } catch (error: any) {
       if (error?.response?.status !== 403) {
         console.error("Failed to delete job:", error);
-        alert("Lỗi khi xóa job.");
+        toast.error("Lỗi khi xóa job.");
       }
     }
   };
@@ -160,7 +161,7 @@ export default function CrawlManagerPage() {
       {/* Quick Crawl Section */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-8">
         <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-          Quick Crawl
+          Crawl nhanh
         </h2>
         <div className="flex gap-4">
           <input
@@ -183,7 +184,7 @@ export default function CrawlManagerPage() {
             ) : (
               <>
                 <Download size={18} />
-                Start Crawl
+                Bắt đầu Crawl
               </>
             )}
           </button>
@@ -194,14 +195,14 @@ export default function CrawlManagerPage() {
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
         <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
           <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-            Crawl Jobs
+            Danh sách job Crawl
           </h2>
           <button
             onClick={fetchJobs}
             className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition flex items-center gap-2"
           >
             <RefreshCw size={16} />
-            Refresh
+            Làm mới
           </button>
         </div>
 
@@ -222,25 +223,25 @@ export default function CrawlManagerPage() {
                     ID
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Story ID
+                    Mã truyện
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Job Type
+                    Loại job
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Status
+                    Trạng thái
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Attempts
+                    Số lần thử
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Created At
+                    Thời gian tạo
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Created By
+                    Người tạo
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Actions
+                    Hành động
                   </th>
                 </tr>
               </thead>
@@ -288,7 +289,7 @@ export default function CrawlManagerPage() {
                           <button
                             onClick={() => handleRetry(job.id!)}
                             className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
-                            title="Retry"
+                            title="Thử lại"
                           >
                             <RefreshCw size={16} />
                           </button>
@@ -297,7 +298,7 @@ export default function CrawlManagerPage() {
                           <button
                             onClick={() => handleDelete(job.id!)}
                             className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300"
-                            title="Delete"
+                            title="Xóa"
                           >
                             <Trash2 size={16} />
                           </button>
@@ -316,7 +317,7 @@ export default function CrawlManagerPage() {
       {jobs.some((job) => job.errorMessage) && (
         <div className="mt-8 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
           <h3 className="text-lg font-bold text-red-800 dark:text-red-300 mb-4">
-            Error Logs
+            Nhật ký lỗi
           </h3>
           <div className="space-y-2">
             {jobs

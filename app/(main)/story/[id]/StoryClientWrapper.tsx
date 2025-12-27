@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, ReactNode } from "react";
+import toast from "react-hot-toast";
 import { StoryDetailDto } from "@/lib/generated-api/generated/models";
 import { FavoriteControllerApi } from "@/lib/generated-api/generated/api";
 import { Configuration } from "@/lib/generated-api/generated/configuration";
@@ -57,7 +58,7 @@ export default function StoryClientWrapper({
 
     const token = localStorage.getItem("accessToken");
     if (!token) {
-      alert("Vui lòng đăng nhập để thêm vào yêu thích");
+      toast.error("Vui lòng đăng nhập để thêm vào yêu thích");
       return;
     }
 
@@ -79,7 +80,7 @@ export default function StoryClientWrapper({
       }
     } catch (error) {
       console.error("Failed to toggle favorite:", error);
-      alert("Không thể thực hiện. Vui lòng thử lại.");
+      toast.error("Không thể thực hiện. Vui lòng thử lại.");
     }
   };
 

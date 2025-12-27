@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import apiClient from "@/lib/generated-api";
 import type { StoryDto } from "@/lib/generated-api/generated/models";
 import { Plus, Search, Edit, Trash2, Loader2 } from "lucide-react";
@@ -49,7 +50,7 @@ export default function StoriesPage() {
       setAllStories(fetchedStories);
     } catch (error) {
       console.error("Failed to fetch stories:", error);
-      alert("Lỗi khi tải danh sách truyện");
+      toast.error("Lỗi khi tải danh sách truyện");
     } finally {
       setLoading(false);
     }
@@ -76,11 +77,11 @@ export default function StoriesPage() {
 
     try {
       await apiClient.stories.deleteStory(storyId);
-      alert("Đã xóa truyện thành công!");
+      toast.success("Đã xóa truyện thành công!");
       fetchStories();
     } catch (error) {
       console.error("Failed to delete story:", error);
-      alert("Lỗi khi xóa truyện");
+      toast.error("Lỗi khi xóa truyện");
     }
   };
 

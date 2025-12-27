@@ -14,6 +14,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useState } from "react";
+import toast from "react-hot-toast";
 import apiClient from "@/lib/generated-api";
 
 interface RichTextEditorProps {
@@ -70,7 +71,7 @@ export function RichTextEditor({
         }
       } catch (error) {
         console.error("Failed to upload image:", error);
-        alert("Failed to upload image. Please try again.");
+        toast.error("Không thể tải ảnh lên. Vui lòng thử lại.");
       } finally {
         setUploadingImage(false);
       }

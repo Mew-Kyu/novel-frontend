@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import toast from "react-hot-toast";
 import apiClient from "@/lib/generated-api";
 import type {
   StoryDto,
@@ -122,7 +123,7 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
       const errorMessage =
         error?.response?.data?.message || "Lỗi khi tải thông tin truyện";
       setError(errorMessage);
-      alert(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoadingStory(false);
     }
@@ -192,11 +193,11 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
         }
       }
 
-      alert("Truyện đã được cập nhật thành công!");
+      toast.success("Truyện đã được cập nhật thành công!");
       fetchStory();
     } catch (error) {
       console.error("Failed to update story:", error);
-      alert("Lỗi khi cập nhật truyện. Vui lòng thử lại.");
+      toast.error("Lỗi khi cập nhật truyện. Vui lòng thử lại.");
     } finally {
       setLoading(false);
     }
@@ -208,7 +209,7 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
     );
 
     if (untranslatedChapters.length === 0) {
-      alert("Tất cả chương đã được dịch!");
+      toast.success("Tất cả chương đã được dịch!");
       return;
     }
 
@@ -241,7 +242,7 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
       setTimeout(() => {
         clearInterval(progressInterval);
         setTranslationProgress(100);
-        alert("Dịch chương thành công!");
+        toast.success("Dịch chương thành công!");
         fetchChapters();
         setTranslating(false);
         setTranslationProgress(0);
@@ -251,7 +252,7 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
       const errorMessage =
         error?.response?.data?.message ||
         "Lỗi khi dịch chương. Vui lòng thử lại.";
-      alert(errorMessage);
+      toast.error(errorMessage);
       setTranslating(false);
       setTranslationProgress(0);
     }
@@ -262,13 +263,13 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
 
     try {
       await apiClient.chapters.translateChapter(storyId, chapterId);
-      alert("Dịch lại chương thành công!");
+      toast.success("Dịch lại chương thành công!");
       fetchChapters();
     } catch (error: any) {
       console.error("Re-translation failed:", error);
       const errorMessage =
         error?.response?.data?.message || "Lỗi khi dịch lại chương.";
-      alert(errorMessage);
+      toast.error(errorMessage);
     }
   };
 
@@ -284,14 +285,14 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
         translateDescription: true,
       });
 
-      alert("Dịch thông tin truyện thành công!");
+      toast.success("Dịch thông tin truyện thành công!");
       // Refresh story data to get translated fields
       fetchStory();
     } catch (error: any) {
       console.error("Story translation failed:", error);
       const errorMessage =
         error?.response?.data?.message || "Lỗi khi dịch thông tin truyện.";
-      alert(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setTranslatingStory(false);
     }

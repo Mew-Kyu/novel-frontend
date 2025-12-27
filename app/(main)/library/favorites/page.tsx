@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Heart, Loader2, Trash2 } from "lucide-react";
+import toast from "react-hot-toast";
 import apiClient from "@/lib/generated-api";
 import { useAuthStore } from "@/lib/store/authStore";
 import { StoryGrid } from "@/components/home/StoryGrid";
@@ -99,7 +100,7 @@ export default function FavoritesPage() {
       setStories((prev) => prev.filter((story) => story.id !== storyId));
     } catch (err) {
       console.error("Failed to remove favorite:", err);
-      alert("Không thể bỏ yêu thích truyện này");
+      toast.error("Không thể bỏ yêu thích truyện này");
     }
   };
 
@@ -191,7 +192,7 @@ export default function FavoritesPage() {
                       ) : (
                         <div className="w-full h-full bg-[rgb(var(--border))] rounded-lg flex items-center justify-center">
                           <span className="text-[rgb(var(--text-muted))]">
-                            No Image
+                            Không có ảnh
                           </span>
                         </div>
                       )}

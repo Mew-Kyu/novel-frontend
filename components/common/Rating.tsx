@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Star } from "lucide-react";
+import toast from "react-hot-toast";
 import { cn } from "@/lib/utils/cn";
 import { RatingControllerApi } from "@/lib/generated-api/generated/api";
 import { Configuration } from "@/lib/generated-api/generated/configuration";
@@ -67,7 +68,7 @@ export function Rating({
 
     const token = localStorage.getItem("accessToken");
     if (!token) {
-      alert("Vui lòng đăng nhập để đánh giá!");
+      toast.error("Vui lòng đăng nhập để đánh giá!");
       return;
     }
 

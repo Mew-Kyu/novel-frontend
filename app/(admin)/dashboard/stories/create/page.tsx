@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import toast from "react-hot-toast";
 import apiClient from "@/lib/generated-api";
 import type { GenreDto } from "@/lib/generated-api/generated/models";
 import { ImageUploader } from "@/components/dashboard/ImageUploader";
@@ -69,7 +70,7 @@ export default function CreateStoryPage() {
       setGenres(response.data);
     } catch (error) {
       console.error("Failed to fetch genres:", error);
-      alert("Lỗi khi tải danh sách thể loại");
+      toast.error("Lỗi khi tải danh sách thể loại");
     } finally {
       setLoadingGenres(false);
     }
@@ -121,11 +122,11 @@ export default function CreateStoryPage() {
         }
       }
 
-      alert("Truyện đã được tạo thành công!");
+      toast.success("Truyện đã được tạo thành công!");
       router.push(`/dashboard/stories/edit/${createdStory.id}`);
     } catch (error) {
       console.error("Failed to create story:", error);
-      alert("Lỗi khi tạo truyện. Vui lòng thử lại.");
+      toast.error("Lỗi khi tạo truyện. Vui lòng thử lại.");
     } finally {
       setLoading(false);
     }

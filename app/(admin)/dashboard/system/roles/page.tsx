@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Shield, Plus, Edit2, Trash2, Save, X } from "lucide-react";
+import toast from "react-hot-toast";
 import apiClient from "@/lib/generated-api";
 
 interface Role {
@@ -44,7 +45,7 @@ export default function RolesManagementPage() {
 
   const handleCreateRole = async () => {
     if (!formData.name.trim()) {
-      alert("Vui lòng nhập tên role");
+      toast.error("Vui lòng nhập tên role");
       return;
     }
 
@@ -58,13 +59,13 @@ export default function RolesManagementPage() {
       fetchRoles();
     } catch (error) {
       console.error("Error creating role:", error);
-      alert("Không thể tạo role");
+      toast.error("Không thể tạo role");
     }
   };
 
   const handleUpdateRole = async () => {
     if (!editingRole || !formData.name.trim()) {
-      alert("Vui lòng nhập tên role");
+      toast.error("Vui lòng nhập tên role");
       return;
     }
 
@@ -78,7 +79,7 @@ export default function RolesManagementPage() {
       fetchRoles();
     } catch (error) {
       console.error("Error updating role:", error);
-      alert("Không thể cập nhật role");
+      toast.error("Không thể cập nhật role");
     }
   };
 
@@ -92,7 +93,7 @@ export default function RolesManagementPage() {
       fetchRoles();
     } catch (error) {
       console.error("Error deleting role:", error);
-      alert("Không thể xóa role. Role có thể đang được sử dụng.");
+      toast.error("Không thể xóa role. Role có thể đang được sử dụng.");
     }
   };
 

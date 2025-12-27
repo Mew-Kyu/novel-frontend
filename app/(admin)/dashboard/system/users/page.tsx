@@ -13,6 +13,7 @@ import {
   UserCheck,
   UserX,
 } from "lucide-react";
+import toast from "react-hot-toast";
 import apiClient from "@/lib/generated-api";
 
 interface User {
@@ -99,7 +100,7 @@ export default function UsersManagementPage() {
       fetchUsers();
     } catch (error) {
       console.error("Error activating user:", error);
-      alert("Không thể kích hoạt user");
+      toast.error("Không thể kích hoạt user");
     }
   };
 
@@ -109,7 +110,7 @@ export default function UsersManagementPage() {
       fetchUsers();
     } catch (error) {
       console.error("Error deactivating user:", error);
-      alert("Không thể vô hiệu hóa user");
+      toast.error("Không thể vô hiệu hóa user");
     }
   };
 
@@ -124,7 +125,7 @@ export default function UsersManagementPage() {
       fetchUsers();
     } catch (error) {
       console.error("Error assigning role:", error);
-      alert("Không thể gán role cho user");
+      toast.error("Không thể gán role cho user");
     }
   };
 
@@ -138,7 +139,7 @@ export default function UsersManagementPage() {
       fetchUsers();
     } catch (error) {
       console.error("Error removing role:", error);
-      alert("Không thể xóa role khỏi user");
+      toast.error("Không thể xóa role khỏi user");
     }
   };
 

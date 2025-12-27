@@ -208,7 +208,7 @@ export const SearchBar = () => {
                   ) : (
                     <div className="w-12 h-16 bg-[rgb(var(--border))] rounded flex-shrink-0 flex items-center justify-center">
                       <span className="text-[rgb(var(--text-muted))] text-xs">
-                        No Image
+                        Không có ảnh
                       </span>
                     </div>
                   )}

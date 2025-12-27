@@ -233,7 +233,7 @@ export const Navbar = () => {
                               className="flex items-center gap-3 px-4 py-2 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors"
                             >
                               <Settings className="w-4 h-4" />
-                              Content Dashboard
+                              Quản trị
                             </Link>
                             <Link
                               href="/dashboard/stories"
@@ -435,10 +435,10 @@ export const Navbar = () => {
                           <Settings className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                           <div>
                             <div className="font-medium text-purple-600 dark:text-purple-400">
-                              Content Dashboard
+                              Quản trị
                             </div>
                             <div className="text-xs text-[rgb(var(--text-muted))]">
-                              Quản lý nội dung
+                              Bảng điều khiển - Quản lý nội dung
                             </div>
                           </div>
                         </Link>

@@ -132,12 +132,12 @@ export default function DashboardLayout({
         {/* Logo/Header - Hidden on mobile, shown on desktop */}
         <div className="hidden lg:flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-            Content Dashboard
+            Quản trị
           </h1>
           <button
             onClick={() => setIsDesktopSidebarOpen(false)}
             className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 transition-colors"
-            title="Close Sidebar"
+            title="Đóng sidebar"
           >
             <PanelLeft size={20} />
           </button>
