@@ -452,10 +452,12 @@ import {
 const configuration = new Configuration();
 const apiInstance = new ChapterControllerApi(configuration);
 
+let storyId: number; // (default to undefined)
 let chapterId: number; // (default to undefined)
 let requestBody: { [key: string]: string; }; //
 
 const { status, data } = await apiInstance.updateCrawlStatus(
+    storyId,
     chapterId,
     requestBody
 );
@@ -466,6 +468,7 @@ const { status, data } = await apiInstance.updateCrawlStatus(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **requestBody** | **{ [key: string]: string; }**|  | |
+| **storyId** | [**number**] |  | defaults to undefined|
 | **chapterId** | [**number**] |  | defaults to undefined|
 
 
@@ -561,10 +564,12 @@ import {
 const configuration = new Configuration();
 const apiInstance = new ChapterControllerApi(configuration);
 
+let storyId: number; // (default to undefined)
 let chapterId: number; // (default to undefined)
 let requestBody: { [key: string]: string; }; //
 
 const { status, data } = await apiInstance.updateTranslateStatus(
+    storyId,
     chapterId,
     requestBody
 );
@@ -575,6 +580,7 @@ const { status, data } = await apiInstance.updateTranslateStatus(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **requestBody** | **{ [key: string]: string; }**|  | |
+| **storyId** | [**number**] |  | defaults to undefined|
 | **chapterId** | [**number**] |  | defaults to undefined|
 
 

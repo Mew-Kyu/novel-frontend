@@ -360,17 +360,21 @@ export const ChapterControllerApiAxiosParamCreator = function (configuration?: C
         },
         /**
          * 
+         * @param {number} storyId 
          * @param {number} chapterId 
          * @param {{ [key: string]: string; }} requestBody 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateCrawlStatus: async (chapterId: number, requestBody: { [key: string]: string; }, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        updateCrawlStatus: async (storyId: number, chapterId: number, requestBody: { [key: string]: string; }, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'storyId' is not null or undefined
+            assertParamExists('updateCrawlStatus', 'storyId', storyId)
             // verify required parameter 'chapterId' is not null or undefined
             assertParamExists('updateCrawlStatus', 'chapterId', chapterId)
             // verify required parameter 'requestBody' is not null or undefined
             assertParamExists('updateCrawlStatus', 'requestBody', requestBody)
             const localVarPath = `/api/stories/{storyId}/chapters/{chapterId}/crawl-status`
+                .replace(`{${"storyId"}}`, encodeURIComponent(String(storyId)))
                 .replace(`{${"chapterId"}}`, encodeURIComponent(String(chapterId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -450,17 +454,21 @@ export const ChapterControllerApiAxiosParamCreator = function (configuration?: C
         },
         /**
          * 
+         * @param {number} storyId 
          * @param {number} chapterId 
          * @param {{ [key: string]: string; }} requestBody 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateTranslateStatus: async (chapterId: number, requestBody: { [key: string]: string; }, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        updateTranslateStatus: async (storyId: number, chapterId: number, requestBody: { [key: string]: string; }, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'storyId' is not null or undefined
+            assertParamExists('updateTranslateStatus', 'storyId', storyId)
             // verify required parameter 'chapterId' is not null or undefined
             assertParamExists('updateTranslateStatus', 'chapterId', chapterId)
             // verify required parameter 'requestBody' is not null or undefined
             assertParamExists('updateTranslateStatus', 'requestBody', requestBody)
             const localVarPath = `/api/stories/{storyId}/chapters/{chapterId}/translate-status`
+                .replace(`{${"storyId"}}`, encodeURIComponent(String(storyId)))
                 .replace(`{${"chapterId"}}`, encodeURIComponent(String(chapterId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -651,13 +659,14 @@ export const ChapterControllerApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {number} storyId 
          * @param {number} chapterId 
          * @param {{ [key: string]: string; }} requestBody 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async updateCrawlStatus(chapterId: number, requestBody: { [key: string]: string; }, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.updateCrawlStatus(chapterId, requestBody, options);
+        async updateCrawlStatus(storyId: number, chapterId: number, requestBody: { [key: string]: string; }, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.updateCrawlStatus(storyId, chapterId, requestBody, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ChapterControllerApi.updateCrawlStatus']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -678,13 +687,14 @@ export const ChapterControllerApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {number} storyId 
          * @param {number} chapterId 
          * @param {{ [key: string]: string; }} requestBody 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async updateTranslateStatus(chapterId: number, requestBody: { [key: string]: string; }, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.updateTranslateStatus(chapterId, requestBody, options);
+        async updateTranslateStatus(storyId: number, chapterId: number, requestBody: { [key: string]: string; }, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.updateTranslateStatus(storyId, chapterId, requestBody, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ChapterControllerApi.updateTranslateStatus']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -792,13 +802,14 @@ export const ChapterControllerApiFactory = function (configuration?: Configurati
         },
         /**
          * 
+         * @param {number} storyId 
          * @param {number} chapterId 
          * @param {{ [key: string]: string; }} requestBody 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateCrawlStatus(chapterId: number, requestBody: { [key: string]: string; }, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.updateCrawlStatus(chapterId, requestBody, options).then((request) => request(axios, basePath));
+        updateCrawlStatus(storyId: number, chapterId: number, requestBody: { [key: string]: string; }, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.updateCrawlStatus(storyId, chapterId, requestBody, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -813,13 +824,14 @@ export const ChapterControllerApiFactory = function (configuration?: Configurati
         },
         /**
          * 
+         * @param {number} storyId 
          * @param {number} chapterId 
          * @param {{ [key: string]: string; }} requestBody 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateTranslateStatus(chapterId: number, requestBody: { [key: string]: string; }, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.updateTranslateStatus(chapterId, requestBody, options).then((request) => request(axios, basePath));
+        updateTranslateStatus(storyId: number, chapterId: number, requestBody: { [key: string]: string; }, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.updateTranslateStatus(storyId, chapterId, requestBody, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -927,13 +939,14 @@ export class ChapterControllerApi extends BaseAPI {
 
     /**
      * 
+     * @param {number} storyId 
      * @param {number} chapterId 
      * @param {{ [key: string]: string; }} requestBody 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public updateCrawlStatus(chapterId: number, requestBody: { [key: string]: string; }, options?: RawAxiosRequestConfig) {
-        return ChapterControllerApiFp(this.configuration).updateCrawlStatus(chapterId, requestBody, options).then((request) => request(this.axios, this.basePath));
+    public updateCrawlStatus(storyId: number, chapterId: number, requestBody: { [key: string]: string; }, options?: RawAxiosRequestConfig) {
+        return ChapterControllerApiFp(this.configuration).updateCrawlStatus(storyId, chapterId, requestBody, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -950,13 +963,14 @@ export class ChapterControllerApi extends BaseAPI {
 
     /**
      * 
+     * @param {number} storyId 
      * @param {number} chapterId 
      * @param {{ [key: string]: string; }} requestBody 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public updateTranslateStatus(chapterId: number, requestBody: { [key: string]: string; }, options?: RawAxiosRequestConfig) {
-        return ChapterControllerApiFp(this.configuration).updateTranslateStatus(chapterId, requestBody, options).then((request) => request(this.axios, this.basePath));
+    public updateTranslateStatus(storyId: number, chapterId: number, requestBody: { [key: string]: string; }, options?: RawAxiosRequestConfig) {
+        return ChapterControllerApiFp(this.configuration).updateTranslateStatus(storyId, chapterId, requestBody, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

@@ -50,8 +50,11 @@ export const SearchBar = () => {
     }
 
     setIsLoading(true);
+    setShowResults(true); // Show dropdown immediately with loading state
+
     timeoutRef.current = setTimeout(async () => {
       try {
+        // Try semantic search first
         const response = await apiClient.ai.semanticSearch({
           query: query.trim(),
           limit: 10,
@@ -68,14 +71,41 @@ export const SearchBar = () => {
           }));
 
         setResults(mappedResults);
-        setShowResults(true);
       } catch (error) {
-        console.error("Search error:", error);
-        setResults([]);
+        console.error(
+          "Semantic search error, falling back to regular search:",
+          error
+        );
+
+        // Fallback to regular search
+        try {
+          const response = await apiClient.stories.getStoriesWithMetadata(
+            { page: 0, size: 10 },
+            query.trim(),
+            undefined,
+            undefined
+          );
+
+          const mappedResults: SearchResult[] = (response.data.content || [])
+            .filter((story) => story.id !== undefined)
+            .map((story) => ({
+              id: story.id!,
+              title: story.title || "",
+              translatedTitle: story.translatedTitle || null,
+              description: story.description || null,
+              coverImageUrl: story.coverImageUrl || null,
+            }));
+
+          setResults(mappedResults);
+        } catch (fallbackError) {
+          console.error("Regular search also failed:", fallbackError);
+          setResults([]);
+          setShowResults(false);
+        }
       } finally {
         setIsLoading(false);
       }
-    }, 400);
+    }, 800);
 
     return () => {
       if (timeoutRef.current) {
@@ -96,6 +126,22 @@ export const SearchBar = () => {
     setQuery("");
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (query.trim()) {
+      router.push(`/search?keyword=${encodeURIComponent(query.trim())}`);
+      setShowResults(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && query.trim()) {
+      e.preventDefault();
+      router.push(`/search?keyword=${encodeURIComponent(query.trim())}`);
+      setShowResults(false);
+    }
+  };
+
   return (
     <div
       ref={searchRef}
@@ -103,17 +149,23 @@ export const SearchBar = () => {
       suppressHydrationWarning
     >
       {/* Search Input */}
-      <div className="relative" suppressHydrationWarning>
+      <form
+        onSubmit={handleSubmit}
+        className="relative"
+        suppressHydrationWarning
+      >
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[rgb(var(--text-muted))]" />
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={handleKeyDown}
           placeholder="Bạn muốn đọc truyện gì? (Vd: Main bá đạo giấu nghề...)"
           className="w-full pl-12 pr-12 py-3 bg-[rgb(var(--card))] border border-[rgb(var(--border))] rounded-lg text-[rgb(var(--text))] placeholder:text-[rgb(var(--text-muted))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))] focus:border-transparent transition-all shadow-[0_1px_3px_0_rgb(0_0_0_/_0.1)] focus:shadow-[0_4px_6px_-1px_rgb(0_0_0_/_0.1)]"
         />
         {query && (
           <button
+            type="button"
             onClick={handleClear}
             className="absolute right-4 top-1/2 -translate-y-1/2 text-[rgb(var(--text-muted))] hover:text-[rgb(var(--text))] transition-colors"
             aria-label="Clear search"
@@ -122,7 +174,7 @@ export const SearchBar = () => {
             <X className="w-5 h-5" />
           </button>
         )}
-      </div>
+      </form>
 
       {/* Results Dropdown */}
       {showResults && (
@@ -137,8 +189,13 @@ export const SearchBar = () => {
               {results.map((result) => (
                 <button
                   key={result.id}
-                  onClick={() => handleResultClick(result.id)}
-                  className="w-full px-4 py-3 hover:bg-[rgb(var(--border))] transition-colors text-left flex gap-3"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleResultClick(result.id);
+                  }}
+                  type="button"
+                  className="w-full px-4 py-3 hover:bg-[rgb(var(--border))] transition-colors text-left flex gap-3 cursor-pointer"
                 >
                   {/* Cover Image */}
                   {result.coverImageUrl ? (

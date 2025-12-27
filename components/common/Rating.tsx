@@ -51,8 +51,13 @@ export function Rating({
           setUserRating(data.rating);
         }
       }
-    } catch (error) {
-      // User hasn't rated or error
+    } catch (error: any) {
+      // 404 means user hasn't rated yet, which is normal
+      if (error?.response?.status === 404) {
+        setUserRating(0);
+        return;
+      }
+      // Only log other errors
       console.error("Failed to fetch user rating:", error);
     }
   };

@@ -29,14 +29,16 @@ interface Genre {
 export default function SearchPage() {
   const searchParams = useSearchParams();
   const genreIdParam = searchParams.get("genreId");
+  const keywordParam = searchParams.get("keyword");
+  const isSemanticSearch = !!keywordParam; // Nếu có keyword từ URL = semantic search
 
   const [stories, setStories] = useState<Story[]>([]);
   const [genres, setGenres] = useState<Genre[]>([]);
   const [loading, setLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
 
-  // Filter states
-  const [keyword, setKeyword] = useState("");
+  // Filter states (chỉ dùng cho regular search)
+  const [filterKeyword, setFilterKeyword] = useState("");
   const [selectedGenreId, setSelectedGenreId] = useState<number | undefined>(
     genreIdParam ? Number(genreIdParam) : undefined
   );
@@ -64,20 +66,64 @@ export default function SearchPage() {
     fetchGenres();
   }, []);
 
-  // Search stories when filters change
+  // Semantic search from URL keyword (independent of filters)
   useEffect(() => {
+    if (!keywordParam) return;
+
+    const semanticSearch = async () => {
+      try {
+        setLoading(true);
+        const response = await apiClient.ai.semanticSearch({
+          query: keywordParam,
+          limit: 50,
+        });
+
+        const mappedStories = (response.data.results || [])
+          .filter((story) => story.id !== undefined)
+          .map((story) => ({
+            id: story.id || 0,
+            title: story.title || "",
+            translatedTitle: story.translatedTitle || null,
+            description: story.description || null,
+            translatedDescription: story.translatedDescription || null,
+            coverImageUrl: story.coverImageUrl || null,
+            averageRating: story.averageRating || null,
+            viewCount: story.viewCount || 0,
+            totalChapters: story.totalChapters || 0,
+            genres: story.genres
+              ?.filter((g) => g.id && g.name)
+              .map((g) => ({ id: g.id!, name: g.name! })),
+          }));
+
+        setStories(mappedStories);
+        setTotalPages(1);
+        setTotalElements(mappedStories.length);
+      } catch (error) {
+        console.error("Semantic search failed:", error);
+        setStories([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    semanticSearch();
+  }, [keywordParam]);
+
+  // Regular search with filters (only when NOT semantic search)
+  useEffect(() => {
+    if (isSemanticSearch) return; // Skip regular search if semantic
+
     const searchStories = async () => {
       try {
         setLoading(true);
         const response = await apiClient.stories.getStoriesWithMetadata(
           { page: currentPage, size: pageSize },
-          keyword || undefined,
+          filterKeyword || undefined,
           selectedGenreId,
           undefined
         );
 
         const data = response.data;
-        // Map StoryDetailDto to Story interface
         const mappedStories = (data.content || []).map((story) => ({
           id: story.id || 0,
           title: story.title || "",
@@ -104,14 +150,22 @@ export default function SearchPage() {
     };
 
     searchStories();
-  }, [keyword, selectedGenreId, minRating, sortBy, currentPage]);
+  }, [
+    isSemanticSearch,
+    filterKeyword,
+    selectedGenreId,
+    minRating,
+    sortBy,
+    currentPage,
+    pageSize,
+  ]);
 
   const handleSearch = () => {
     setCurrentPage(0); // Reset to first page on new search
   };
 
   const handleClearFilters = () => {
-    setKeyword("");
+    setFilterKeyword("");
     setSelectedGenreId(undefined);
     setMinRating(undefined);
     setSortBy("VIEW_COUNT");
@@ -124,134 +178,155 @@ export default function SearchPage() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-[rgb(var(--text))] mb-2">
-            Tìm kiếm truyện
+            {isSemanticSearch ? "Kết quả tìm kiếm AI" : "Tìm kiếm truyện"}
           </h1>
           <p className="text-[rgb(var(--text-muted))]">
             {totalElements > 0
               ? `Tìm thấy ${totalElements} truyện`
+              : isSemanticSearch
+              ? "Đang tìm kiếm với AI..."
               : "Khám phá thư viện truyện"}
           </p>
         </div>
 
         <div className="flex gap-6">
-          {/* Sidebar Filters (Desktop) */}
-          <aside className="hidden lg:block w-64 flex-shrink-0">
-            <div className="sticky top-20 bg-[rgb(var(--card))] border border-[rgb(var(--border))] rounded-xl p-6 space-y-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="font-semibold text-[rgb(var(--text))]">
-                  Bộ lọc
-                </h2>
-                <button
-                  onClick={handleClearFilters}
-                  className="text-sm text-[rgb(var(--primary))] hover:underline"
-                >
-                  Xóa hết
-                </button>
-              </div>
+          {/* Sidebar Filters (Desktop) - Ẩn khi semantic search */}
+          {!isSemanticSearch && (
+            <aside className="hidden lg:block w-64 flex-shrink-0">
+              <div className="sticky top-20 bg-[rgb(var(--card))] border border-[rgb(var(--border))] rounded-xl p-6 space-y-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="font-semibold text-[rgb(var(--text))]">
+                    Bộ lọc
+                  </h2>
+                  <button
+                    onClick={handleClearFilters}
+                    className="text-sm text-[rgb(var(--primary))] hover:underline"
+                  >
+                    Xóa hết
+                  </button>
+                </div>
 
-              {/* Keyword Search */}
-              <div>
-                <label className="block text-sm font-medium text-[rgb(var(--text))] mb-2">
-                  Từ khóa
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={keyword}
-                    onChange={(e) => setKeyword(e.target.value)}
-                    onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-                    placeholder="Tên truyện..."
-                    className="w-full px-4 py-2 bg-[rgb(var(--bg))] border border-[rgb(var(--border))] rounded-lg text-[rgb(var(--text))] placeholder:text-[rgb(var(--text-muted))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))]"
-                  />
-                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[rgb(var(--text-muted))]" />
+                {/* Keyword Search */}
+                <div>
+                  <label className="block text-sm font-medium text-[rgb(var(--text))] mb-2">
+                    Từ khóa
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={filterKeyword}
+                      onChange={(e) => setFilterKeyword(e.target.value)}
+                      onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+                      placeholder="Tên truyện..."
+                      className="w-full px-4 py-2 bg-[rgb(var(--bg))] border border-[rgb(var(--border))] rounded-lg text-[rgb(var(--text))] placeholder:text-[rgb(var(--text-muted))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))]"
+                    />
+                    <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[rgb(var(--text-muted))]" />
+                  </div>
+                </div>
+
+                {/* Genre Filter */}
+                <div>
+                  <label className="block text-sm font-medium text-[rgb(var(--text))] mb-2">
+                    Thể loại
+                  </label>
+                  <select
+                    value={selectedGenreId || ""}
+                    onChange={(e) =>
+                      setSelectedGenreId(
+                        e.target.value ? Number(e.target.value) : undefined
+                      )
+                    }
+                    aria-label="Chọn thể loại"
+                    className="w-full px-4 py-2 bg-[rgb(var(--bg))] border border-[rgb(var(--border))] rounded-lg text-[rgb(var(--text))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))]"
+                  >
+                    <option value="">Tất cả</option>
+                    {genres
+                      .filter((g) => g.id && g.name)
+                      .map((genre) => (
+                        <option key={genre.id} value={genre.id}>
+                          {genre.name}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+
+                {/* Rating Filter */}
+                <div>
+                  <label className="block text-sm font-medium text-[rgb(var(--text))] mb-2">
+                    Đánh giá tối thiểu
+                  </label>
+                  <select
+                    value={minRating || ""}
+                    onChange={(e) =>
+                      setMinRating(
+                        e.target.value ? Number(e.target.value) : undefined
+                      )
+                    }
+                    aria-label="Chọn đánh giá tối thiểu"
+                    className="w-full px-4 py-2 bg-[rgb(var(--bg))] border border-[rgb(var(--border))] rounded-lg text-[rgb(var(--text))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))]"
+                  >
+                    <option value="">Tất cả</option>
+                    <option value="4">4+ sao</option>
+                    <option value="3">3+ sao</option>
+                    <option value="2">2+ sao</option>
+                    <option value="1">1+ sao</option>
+                  </select>
+                </div>
+
+                {/* Sort By */}
+                <div>
+                  <label className="block text-sm font-medium text-[rgb(var(--text))] mb-2">
+                    Sắp xếp theo
+                  </label>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+                    aria-label="Sắp xếp theo"
+                    className="w-full px-4 py-2 bg-[rgb(var(--bg))] border border-[rgb(var(--border))] rounded-lg text-[rgb(var(--text))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))]"
+                  >
+                    <option value="VIEW_COUNT">Lượt xem</option>
+                    <option value="AVERAGE_RATING">Đánh giá</option>
+                    <option value="UPDATED_AT">Mới cập nhật</option>
+                  </select>
                 </div>
               </div>
-
-              {/* Genre Filter */}
-              <div>
-                <label className="block text-sm font-medium text-[rgb(var(--text))] mb-2">
-                  Thể loại
-                </label>
-                <select
-                  value={selectedGenreId || ""}
-                  onChange={(e) =>
-                    setSelectedGenreId(
-                      e.target.value ? Number(e.target.value) : undefined
-                    )
-                  }
-                  aria-label="Chọn thể loại"
-                  className="w-full px-4 py-2 bg-[rgb(var(--bg))] border border-[rgb(var(--border))] rounded-lg text-[rgb(var(--text))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))]"
-                >
-                  <option value="">Tất cả</option>
-                  {genres
-                    .filter((g) => g.id && g.name)
-                    .map((genre) => (
-                      <option key={genre.id} value={genre.id}>
-                        {genre.name}
-                      </option>
-                    ))}
-                </select>
-              </div>
-
-              {/* Rating Filter */}
-              <div>
-                <label className="block text-sm font-medium text-[rgb(var(--text))] mb-2">
-                  Đánh giá tối thiểu
-                </label>
-                <select
-                  value={minRating || ""}
-                  onChange={(e) =>
-                    setMinRating(
-                      e.target.value ? Number(e.target.value) : undefined
-                    )
-                  }
-                  aria-label="Chọn đánh giá tối thiểu"
-                  className="w-full px-4 py-2 bg-[rgb(var(--bg))] border border-[rgb(var(--border))] rounded-lg text-[rgb(var(--text))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))]"
-                >
-                  <option value="">Tất cả</option>
-                  <option value="4">4+ sao</option>
-                  <option value="3">3+ sao</option>
-                  <option value="2">2+ sao</option>
-                  <option value="1">1+ sao</option>
-                </select>
-              </div>
-
-              {/* Sort By */}
-              <div>
-                <label className="block text-sm font-medium text-[rgb(var(--text))] mb-2">
-                  Sắp xếp theo
-                </label>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-                  aria-label="Sắp xếp theo"
-                  className="w-full px-4 py-2 bg-[rgb(var(--bg))] border border-[rgb(var(--border))] rounded-lg text-[rgb(var(--text))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))]"
-                >
-                  <option value="VIEW_COUNT">Lượt xem</option>
-                  <option value="AVERAGE_RATING">Đánh giá</option>
-                  <option value="UPDATED_AT">Mới cập nhật</option>
-                </select>
-              </div>
-            </div>
-          </aside>
+            </aside>
+          )}
 
           {/* Main Content */}
           <main className="flex-1">
-            {/* Mobile Filter Toggle */}
-            <div className="lg:hidden mb-4">
-              <Button
-                variant="ghost"
-                size="md"
-                onClick={() => setShowFilters(!showFilters)}
-                className="w-full"
-              >
-                <Filter className="w-4 h-4 mr-2" />
-                {showFilters ? "Ẩn bộ lọc" : "Hiện bộ lọc"}
-              </Button>
-            </div>
+            {/* Semantic Search Info */}
+            {isSemanticSearch && (
+              <div className="mb-6 p-4 bg-[rgb(var(--primary))]/10 border border-[rgb(var(--primary))]/20 rounded-xl">
+                <p className="text-sm text-[rgb(var(--text))]">
+                  <span className="font-semibold">
+                    Kết quả tìm kiếm AI cho:
+                  </span>{" "}
+                  &quot;{keywordParam}&quot;
+                </p>
+                <p className="text-xs text-[rgb(var(--text-muted))] mt-1">
+                  Các bộ lọc không áp dụng cho kết quả tìm kiếm ngữ nghĩa
+                </p>
+              </div>
+            )}
 
-            {/* Mobile Filters */}
-            {showFilters && (
+            {/* Mobile Filter Toggle - Ẩn khi semantic search */}
+            {!isSemanticSearch && (
+              <div className="lg:hidden mb-4">
+                <Button
+                  variant="ghost"
+                  size="md"
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="w-full"
+                >
+                  <Filter className="w-4 h-4 mr-2" />
+                  {showFilters ? "Ẩn bộ lọc" : "Hiện bộ lọc"}
+                </Button>
+              </div>
+            )}
+
+            {/* Mobile Filters - Ẩn khi semantic search */}
+            {!isSemanticSearch && showFilters && (
               <div className="lg:hidden mb-6 bg-[rgb(var(--card))] border border-[rgb(var(--border))] rounded-xl p-4 space-y-4">
                 <div className="flex items-center justify-between mb-2">
                   <h2 className="font-semibold text-[rgb(var(--text))]">
@@ -273,8 +348,8 @@ export default function SearchPage() {
                   </label>
                   <input
                     type="text"
-                    value={keyword}
-                    onChange={(e) => setKeyword(e.target.value)}
+                    value={filterKeyword}
+                    onChange={(e) => setFilterKeyword(e.target.value)}
                     placeholder="Tên truyện..."
                     className="w-full px-4 py-2 bg-[rgb(var(--bg))] border border-[rgb(var(--border))] rounded-lg text-[rgb(var(--text))] placeholder:text-[rgb(var(--text-muted))]"
                   />
@@ -339,8 +414,8 @@ export default function SearchPage() {
               <>
                 <StoryGrid stories={stories} />
 
-                {/* Pagination */}
-                {totalPages > 1 && (
+                {/* Pagination - Ẩn cho semantic search vì không có pagination */}
+                {!isSemanticSearch && totalPages > 1 && (
                   <div className="mt-8">
                     <Pagination
                       currentPage={currentPage + 1}

@@ -557,7 +557,7 @@ export const StoryManagementApiAxiosParamCreator = function (configuration?: Con
             };
         },
         /**
-         * Replace all existing genres with a new set of genres. Send an empty array to remove all genres. Requires ADMIN or MODERATOR role.
+         * Replace all existing genres with a new set of genres. Send an empty array to remove all genres. ADMIN can modify any story. MODERATOR can only modify stories they created.
          * @summary Set all genres for a story
          * @param {number} storyId Story ID
          * @param {Array<string>} requestBody 
@@ -888,7 +888,7 @@ export const StoryManagementApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Replace all existing genres with a new set of genres. Send an empty array to remove all genres. Requires ADMIN or MODERATOR role.
+         * Replace all existing genres with a new set of genres. Send an empty array to remove all genres. ADMIN can modify any story. MODERATOR can only modify stories they created.
          * @summary Set all genres for a story
          * @param {number} storyId Story ID
          * @param {Array<string>} requestBody 
@@ -1071,7 +1071,7 @@ export const StoryManagementApiFactory = function (configuration?: Configuration
             return localVarFp.setFeatured(id, featured, options).then((request) => request(axios, basePath));
         },
         /**
-         * Replace all existing genres with a new set of genres. Send an empty array to remove all genres. Requires ADMIN or MODERATOR role.
+         * Replace all existing genres with a new set of genres. Send an empty array to remove all genres. ADMIN can modify any story. MODERATOR can only modify stories they created.
          * @summary Set all genres for a story
          * @param {number} storyId Story ID
          * @param {Array<string>} requestBody 
@@ -1252,7 +1252,7 @@ export class StoryManagementApi extends BaseAPI {
     }
 
     /**
-     * Replace all existing genres with a new set of genres. Send an empty array to remove all genres. Requires ADMIN or MODERATOR role.
+     * Replace all existing genres with a new set of genres. Send an empty array to remove all genres. ADMIN can modify any story. MODERATOR can only modify stories they created.
      * @summary Set all genres for a story
      * @param {number} storyId Story ID
      * @param {Array<string>} requestBody 

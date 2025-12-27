@@ -6,8 +6,10 @@ import type { StoryDto } from "@/lib/generated-api/generated/models";
 import { Plus, Search, Edit, Trash2, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { Pagination } from "@/components/common/Pagination";
+import { useAuthStore } from "@/lib/store/authStore";
 
 export default function StoriesPage() {
+  const { user, hasRole } = useAuthStore();
   const [stories, setStories] = useState<StoryDto[]>([]);
   const [allStories, setAllStories] = useState<StoryDto[]>([]);
   const [loading, setLoading] = useState(true);
@@ -16,6 +18,9 @@ export default function StoriesPage() {
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
   const pageSize = 12;
+
+  const isAdmin = hasRole("ADMIN");
+  const isModerator = hasRole("MODERATOR");
 
   useEffect(() => {
     fetchStories();
@@ -26,11 +31,22 @@ export default function StoriesPage() {
       setLoading(true);
       const response = await apiClient.stories.getStories({
         page: 0,
-        size: 1000, // Load all stories for admin dashboard
+        size: 1000, // Load all stories for dashboard
         sort: ["createdAt,DESC"],
       });
       const data = response.data;
-      setAllStories(data.content || []);
+      let fetchedStories = data.content || [];
+
+      // Filter stories based on role
+      if (isModerator && !isAdmin && user) {
+        // Moderator can only see their own stories
+        fetchedStories = fetchedStories.filter(
+          (story) => story.createdBy === user.id
+        );
+      }
+      // Admin sees all stories (no filter needed)
+
+      setAllStories(fetchedStories);
     } catch (error) {
       console.error("Failed to fetch stories:", error);
       alert("Lỗi khi tải danh sách truyện");
@@ -66,6 +82,15 @@ export default function StoriesPage() {
       console.error("Failed to delete story:", error);
       alert("Lỗi khi xóa truyện");
     }
+  };
+
+  // Check if user can edit/delete a story
+  const canEditStory = (story: StoryDto): boolean => {
+    if (isAdmin) return true; // Admin can edit all stories
+    if (isModerator && user) {
+      return story.createdBy === user.id; // Moderator can only edit their own stories
+    }
+    return false;
   };
 
   const getStatusColor = (status?: string) => {
@@ -184,20 +209,29 @@ export default function StoriesPage() {
 
                 {/* Actions */}
                 <div className="flex gap-2">
-                  <Link
-                    href={`/dashboard/stories/edit/${story.id}`}
-                    className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center justify-center gap-2 transition"
-                  >
-                    <Edit size={16} />
-                    Edit
-                  </Link>
-                  <button
-                    onClick={() => handleDelete(story.id!)}
-                    aria-label="Delete story"
-                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg flex items-center justify-center transition"
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                  {canEditStory(story) ? (
+                    <>
+                      <Link
+                        href={`/dashboard/stories/edit/${story.id}`}
+                        className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center justify-center gap-2 transition"
+                      >
+                        <Edit size={16} />
+                        Edit
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(story.id!)}
+                        aria-label="Delete story"
+                        className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg flex items-center justify-center transition"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </>
+                  ) : (
+                    <div className="flex-1 px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 rounded-lg flex items-center justify-center gap-2 cursor-not-allowed">
+                      <Edit size={16} />
+                      Không có quyền
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

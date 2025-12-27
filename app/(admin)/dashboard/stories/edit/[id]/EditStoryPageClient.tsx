@@ -22,6 +22,7 @@ import {
   FileText,
 } from "lucide-react";
 import Link from "next/link";
+import { useAuthStore } from "@/lib/store/authStore";
 
 const storySchema = z.object({
   title: z.string().min(1, "Tiêu đề là bắt buộc"),
@@ -45,6 +46,7 @@ type StoryFormData = z.infer<typeof storySchema>;
 
 export default function EditStoryPageClient({ storyId }: { storyId: number }) {
   const router = useRouter();
+  const { user, hasRole } = useAuthStore();
 
   const [story, setStory] = useState<StoryDto | null>(null);
   const [chapters, setChapters] = useState<ChapterDto[]>([]);
@@ -56,6 +58,10 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
   const [translationProgress, setTranslationProgress] = useState(0);
   const [translatingStory, setTranslatingStory] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [permissionError, setPermissionError] = useState(false);
+
+  const isAdmin = hasRole("ADMIN");
+  const isModerator = hasRole("MODERATOR");
 
   const {
     register,
@@ -82,8 +88,18 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
     try {
       setLoadingStory(true);
       setError(null);
+      setPermissionError(false);
+
       const response = await apiClient.stories.getStoryById(storyId);
       const storyData = response.data;
+
+      // Check permission: Admin can edit all, Moderator can only edit their own
+      if (!isAdmin && isModerator && user && storyData.createdBy !== user.id) {
+        setPermissionError(true);
+        setError("Bạn không có quyền chỉnh sửa truyện này");
+        return;
+      }
+
       setStory(storyData);
 
       // Populate form
@@ -285,6 +301,29 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
     return (
       <div className="flex justify-center py-12">
         <Loader2 className="animate-spin text-gray-400" size={32} />
+      </div>
+    );
+  }
+
+  // Permission Error - Show access denied
+  if (permissionError) {
+    return (
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 text-center">
+          <h2 className="text-xl font-bold text-red-800 dark:text-red-300 mb-2">
+            Không có quyền truy cập
+          </h2>
+          <p className="text-red-600 dark:text-red-400 mb-4">
+            {error || "Bạn chỉ có thể chỉnh sửa truyện do mình tạo"}
+          </p>
+          <Link
+            href="/dashboard/stories"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"
+          >
+            <ArrowLeft size={16} />
+            Quay lại danh sách
+          </Link>
+        </div>
       </div>
     );
   }
