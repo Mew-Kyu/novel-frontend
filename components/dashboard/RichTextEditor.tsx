@@ -3,6 +3,10 @@
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
+import TextAlign from "@tiptap/extension-text-align";
+import Underline from "@tiptap/extension-underline";
+import TextStyle from "@tiptap/extension-text-style";
+import FontFamily from "@tiptap/extension-font-family";
 import {
   Bold,
   Italic,
@@ -12,6 +16,12 @@ import {
   Heading2,
   ImageIcon,
   Loader2,
+  Underline as UnderlineIcon,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  AlignJustify,
+  Type,
 } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
@@ -38,6 +48,14 @@ export function RichTextEditor({
           class: "max-w-full h-auto rounded-lg my-4",
         },
       }),
+      TextAlign.configure({
+        types: ["heading", "paragraph"],
+      }),
+      Underline,
+      TextStyle,
+      FontFamily.configure({
+        types: ["textStyle"],
+      }),
     ],
     content,
     onUpdate: ({ editor }) => {
@@ -46,7 +64,7 @@ export function RichTextEditor({
     editorProps: {
       attributes: {
         class:
-          "prose dark:prose-invert max-w-none min-h-[300px] p-4 focus:outline-none",
+          "prose dark:prose-invert max-w-none min-h-[400px] p-4 focus:outline-none",
       },
     },
     immediatelyRender: false,
@@ -109,10 +127,31 @@ export function RichTextEditor({
     </button>
   );
 
+  const handleFontChange = (font: string) => {
+    editor?.chain().focus().setFontFamily(font).run();
+  };
+
   return (
     <div className="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
       {/* Toolbar */}
       <div className="flex items-center gap-1 p-2 border-b border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 flex-wrap">
+        {/* Font Family */}
+        <select
+          onChange={(e) => handleFontChange(e.target.value)}
+          className="px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500"
+          title="Font"
+        >
+          <option value="">Mặc định</option>
+          <option value="Arial">Arial</option>
+          <option value="Times New Roman">Times New Roman</option>
+          <option value="Courier New">Courier New</option>
+          <option value="Georgia">Georgia</option>
+          <option value="Verdana">Verdana</option>
+        </select>
+
+        <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
+
+        {/* Text Formatting */}
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleBold().run()}
           active={editor.isActive("bold")}
@@ -127,8 +166,16 @@ export function RichTextEditor({
           <Italic size={18} />
         </ToolbarButton>
 
+        <ToolbarButton
+          onClick={() => editor.chain().focus().toggleUnderline().run()}
+          active={editor.isActive("underline")}
+        >
+          <UnderlineIcon size={18} />
+        </ToolbarButton>
+
         <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
 
+        {/* Headings */}
         <ToolbarButton
           onClick={() =>
             editor.chain().focus().toggleHeading({ level: 1 }).run()
@@ -149,6 +196,38 @@ export function RichTextEditor({
 
         <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
 
+        {/* Text Alignment */}
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setTextAlign("left").run()}
+          active={editor.isActive({ textAlign: "left" })}
+        >
+          <AlignLeft size={18} />
+        </ToolbarButton>
+
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setTextAlign("center").run()}
+          active={editor.isActive({ textAlign: "center" })}
+        >
+          <AlignCenter size={18} />
+        </ToolbarButton>
+
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setTextAlign("right").run()}
+          active={editor.isActive({ textAlign: "right" })}
+        >
+          <AlignRight size={18} />
+        </ToolbarButton>
+
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setTextAlign("justify").run()}
+          active={editor.isActive({ textAlign: "justify" })}
+        >
+          <AlignJustify size={18} />
+        </ToolbarButton>
+
+        <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
+
+        {/* Lists */}
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleBulletList().run()}
           active={editor.isActive("bulletList")}
@@ -165,6 +244,7 @@ export function RichTextEditor({
 
         <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
 
+        {/* Image Upload */}
         <ToolbarButton onClick={handleImageUpload} disabled={uploadingImage}>
           {uploadingImage ? (
             <Loader2 size={18} className="animate-spin" />

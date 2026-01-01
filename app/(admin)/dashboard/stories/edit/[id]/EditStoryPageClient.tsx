@@ -605,7 +605,10 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
                 key={chapter.id}
                 className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition"
               >
-                <div className="flex-1">
+                <Link
+                  href={`/dashboard/stories/edit/${storyId}/chapters/${chapter.id}`}
+                  className="flex-1 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400"
+                >
                   <h3 className="font-medium text-gray-900 dark:text-white">
                     Chương {chapter.chapterIndex}: {chapter.title}
                   </h3>
@@ -620,7 +623,7 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
                       </span>
                     )}
                   </p>
-                </div>
+                </Link>
                 {chapter.translateStatus === "SUCCESS" ? (
                   <button
                     onClick={() => handleReTranslateChapter(chapter.id!)}

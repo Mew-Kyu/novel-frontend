@@ -11,7 +11,19 @@ importers:
       '@hookform/resolvers':
         specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.68.0(react@19.2.1))
+      '@tiptap/extension-font-family':
+        specifier: ^3.14.0
+        version: 3.14.0(@tiptap/extension-text-style@3.14.0(@tiptap/core@3.14.0(@tiptap/pm@3.14.0)))
       '@tiptap/extension-image':
+        specifier: ^3.14.0
+        version: 3.14.0(@tiptap/core@3.14.0(@tiptap/pm@3.14.0))
+      '@tiptap/extension-text-align':
+        specifier: ^3.14.0
+        version: 3.14.0(@tiptap/core@3.14.0(@tiptap/pm@3.14.0))
+      '@tiptap/extension-text-style':
+        specifier: ^3.14.0
+        version: 3.14.0(@tiptap/core@3.14.0(@tiptap/pm@3.14.0))
+      '@tiptap/extension-underline':
         specifier: ^3.14.0
         version: 3.14.0(@tiptap/core@3.14.0(@tiptap/pm@3.14.0))
       '@tiptap/react':
@@ -511,6 +523,11 @@ packages:
       '@tiptap/core': ^3.14.0
       '@tiptap/pm': ^3.14.0
 
+  '@tiptap/extension-font-family@3.14.0':
+    resolution: {integrity: sha512-xY8xtvCAU+kdHYx2tg8lGgegttf4XuEZhW8TVXmrbMe50MVY5saujZzSxojx/etdEsXkrmamT8VVNJREmwiFsQ==}
+    peerDependencies:
+      '@tiptap/extension-text-style': ^3.14.0
+
   '@tiptap/extension-gapcursor@3.14.0':
     resolution: {integrity: sha512-hMg2U59+c9FreYtTvzxx5GWKejdZLRITMLEu4OTfrgQok6uF4qkzGEEqmYqPiHk08TBqAg18Y5bbpyqTsuit9A==}
     peerDependencies:
@@ -576,6 +593,16 @@ packages:
 
   '@tiptap/extension-strike@3.14.0':
     resolution: {integrity: sha512-R8BbAhnWpisBml6okMKl98hY4tJjedTTgyTkx8tPabIJ92nS9IURKEk3foWB9uHxdTOBUqTvVT+2ScDf9r6QHg==}
+    peerDependencies:
+      '@tiptap/core': ^3.14.0
+
+  '@tiptap/extension-text-align@3.14.0':
+    resolution: {integrity: sha512-CaxxlbAvfofZZ7KPL28Kg8xuMv8t4rvt5GPwZAqE+jd3rwrucpovpX/SdgclYDc75xs0t8qeoxDFe9HQmG5XZA==}
+    peerDependencies:
+      '@tiptap/core': ^3.14.0
+
+  '@tiptap/extension-text-style@3.14.0':
+    resolution: {integrity: sha512-YZID7tvcMr5XLdq1PBxpIQi3dZFS2/LRAqIZHJ85FcG0EJkeRdM+y32+DXAWGvbwgAZaZOOvrgOfthQ/oqCdZg==}
     peerDependencies:
       '@tiptap/core': ^3.14.0
 
@@ -3055,6 +3082,10 @@ snapshots:
       '@tiptap/pm': 3.14.0
     optional: true
 
+  '@tiptap/extension-font-family@3.14.0(@tiptap/extension-text-style@3.14.0(@tiptap/core@3.14.0(@tiptap/pm@3.14.0)))':
+    dependencies:
+      '@tiptap/extension-text-style': 3.14.0(@tiptap/core@3.14.0(@tiptap/pm@3.14.0))
+
   '@tiptap/extension-gapcursor@3.14.0(@tiptap/extensions@3.14.0(@tiptap/core@3.14.0(@tiptap/pm@3.14.0))(@tiptap/pm@3.14.0))':
     dependencies:
       '@tiptap/extensions': 3.14.0(@tiptap/core@3.14.0(@tiptap/pm@3.14.0))(@tiptap/pm@3.14.0)
@@ -3108,6 +3139,14 @@ snapshots:
       '@tiptap/core': 3.14.0(@tiptap/pm@3.14.0)
 
   '@tiptap/extension-strike@3.14.0(@tiptap/core@3.14.0(@tiptap/pm@3.14.0))':
+    dependencies:
+      '@tiptap/core': 3.14.0(@tiptap/pm@3.14.0)
+
+  '@tiptap/extension-text-align@3.14.0(@tiptap/core@3.14.0(@tiptap/pm@3.14.0))':
+    dependencies:
+      '@tiptap/core': 3.14.0(@tiptap/pm@3.14.0)
+
+  '@tiptap/extension-text-style@3.14.0(@tiptap/core@3.14.0(@tiptap/pm@3.14.0))':
     dependencies:
       '@tiptap/core': 3.14.0(@tiptap/pm@3.14.0)
 
