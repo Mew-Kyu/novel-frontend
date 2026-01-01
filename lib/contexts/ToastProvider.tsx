@@ -1,6 +1,7 @@
 "use client";
 
 import { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 export const ToastProvider = () => {
   return (
@@ -28,4 +29,21 @@ export const ToastProvider = () => {
       }}
     />
   );
+};
+
+export const useToast = () => {
+  const showToast = (
+    message: string,
+    type: "success" | "error" | "info" = "info"
+  ) => {
+    if (type === "success") {
+      toast.success(message);
+    } else if (type === "error") {
+      toast.error(message);
+    } else {
+      toast(message);
+    }
+  };
+
+  return { showToast };
 };

@@ -32,6 +32,7 @@ interface ReadingHistoryItem {
 export default function HistoryPage() {
   const router = useRouter();
   const { isAuthenticated, isLoading: authLoading } = useAuthStore();
+  const [mounted, setMounted] = useState(false);
   const [historyItems, setHistoryItems] = useState<ReadingHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
@@ -42,6 +43,13 @@ export default function HistoryPage() {
   const pageSize = 20;
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    // Wait for component to mount before checking auth to avoid hydration issues
+    if (!mounted) return;
+
     // Redirect if not authenticated
     if (!authLoading && !isAuthenticated) {
       router.push("/login");
@@ -96,7 +104,7 @@ export default function HistoryPage() {
     };
 
     fetchHistory();
-  }, [isAuthenticated, authLoading, router, currentPage]);
+  }, [isAuthenticated, authLoading, router, currentPage, mounted]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);

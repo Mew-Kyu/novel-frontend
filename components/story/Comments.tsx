@@ -9,6 +9,7 @@ import { formatRelativeTime } from "@/lib/utils/format";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
+import { Avatar } from "@/components/common/Avatar";
 
 interface CommentsProps {
   storyId: number;
@@ -143,11 +144,13 @@ export function Comments({ storyId }: CommentsProps) {
           comments.map((comment) => (
             <Card key={comment.id} className="p-4">
               <div className="flex items-start gap-3">
-                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                  <span className="text-sm font-medium text-primary">
-                    {comment.userName?.charAt(0).toUpperCase() || "U"}
-                  </span>
-                </div>
+                <Avatar
+                  src={comment.userAvatarUrl}
+                  alt={comment.userName}
+                  fallbackText={comment.userName}
+                  size="md"
+                  className="flex-shrink-0"
+                />
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="font-medium">

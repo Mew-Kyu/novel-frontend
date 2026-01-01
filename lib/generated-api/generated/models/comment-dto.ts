@@ -18,6 +18,7 @@ export interface CommentDto {
     'id'?: number;
     'userId'?: number;
     'userName'?: string;
+    'userAvatarUrl'?: string;
     'storyId'?: number;
     'content'?: string;
     'createdAt'?: string;

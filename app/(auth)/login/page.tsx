@@ -84,6 +84,16 @@ export default function LoginPage() {
               {...register("password")}
             />
 
+            {/* Forgot Password Link */}
+            <div className="text-right">
+              <a
+                href="/forgot-password"
+                className="text-sm text-blue-500 hover:text-blue-400 transition-colors"
+              >
+                Quên mật khẩu?
+              </a>
+            </div>
+
             {/* Submit Button */}
             <Button
               type="submit"

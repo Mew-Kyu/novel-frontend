@@ -21,6 +21,7 @@ import {
   Home,
 } from "lucide-react";
 import { useAuthStore } from "@/lib/store/authStore";
+import { Avatar } from "@/components/common/Avatar";
 
 export default function DashboardLayout({
   children,
@@ -62,6 +63,12 @@ export default function DashboardLayout({
       adminOnly: false,
     },
     {
+      name: "Quản lý người dùng",
+      href: "/dashboard/users",
+      icon: Users,
+      adminOnly: true,
+    },
+    {
       name: "Quản lý Crawl",
       href: "/dashboard/crawl",
       icon: Download,
@@ -80,21 +87,19 @@ export default function DashboardLayout({
       name: "Tổng quan",
       href: "/dashboard/system",
       icon: Settings,
-    },
-    {
-      name: "Quản lý User",
-      href: "/dashboard/system/users",
-      icon: Users,
+      adminOnly: false,
     },
     {
       name: "Quản lý Roles",
       href: "/dashboard/system/roles",
       icon: Shield,
+      adminOnly: false,
     },
     {
       name: "Cài đặt",
       href: "/dashboard/system/settings",
       icon: Sliders,
+      adminOnly: false,
     },
   ];
 
@@ -204,6 +209,11 @@ export default function DashboardLayout({
               {systemMenuOpen && (
                 <div className="mt-1 ml-4 space-y-1">
                   {systemMenuItems.map((item) => {
+                    // Hide admin-only items for non-admin users
+                    if (item.adminOnly && !hasRole("ADMIN")) {
+                      return null;
+                    }
+
                     const isActive = pathname === item.href;
                     return (
                       <Link
@@ -230,9 +240,12 @@ export default function DashboardLayout({
         {/* User Info */}
         <div className="p-4 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white">
-              <User size={20} />
-            </div>
+            <Avatar
+              src={user.avatarUrl}
+              alt={user.displayName}
+              fallbackText={user.displayName}
+              size="md"
+            />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                 {user.displayName}

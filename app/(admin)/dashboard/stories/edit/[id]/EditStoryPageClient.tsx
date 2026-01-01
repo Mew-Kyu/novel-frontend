@@ -165,21 +165,14 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
   const onSubmit = async (data: StoryFormData) => {
     setLoading(true);
     try {
-      const updatePayload = {
+      const updatePayload: any = {
         title: data.title,
-        rawTitle: data.rawTitle,
-        translatedTitle: data.translatedTitle,
         authorName: data.authorName,
-        rawAuthorName: data.rawAuthorName,
-        translatedAuthorName: data.translatedAuthorName,
         description: data.description,
-        rawDescription: data.rawDescription,
-        translatedDescription: data.translatedDescription,
         coverImageUrl: data.coverImageUrl,
         sourceUrl: data.sourceUrl,
         sourceSite: data.sourceSite,
-        status: data.status,
-        genreIds: new Set(data.genreIds),
+        genreIds: data.genreIds,
       };
 
       await apiClient.stories.updateStory(storyId, updatePayload);

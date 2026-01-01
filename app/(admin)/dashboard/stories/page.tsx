@@ -7,6 +7,7 @@ import type { StoryDto } from "@/lib/generated-api/generated/models";
 import { Plus, Search, Edit, Trash2, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { Pagination } from "@/components/common/Pagination";
+import { Avatar } from "@/components/common/Avatar";
 import { useAuthStore } from "@/lib/store/authStore";
 
 export default function StoriesPage() {
@@ -188,9 +189,17 @@ export default function StoriesPage() {
                   </span>
                 </div>
 
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                  {story.authorName}
-                </p>
+                <div className="flex items-center gap-2 mb-3">
+                  <Avatar
+                    src={undefined}
+                    alt={story.authorName}
+                    fallbackText={story.authorName}
+                    size="sm"
+                  />
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {story.authorName}
+                  </p>
+                </div>
 
                 <div className="flex flex-wrap gap-2 mb-4">
                   {story.genres?.slice(0, 3).map((genre) => (

@@ -22,6 +22,8 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
+import type { AdminResetPasswordRequest } from '../models';
+// @ts-ignore
 import type { CreateRoleRequest } from '../models';
 // @ts-ignore
 import type { PageUserDto } from '../models';
@@ -77,19 +79,17 @@ export const AdminControllerApiAxiosParamCreator = function (configuration?: Con
         },
         /**
          * 
-         * @param {number} userId 
-         * @param {string} roleName 
+         * @param {Pageable} pageable 
+         * @param {string} [email] 
+         * @param {string} [displayName] 
+         * @param {boolean} [active] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        assignRoleToUser: async (userId: number, roleName: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'userId' is not null or undefined
-            assertParamExists('assignRoleToUser', 'userId', userId)
-            // verify required parameter 'roleName' is not null or undefined
-            assertParamExists('assignRoleToUser', 'roleName', roleName)
-            const localVarPath = `/api/admin/users/{userId}/roles/{roleName}`
-                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)))
-                .replace(`{${"roleName"}}`, encodeURIComponent(String(roleName)));
+        advancedSearch: async (pageable: Pageable, email?: string, displayName?: string, active?: boolean, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'pageable' is not null or undefined
+            assertParamExists('advancedSearch', 'pageable', pageable)
+            const localVarPath = `/api/admin/users/search/advanced`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -97,13 +97,31 @@ export const AdminControllerApiAxiosParamCreator = function (configuration?: Con
                 baseOptions = configuration.baseOptions;
             }
 
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
             // authentication Bearer Authentication required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (email !== undefined) {
+                localVarQueryParameter['email'] = email;
+            }
+
+            if (displayName !== undefined) {
+                localVarQueryParameter['displayName'] = displayName;
+            }
+
+            if (active !== undefined) {
+                localVarQueryParameter['active'] = active;
+            }
+
+            if (pageable !== undefined) {
+                for (const [key, value] of Object.entries(pageable)) {
+                    localVarQueryParameter[key] = value;
+                }
+            }
 
 
     
@@ -217,6 +235,92 @@ export const AdminControllerApiAxiosParamCreator = function (configuration?: Con
             // authentication Bearer Authentication required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} userId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteUser: async (userId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'userId' is not null or undefined
+            assertParamExists('deleteUser', 'userId', userId)
+            const localVarPath = `/api/admin/users/{userId}`
+                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer Authentication required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {boolean} active 
+         * @param {Pageable} pageable 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        filterByStatus: async (active: boolean, pageable: Pageable, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'active' is not null or undefined
+            assertParamExists('filterByStatus', 'active', active)
+            // verify required parameter 'pageable' is not null or undefined
+            assertParamExists('filterByStatus', 'pageable', pageable)
+            const localVarPath = `/api/admin/users/filter/status`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer Authentication required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (active !== undefined) {
+                localVarQueryParameter['active'] = active;
+            }
+
+            if (pageable !== undefined) {
+                for (const [key, value] of Object.entries(pageable)) {
+                    localVarQueryParameter[key] = value;
+                }
+            }
 
 
     
@@ -414,18 +518,17 @@ export const AdminControllerApiAxiosParamCreator = function (configuration?: Con
         /**
          * 
          * @param {number} userId 
-         * @param {string} roleName 
+         * @param {AdminResetPasswordRequest} adminResetPasswordRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        removeRoleFromUser: async (userId: number, roleName: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        resetUserPassword: async (userId: number, adminResetPasswordRequest: AdminResetPasswordRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'userId' is not null or undefined
-            assertParamExists('removeRoleFromUser', 'userId', userId)
-            // verify required parameter 'roleName' is not null or undefined
-            assertParamExists('removeRoleFromUser', 'roleName', roleName)
-            const localVarPath = `/api/admin/users/{userId}/roles/{roleName}`
-                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)))
-                .replace(`{${"roleName"}}`, encodeURIComponent(String(roleName)));
+            assertParamExists('resetUserPassword', 'userId', userId)
+            // verify required parameter 'adminResetPasswordRequest' is not null or undefined
+            assertParamExists('resetUserPassword', 'adminResetPasswordRequest', adminResetPasswordRequest)
+            const localVarPath = `/api/admin/users/{userId}/reset-password`
+                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -433,13 +536,163 @@ export const AdminControllerApiAxiosParamCreator = function (configuration?: Con
                 baseOptions = configuration.baseOptions;
             }
 
-            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
             // authentication Bearer Authentication required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(adminResetPasswordRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} displayName 
+         * @param {Pageable} pageable 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        searchByDisplayName: async (displayName: string, pageable: Pageable, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'displayName' is not null or undefined
+            assertParamExists('searchByDisplayName', 'displayName', displayName)
+            // verify required parameter 'pageable' is not null or undefined
+            assertParamExists('searchByDisplayName', 'pageable', pageable)
+            const localVarPath = `/api/admin/users/search/name`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer Authentication required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (displayName !== undefined) {
+                localVarQueryParameter['displayName'] = displayName;
+            }
+
+            if (pageable !== undefined) {
+                for (const [key, value] of Object.entries(pageable)) {
+                    localVarQueryParameter[key] = value;
+                }
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} email 
+         * @param {Pageable} pageable 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        searchByEmail: async (email: string, pageable: Pageable, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'email' is not null or undefined
+            assertParamExists('searchByEmail', 'email', email)
+            // verify required parameter 'pageable' is not null or undefined
+            assertParamExists('searchByEmail', 'pageable', pageable)
+            const localVarPath = `/api/admin/users/search/email`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer Authentication required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (email !== undefined) {
+                localVarQueryParameter['email'] = email;
+            }
+
+            if (pageable !== undefined) {
+                for (const [key, value] of Object.entries(pageable)) {
+                    localVarQueryParameter[key] = value;
+                }
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} keyword 
+         * @param {Pageable} pageable 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        searchByKeyword: async (keyword: string, pageable: Pageable, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'keyword' is not null or undefined
+            assertParamExists('searchByKeyword', 'keyword', keyword)
+            // verify required parameter 'pageable' is not null or undefined
+            assertParamExists('searchByKeyword', 'pageable', pageable)
+            const localVarPath = `/api/admin/users/search/keyword`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer Authentication required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (keyword !== undefined) {
+                localVarQueryParameter['keyword'] = keyword;
+            }
+
+            if (pageable !== undefined) {
+                for (const [key, value] of Object.entries(pageable)) {
+                    localVarQueryParameter[key] = value;
+                }
+            }
 
 
     
@@ -495,6 +748,50 @@ export const AdminControllerApiAxiosParamCreator = function (configuration?: Con
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * 
+         * @param {number} userId 
+         * @param {string} roleName 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateUserRole: async (userId: number, roleName: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'userId' is not null or undefined
+            assertParamExists('updateUserRole', 'userId', userId)
+            // verify required parameter 'roleName' is not null or undefined
+            assertParamExists('updateUserRole', 'roleName', roleName)
+            const localVarPath = `/api/admin/users/{userId}/role`
+                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer Authentication required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (roleName !== undefined) {
+                localVarQueryParameter['roleName'] = roleName;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -518,15 +815,17 @@ export const AdminControllerApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @param {number} userId 
-         * @param {string} roleName 
+         * @param {Pageable} pageable 
+         * @param {string} [email] 
+         * @param {string} [displayName] 
+         * @param {boolean} [active] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async assignRoleToUser(userId: number, roleName: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.assignRoleToUser(userId, roleName, options);
+        async advancedSearch(pageable: Pageable, email?: string, displayName?: string, active?: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PageUserDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.advancedSearch(pageable, email, displayName, active, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminControllerApi.assignRoleToUser']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminControllerApi.advancedSearch']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -563,6 +862,31 @@ export const AdminControllerApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.deleteRole(roleId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminControllerApi.deleteRole']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {number} userId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async deleteUser(userId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteUser(userId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminControllerApi.deleteUser']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {boolean} active 
+         * @param {Pageable} pageable 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async filterByStatus(active: boolean, pageable: Pageable, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PageUserDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.filterByStatus(active, pageable, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminControllerApi.filterByStatus']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -626,14 +950,53 @@ export const AdminControllerApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @param {number} userId 
-         * @param {string} roleName 
+         * @param {AdminResetPasswordRequest} adminResetPasswordRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async removeRoleFromUser(userId: number, roleName: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.removeRoleFromUser(userId, roleName, options);
+        async resetUserPassword(userId: number, adminResetPasswordRequest: AdminResetPasswordRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<{ [key: string]: string; }>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.resetUserPassword(userId, adminResetPasswordRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminControllerApi.removeRoleFromUser']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminControllerApi.resetUserPassword']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} displayName 
+         * @param {Pageable} pageable 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async searchByDisplayName(displayName: string, pageable: Pageable, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PageUserDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.searchByDisplayName(displayName, pageable, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminControllerApi.searchByDisplayName']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} email 
+         * @param {Pageable} pageable 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async searchByEmail(email: string, pageable: Pageable, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PageUserDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.searchByEmail(email, pageable, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminControllerApi.searchByEmail']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} keyword 
+         * @param {Pageable} pageable 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async searchByKeyword(keyword: string, pageable: Pageable, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PageUserDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.searchByKeyword(keyword, pageable, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminControllerApi.searchByKeyword']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -647,6 +1010,19 @@ export const AdminControllerApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.updateRole(roleId, updateRoleRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminControllerApi.updateRole']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {number} userId 
+         * @param {string} roleName 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async updateUserRole(userId: number, roleName: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.updateUserRole(userId, roleName, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminControllerApi.updateUserRole']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -669,13 +1045,15 @@ export const AdminControllerApiFactory = function (configuration?: Configuration
         },
         /**
          * 
-         * @param {number} userId 
-         * @param {string} roleName 
+         * @param {Pageable} pageable 
+         * @param {string} [email] 
+         * @param {string} [displayName] 
+         * @param {boolean} [active] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        assignRoleToUser(userId: number, roleName: string, options?: RawAxiosRequestConfig): AxiosPromise<UserDto> {
-            return localVarFp.assignRoleToUser(userId, roleName, options).then((request) => request(axios, basePath));
+        advancedSearch(pageable: Pageable, email?: string, displayName?: string, active?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<PageUserDto> {
+            return localVarFp.advancedSearch(pageable, email, displayName, active, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -703,6 +1081,25 @@ export const AdminControllerApiFactory = function (configuration?: Configuration
          */
         deleteRole(roleId: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.deleteRole(roleId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {number} userId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteUser(userId: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.deleteUser(userId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {boolean} active 
+         * @param {Pageable} pageable 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        filterByStatus(active: boolean, pageable: Pageable, options?: RawAxiosRequestConfig): AxiosPromise<PageUserDto> {
+            return localVarFp.filterByStatus(active, pageable, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -750,12 +1147,42 @@ export const AdminControllerApiFactory = function (configuration?: Configuration
         /**
          * 
          * @param {number} userId 
-         * @param {string} roleName 
+         * @param {AdminResetPasswordRequest} adminResetPasswordRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        removeRoleFromUser(userId: number, roleName: string, options?: RawAxiosRequestConfig): AxiosPromise<UserDto> {
-            return localVarFp.removeRoleFromUser(userId, roleName, options).then((request) => request(axios, basePath));
+        resetUserPassword(userId: number, adminResetPasswordRequest: AdminResetPasswordRequest, options?: RawAxiosRequestConfig): AxiosPromise<{ [key: string]: string; }> {
+            return localVarFp.resetUserPassword(userId, adminResetPasswordRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} displayName 
+         * @param {Pageable} pageable 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        searchByDisplayName(displayName: string, pageable: Pageable, options?: RawAxiosRequestConfig): AxiosPromise<PageUserDto> {
+            return localVarFp.searchByDisplayName(displayName, pageable, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} email 
+         * @param {Pageable} pageable 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        searchByEmail(email: string, pageable: Pageable, options?: RawAxiosRequestConfig): AxiosPromise<PageUserDto> {
+            return localVarFp.searchByEmail(email, pageable, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} keyword 
+         * @param {Pageable} pageable 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        searchByKeyword(keyword: string, pageable: Pageable, options?: RawAxiosRequestConfig): AxiosPromise<PageUserDto> {
+            return localVarFp.searchByKeyword(keyword, pageable, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -766,6 +1193,16 @@ export const AdminControllerApiFactory = function (configuration?: Configuration
          */
         updateRole(roleId: number, updateRoleRequest: UpdateRoleRequest, options?: RawAxiosRequestConfig): AxiosPromise<RoleDto> {
             return localVarFp.updateRole(roleId, updateRoleRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {number} userId 
+         * @param {string} roleName 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateUserRole(userId: number, roleName: string, options?: RawAxiosRequestConfig): AxiosPromise<UserDto> {
+            return localVarFp.updateUserRole(userId, roleName, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -786,13 +1223,15 @@ export class AdminControllerApi extends BaseAPI {
 
     /**
      * 
-     * @param {number} userId 
-     * @param {string} roleName 
+     * @param {Pageable} pageable 
+     * @param {string} [email] 
+     * @param {string} [displayName] 
+     * @param {boolean} [active] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public assignRoleToUser(userId: number, roleName: string, options?: RawAxiosRequestConfig) {
-        return AdminControllerApiFp(this.configuration).assignRoleToUser(userId, roleName, options).then((request) => request(this.axios, this.basePath));
+    public advancedSearch(pageable: Pageable, email?: string, displayName?: string, active?: boolean, options?: RawAxiosRequestConfig) {
+        return AdminControllerApiFp(this.configuration).advancedSearch(pageable, email, displayName, active, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -823,6 +1262,27 @@ export class AdminControllerApi extends BaseAPI {
      */
     public deleteRole(roleId: number, options?: RawAxiosRequestConfig) {
         return AdminControllerApiFp(this.configuration).deleteRole(roleId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {number} userId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public deleteUser(userId: number, options?: RawAxiosRequestConfig) {
+        return AdminControllerApiFp(this.configuration).deleteUser(userId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {boolean} active 
+     * @param {Pageable} pageable 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public filterByStatus(active: boolean, pageable: Pageable, options?: RawAxiosRequestConfig) {
+        return AdminControllerApiFp(this.configuration).filterByStatus(active, pageable, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -876,12 +1336,45 @@ export class AdminControllerApi extends BaseAPI {
     /**
      * 
      * @param {number} userId 
-     * @param {string} roleName 
+     * @param {AdminResetPasswordRequest} adminResetPasswordRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public removeRoleFromUser(userId: number, roleName: string, options?: RawAxiosRequestConfig) {
-        return AdminControllerApiFp(this.configuration).removeRoleFromUser(userId, roleName, options).then((request) => request(this.axios, this.basePath));
+    public resetUserPassword(userId: number, adminResetPasswordRequest: AdminResetPasswordRequest, options?: RawAxiosRequestConfig) {
+        return AdminControllerApiFp(this.configuration).resetUserPassword(userId, adminResetPasswordRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} displayName 
+     * @param {Pageable} pageable 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public searchByDisplayName(displayName: string, pageable: Pageable, options?: RawAxiosRequestConfig) {
+        return AdminControllerApiFp(this.configuration).searchByDisplayName(displayName, pageable, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} email 
+     * @param {Pageable} pageable 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public searchByEmail(email: string, pageable: Pageable, options?: RawAxiosRequestConfig) {
+        return AdminControllerApiFp(this.configuration).searchByEmail(email, pageable, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} keyword 
+     * @param {Pageable} pageable 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public searchByKeyword(keyword: string, pageable: Pageable, options?: RawAxiosRequestConfig) {
+        return AdminControllerApiFp(this.configuration).searchByKeyword(keyword, pageable, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -893,6 +1386,17 @@ export class AdminControllerApi extends BaseAPI {
      */
     public updateRole(roleId: number, updateRoleRequest: UpdateRoleRequest, options?: RawAxiosRequestConfig) {
         return AdminControllerApiFp(this.configuration).updateRole(roleId, updateRoleRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {number} userId 
+     * @param {string} roleName 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public updateUserRole(userId: number, roleName: string, options?: RawAxiosRequestConfig) {
+        return AdminControllerApiFp(this.configuration).updateUserRole(userId, roleName, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

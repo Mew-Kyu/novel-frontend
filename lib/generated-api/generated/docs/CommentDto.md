@@ -8,6 +8,7 @@ Name | Type | Description | Notes
 **id** | **number** |  | [optional] [default to undefined]
 **userId** | **number** |  | [optional] [default to undefined]
 **userName** | **string** |  | [optional] [default to undefined]
+**userAvatarUrl** | **string** |  | [optional] [default to undefined]
 **storyId** | **number** |  | [optional] [default to undefined]
 **content** | **string** |  | [optional] [default to undefined]
 **createdAt** | **string** |  | [optional] [default to undefined]
@@ -22,6 +23,7 @@ const instance: CommentDto = {
     id,
     userId,
     userName,
+    userAvatarUrl,
     storyId,
     content,
     createdAt,

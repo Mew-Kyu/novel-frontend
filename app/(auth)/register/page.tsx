@@ -49,7 +49,7 @@ export default function RegisterPage() {
       });
 
       setSuccessMessage(
-        "Đăng ký thành công! Đang chuyển đến trang đăng nhập..."
+        "Đăng ký thành công! Một email xác nhận đã được gửi đến hộp thư của bạn. Đang chuyển đến trang đăng nhập..."
       );
 
       // Redirect to login after 2 seconds

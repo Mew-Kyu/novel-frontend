@@ -25,6 +25,7 @@ interface BookmarkItem {
 export default function BookmarksPage() {
   const router = useRouter();
   const { isAuthenticated, isLoading: authLoading } = useAuthStore();
+  const [mounted, setMounted] = useState(false);
   const [bookmarks, setBookmarks] = useState<BookmarkItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
@@ -35,6 +36,13 @@ export default function BookmarksPage() {
   const pageSize = 20;
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    // Wait for component to mount before checking auth to avoid hydration issues
+    if (!mounted) return;
+
     // Redirect if not authenticated
     if (!authLoading && !isAuthenticated) {
       router.push("/login");
@@ -89,7 +97,7 @@ export default function BookmarksPage() {
     };
 
     fetchBookmarks();
-  }, [isAuthenticated, authLoading, router, currentPage]);
+  }, [isAuthenticated, authLoading, router, currentPage, mounted]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);

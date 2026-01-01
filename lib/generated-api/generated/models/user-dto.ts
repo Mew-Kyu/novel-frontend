@@ -21,8 +21,9 @@ export interface UserDto {
     'id'?: number;
     'email'?: string;
     'displayName'?: string;
+    'avatarUrl'?: string;
     'createdAt'?: string;
     'active'?: boolean;
-    'roles'?: Set<RoleDto>;
+    'role'?: RoleDto;
 }
 

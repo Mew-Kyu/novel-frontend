@@ -19,6 +19,7 @@ import {
 import { useAuthStore } from "@/lib/store/authStore";
 import { SearchBar } from "@/components/common/SearchBar";
 import { Button } from "@/components/ui/Button";
+import { Avatar } from "@/components/common/Avatar";
 import apiClient from "@/lib/generated-api";
 
 // Dynamic import ThemeToggle to prevent hydration issues
@@ -173,11 +174,12 @@ export const Navbar = () => {
                       onClick={() => setUserMenuOpen(!userMenuOpen)}
                       className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[rgb(var(--border))] transition-colors"
                     >
-                      <div className="w-8 h-8 rounded-full bg-[rgb(var(--primary))] flex items-center justify-center">
-                        <span className="text-white text-sm font-medium">
-                          {user?.displayName?.charAt(0).toUpperCase() || "U"}
-                        </span>
-                      </div>
+                      <Avatar
+                        src={user?.avatarUrl}
+                        alt={user?.displayName}
+                        fallbackText={user?.displayName}
+                        size="sm"
+                      />
                       <span className="text-[rgb(var(--text-muted))]">
                         {user?.displayName}
                       </span>
@@ -196,6 +198,15 @@ export const Navbar = () => {
                         </div>
 
                         {/* User Role Items */}
+                        <Link
+                          href="/profile"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-3 px-4 py-2 text-[rgb(var(--text-muted))] hover:bg-[rgb(var(--border))] transition-colors"
+                        >
+                          <Settings className="w-4 h-4" />
+                          Hồ sơ cá nhân
+                        </Link>
+
                         <Link
                           href="/library/favorites"
                           onClick={() => setUserMenuOpen(false)}
@@ -249,7 +260,7 @@ export const Navbar = () => {
                         {/* Admin Only */}
                         {hasRole("ADMIN") && (
                           <Link
-                            href="#"
+                            href="/dashboard/users"
                             onClick={() => setUserMenuOpen(false)}
                             className="flex items-center gap-3 px-4 py-2 text-[rgb(var(--text-muted))] hover:bg-[rgb(var(--border))] transition-colors"
                           >
@@ -335,9 +346,12 @@ export const Navbar = () => {
                 </div>
               ) : (
                 <div className="bg-[rgb(var(--card))] p-4 rounded-xl border border-[rgb(var(--border))] flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-[rgb(var(--primary))] flex items-center justify-center text-white text-xl font-bold">
-                    {user?.displayName?.charAt(0).toUpperCase() || "U"}
-                  </div>
+                  <Avatar
+                    src={user?.avatarUrl}
+                    alt={user?.displayName}
+                    fallbackText={user?.displayName}
+                    size="lg"
+                  />
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-[rgb(var(--text))] truncate">
                       {user?.displayName}
@@ -398,6 +412,14 @@ export const Navbar = () => {
                 </p>
                 {isAuthenticated && (
                   <>
+                    <Link
+                      href="/profile"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 text-[rgb(var(--text))] hover:bg-[rgb(var(--card))] rounded-xl transition-colors"
+                    >
+                      <Settings className="w-5 h-5 text-gray-500" />
+                      Hồ sơ cá nhân
+                    </Link>
                     <Link
                       href="/library/favorites"
                       onClick={() => setMobileMenuOpen(false)}
@@ -464,7 +486,7 @@ export const Navbar = () => {
                   </Link>
                   {hasRole("ADMIN") && (
                     <Link
-                      href="/dashboard/system/users"
+                      href="/dashboard/users"
                       onClick={() => setMobileMenuOpen(false)}
                       className="flex items-center gap-3 px-4 py-3 text-[rgb(var(--text))] hover:bg-[rgb(var(--card))] rounded-xl transition-colors"
                     >

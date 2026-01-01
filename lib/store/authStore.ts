@@ -1,12 +1,16 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import apiClient from "@/lib/generated-api";
+import { UserDto } from "@/lib/generated-api/generated";
 
 interface User {
   id: number;
   email: string;
   displayName: string;
   roles: string[];
+  avatarUrl?: string;
+  createdAt?: string;
+  active?: boolean;
 }
 
 interface AuthState {
@@ -18,6 +22,7 @@ interface AuthState {
   logout: () => void;
   checkAuth: () => void;
   hasRole: (role: string) => boolean;
+  setUser: (user: UserDto) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -58,6 +63,9 @@ export const useAuthStore = create<AuthState>()(
               email: user.email!,
               displayName: user.displayName || user.email || "User",
               roles: rolesArray,
+              avatarUrl: user.avatarUrl,
+              createdAt: user.createdAt,
+              active: user.active,
             },
             isAuthenticated: true,
             isLoading: false,
@@ -108,6 +116,24 @@ export const useAuthStore = create<AuthState>()(
       hasRole: (role: string) => {
         const { user } = get();
         return user?.roles?.includes(role) || false;
+      },
+
+      setUser: (userDto: UserDto) => {
+        const rolesArray = userDto.roles
+          ? Array.from(userDto.roles).map((role) => role.name || "USER")
+          : [];
+
+        set({
+          user: {
+            id: userDto.id!,
+            email: userDto.email!,
+            displayName: userDto.displayName || userDto.email || "User",
+            roles: rolesArray,
+            avatarUrl: userDto.avatarUrl,
+            createdAt: userDto.createdAt,
+            active: userDto.active,
+          },
+        });
       },
     }),
     {

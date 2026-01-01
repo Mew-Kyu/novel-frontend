@@ -15,6 +15,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { Pagination } from "@/components/common/Pagination";
+import { Avatar } from "@/components/common/Avatar";
 
 export default function CrawlManagerPage() {
   const [jobs, setJobs] = useState<CrawlJobDto[]>([]);
@@ -280,8 +281,18 @@ export default function CrawlManagerPage() {
                         ? new Date(job.createdAt).toLocaleString("vi-VN")
                         : "-"}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                      {job.createdBy || "-"}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-3">
+                        <Avatar
+                          src={undefined}
+                          alt={`User ${job.createdBy}`}
+                          fallbackText={`U${job.createdBy || "?"}`}
+                          size="sm"
+                        />
+                        <div className="text-sm text-gray-900 dark:text-white">
+                          User ID: {job.createdBy || "-"}
+                        </div>
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex justify-end gap-2">

@@ -26,6 +26,7 @@ interface FavoriteStory {
 export default function FavoritesPage() {
   const router = useRouter();
   const { isAuthenticated, isLoading: authLoading } = useAuthStore();
+  const [mounted, setMounted] = useState(false);
   const [stories, setStories] = useState<FavoriteStory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
@@ -36,6 +37,13 @@ export default function FavoritesPage() {
   const pageSize = 12;
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    // Wait for component to mount before checking auth to avoid hydration issues
+    if (!mounted) return;
+
     // Redirect if not authenticated
     if (!authLoading && !isAuthenticated) {
       router.push("/login");
@@ -91,7 +99,7 @@ export default function FavoritesPage() {
     };
 
     fetchFavorites();
-  }, [isAuthenticated, authLoading, router, currentPage]);
+  }, [isAuthenticated, authLoading, router, currentPage, mounted]);
 
   const handleUnfavorite = async (storyId: number) => {
     try {

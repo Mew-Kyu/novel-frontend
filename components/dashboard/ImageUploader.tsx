@@ -84,20 +84,42 @@ export function ImageUploader({
       <label className="block text-sm font-medium mb-2">{label}</label>
 
       {previewUrl ? (
-        <div className="relative rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700">
-          <img
-            src={previewUrl}
-            alt="Preview"
-            className="w-full h-64 object-cover"
-          />
-          <button
-            type="button"
-            onClick={handleRemove}
-            aria-label="Remove image"
-            className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition"
-          >
-            <X size={16} />
-          </button>
+        <div className="flex gap-4">
+          {/* Portrait preview (for book covers) */}
+          <div className="flex-shrink-0">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+              Chiều dọc (Ảnh bìa)
+            </p>
+            <div className="relative w-48 h-72 rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700">
+              <img
+                src={previewUrl}
+                alt="Preview Portrait"
+                className="w-full h-full object-cover"
+              />
+              <button
+                type="button"
+                onClick={handleRemove}
+                aria-label="Remove image"
+                className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition shadow-lg"
+              >
+                <X size={16} />
+              </button>
+            </div>
+          </div>
+
+          {/* Landscape preview */}
+          <div className="flex-1">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+              Chiều ngang
+            </p>
+            <div className="relative rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700 h-72">
+              <img
+                src={previewUrl}
+                alt="Preview Landscape"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
         </div>
       ) : (
         <div

@@ -5,17 +5,23 @@ All URIs are relative to *http://localhost:8080*
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
 |[**activateUser**](#activateuser) | **PATCH** /api/admin/users/{userId}/activate | |
-|[**assignRoleToUser**](#assignroletouser) | **POST** /api/admin/users/{userId}/roles/{roleName} | |
+|[**advancedSearch**](#advancedsearch) | **GET** /api/admin/users/search/advanced | |
 |[**createRole**](#createrole) | **POST** /api/admin/roles | |
 |[**deactivateUser**](#deactivateuser) | **PATCH** /api/admin/users/{userId}/deactivate | |
 |[**deleteRole**](#deleterole) | **DELETE** /api/admin/roles/{roleId} | |
+|[**deleteUser**](#deleteuser) | **DELETE** /api/admin/users/{userId} | |
+|[**filterByStatus**](#filterbystatus) | **GET** /api/admin/users/filter/status | |
 |[**getAllRoles**](#getallroles) | **GET** /api/admin/roles | |
 |[**getAllUsers**](#getallusers) | **GET** /api/admin/users | |
 |[**getRoleById**](#getrolebyid) | **GET** /api/admin/roles/{roleId} | |
 |[**getUserById**](#getuserbyid) | **GET** /api/admin/users/{userId} | |
 |[**getUserStats**](#getuserstats) | **GET** /api/admin/stats/users | |
-|[**removeRoleFromUser**](#removerolefromuser) | **DELETE** /api/admin/users/{userId}/roles/{roleName} | |
+|[**resetUserPassword**](#resetuserpassword) | **POST** /api/admin/users/{userId}/reset-password | |
+|[**searchByDisplayName**](#searchbydisplayname) | **GET** /api/admin/users/search/name | |
+|[**searchByEmail**](#searchbyemail) | **GET** /api/admin/users/search/email | |
+|[**searchByKeyword**](#searchbykeyword) | **GET** /api/admin/users/search/keyword | |
 |[**updateRole**](#updaterole) | **PUT** /api/admin/roles/{roleId} | |
+|[**updateUserRole**](#updateuserrole) | **PUT** /api/admin/users/{userId}/role | |
 
 # **activateUser**
 > UserDto activateUser()
@@ -67,8 +73,8 @@ const { status, data } = await apiInstance.activateUser(
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **assignRoleToUser**
-> UserDto assignRoleToUser()
+# **advancedSearch**
+> PageUserDto advancedSearch()
 
 
 ### Example
@@ -76,18 +82,23 @@ const { status, data } = await apiInstance.activateUser(
 ```typescript
 import {
     AdminControllerApi,
-    Configuration
+    Configuration,
+    Pageable
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new AdminControllerApi(configuration);
 
-let userId: number; // (default to undefined)
-let roleName: string; // (default to undefined)
+let pageable: Pageable; // (default to undefined)
+let email: string; // (optional) (default to undefined)
+let displayName: string; // (optional) (default to undefined)
+let active: boolean; // (optional) (default to undefined)
 
-const { status, data } = await apiInstance.assignRoleToUser(
-    userId,
-    roleName
+const { status, data } = await apiInstance.advancedSearch(
+    pageable,
+    email,
+    displayName,
+    active
 );
 ```
 
@@ -95,13 +106,15 @@ const { status, data } = await apiInstance.assignRoleToUser(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **userId** | [**number**] |  | defaults to undefined|
-| **roleName** | [**string**] |  | defaults to undefined|
+| **pageable** | **Pageable** |  | defaults to undefined|
+| **email** | [**string**] |  | (optional) defaults to undefined|
+| **displayName** | [**string**] |  | (optional) defaults to undefined|
+| **active** | [**boolean**] |  | (optional) defaults to undefined|
 
 
 ### Return type
 
-**UserDto**
+**PageUserDto**
 
 ### Authorization
 
@@ -262,6 +275,110 @@ void (empty response body)
 
  - **Content-Type**: Not defined
  - **Accept**: Not defined
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **deleteUser**
+> deleteUser()
+
+
+### Example
+
+```typescript
+import {
+    AdminControllerApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AdminControllerApi(configuration);
+
+let userId: number; // (default to undefined)
+
+const { status, data } = await apiInstance.deleteUser(
+    userId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **userId** | [**number**] |  | defaults to undefined|
+
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[Bearer Authentication](../README.md#Bearer Authentication)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: Not defined
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **filterByStatus**
+> PageUserDto filterByStatus()
+
+
+### Example
+
+```typescript
+import {
+    AdminControllerApi,
+    Configuration,
+    Pageable
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AdminControllerApi(configuration);
+
+let active: boolean; // (default to undefined)
+let pageable: Pageable; // (default to undefined)
+
+const { status, data } = await apiInstance.filterByStatus(
+    active,
+    pageable
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **active** | [**boolean**] |  | defaults to undefined|
+| **pageable** | **Pageable** |  | defaults to undefined|
+
+
+### Return type
+
+**PageUserDto**
+
+### Authorization
+
+[Bearer Authentication](../README.md#Bearer Authentication)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
 
 
 ### HTTP response details
@@ -508,8 +625,8 @@ This endpoint does not have any parameters.
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **removeRoleFromUser**
-> UserDto removeRoleFromUser()
+# **resetUserPassword**
+> { [key: string]: string; } resetUserPassword(adminResetPasswordRequest)
 
 
 ### Example
@@ -517,18 +634,19 @@ This endpoint does not have any parameters.
 ```typescript
 import {
     AdminControllerApi,
-    Configuration
+    Configuration,
+    AdminResetPasswordRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new AdminControllerApi(configuration);
 
 let userId: number; // (default to undefined)
-let roleName: string; // (default to undefined)
+let adminResetPasswordRequest: AdminResetPasswordRequest; //
 
-const { status, data } = await apiInstance.removeRoleFromUser(
+const { status, data } = await apiInstance.resetUserPassword(
     userId,
-    roleName
+    adminResetPasswordRequest
 );
 ```
 
@@ -536,13 +654,175 @@ const { status, data } = await apiInstance.removeRoleFromUser(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
+| **adminResetPasswordRequest** | **AdminResetPasswordRequest**|  | |
 | **userId** | [**number**] |  | defaults to undefined|
-| **roleName** | [**string**] |  | defaults to undefined|
 
 
 ### Return type
 
-**UserDto**
+**{ [key: string]: string; }**
+
+### Authorization
+
+[Bearer Authentication](../README.md#Bearer Authentication)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **searchByDisplayName**
+> PageUserDto searchByDisplayName()
+
+
+### Example
+
+```typescript
+import {
+    AdminControllerApi,
+    Configuration,
+    Pageable
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AdminControllerApi(configuration);
+
+let displayName: string; // (default to undefined)
+let pageable: Pageable; // (default to undefined)
+
+const { status, data } = await apiInstance.searchByDisplayName(
+    displayName,
+    pageable
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **displayName** | [**string**] |  | defaults to undefined|
+| **pageable** | **Pageable** |  | defaults to undefined|
+
+
+### Return type
+
+**PageUserDto**
+
+### Authorization
+
+[Bearer Authentication](../README.md#Bearer Authentication)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **searchByEmail**
+> PageUserDto searchByEmail()
+
+
+### Example
+
+```typescript
+import {
+    AdminControllerApi,
+    Configuration,
+    Pageable
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AdminControllerApi(configuration);
+
+let email: string; // (default to undefined)
+let pageable: Pageable; // (default to undefined)
+
+const { status, data } = await apiInstance.searchByEmail(
+    email,
+    pageable
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **email** | [**string**] |  | defaults to undefined|
+| **pageable** | **Pageable** |  | defaults to undefined|
+
+
+### Return type
+
+**PageUserDto**
+
+### Authorization
+
+[Bearer Authentication](../README.md#Bearer Authentication)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **searchByKeyword**
+> PageUserDto searchByKeyword()
+
+
+### Example
+
+```typescript
+import {
+    AdminControllerApi,
+    Configuration,
+    Pageable
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AdminControllerApi(configuration);
+
+let keyword: string; // (default to undefined)
+let pageable: Pageable; // (default to undefined)
+
+const { status, data } = await apiInstance.searchByKeyword(
+    keyword,
+    pageable
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **keyword** | [**string**] |  | defaults to undefined|
+| **pageable** | **Pageable** |  | defaults to undefined|
+
+
+### Return type
+
+**PageUserDto**
 
 ### Authorization
 
@@ -605,6 +885,59 @@ const { status, data } = await apiInstance.updateRole(
 ### HTTP request headers
 
  - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **updateUserRole**
+> UserDto updateUserRole()
+
+
+### Example
+
+```typescript
+import {
+    AdminControllerApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AdminControllerApi(configuration);
+
+let userId: number; // (default to undefined)
+let roleName: string; // (default to undefined)
+
+const { status, data } = await apiInstance.updateUserRole(
+    userId,
+    roleName
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **userId** | [**number**] |  | defaults to undefined|
+| **roleName** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**UserDto**
+
+### Authorization
+
+[Bearer Authentication](../README.md#Bearer Authentication)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
  - **Accept**: application/json
 
 
