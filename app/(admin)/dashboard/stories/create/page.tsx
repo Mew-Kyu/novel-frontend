@@ -133,7 +133,7 @@ export default function CreateStoryPage() {
   };
 
   return (
-    <div className="max-w-4xl">
+    <div className="max-w-7xl mx-auto px-4">
       <div className="flex items-center gap-4 mb-8">
         <Link
           href="/dashboard/stories"

@@ -8,7 +8,6 @@ import {
   Download,
   BookOpen,
   Settings,
-  User,
   LogOut,
   Menu,
   X,
@@ -19,6 +18,7 @@ import {
   Sliders,
   PanelLeft,
   Home,
+  ChartArea,
 } from "lucide-react";
 import { useAuthStore } from "@/lib/store/authStore";
 import { Avatar } from "@/components/common/Avatar";
@@ -57,9 +57,9 @@ export default function DashboardLayout({
 
   const navigation = [
     {
-      name: "Tổng quan",
+      name: "Thống kê",
       href: "/dashboard",
-      icon: LayoutDashboard,
+      icon: ChartArea,
       adminOnly: false,
     },
     {
@@ -86,7 +86,7 @@ export default function DashboardLayout({
     {
       name: "Tổng quan",
       href: "/dashboard/system",
-      icon: Settings,
+      icon: LayoutDashboard,
       adminOnly: false,
     },
     {

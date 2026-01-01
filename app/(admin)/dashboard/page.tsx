@@ -111,7 +111,7 @@ export default function DashboardPage() {
   return (
     <div>
       <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
-        Tổng quan
+        Thống kê
       </h1>
 
       {/* Stats Grid */}
