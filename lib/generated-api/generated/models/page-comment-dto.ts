@@ -24,16 +24,16 @@ import type { PageableObject } from './pageable-object';
 import type { SortObject } from './sort-object';
 
 export interface PageCommentDto {
-    'totalElements'?: number;
     'totalPages'?: number;
+    'totalElements'?: number;
     'size'?: number;
     'content'?: Array<CommentDto>;
     'number'?: number;
-    'first'?: boolean;
-    'last'?: boolean;
     'numberOfElements'?: number;
     'sort'?: SortObject;
     'pageable'?: PageableObject;
+    'first'?: boolean;
+    'last'?: boolean;
     'empty'?: boolean;
 }
 

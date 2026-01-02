@@ -129,8 +129,8 @@ const { status, data } = await apiInstance.createStory(
 |-------------|-------------|------------------|
 |**400** | Invalid request body |  -  |
 |**404** | Genre not found |  -  |
-|**201** | Story created successfully |  -  |
 |**403** | Forbidden - requires ADMIN or MODERATOR role |  -  |
+|**201** | Story created successfully |  -  |
 |**401** | Unauthorized |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -655,8 +655,8 @@ const { status, data } = await apiInstance.removeGenreFromStory(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**404** | Story or genre not found |  -  |
-|**200** | Genre removed successfully |  -  |
 |**403** | Forbidden - requires ADMIN or MODERATOR role |  -  |
+|**200** | Genre removed successfully |  -  |
 |**401** | Unauthorized |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -766,8 +766,8 @@ const { status, data } = await apiInstance.setGenresForStory(
 |-------------|-------------|------------------|
 |**404** | Story or genre not found |  -  |
 |**400** | Invalid request body |  -  |
-|**403** | Forbidden - requires ADMIN role or story ownership |  -  |
 |**200** | Genres updated successfully |  -  |
+|**403** | Forbidden - requires ADMIN role or story ownership |  -  |
 |**401** | Unauthorized |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

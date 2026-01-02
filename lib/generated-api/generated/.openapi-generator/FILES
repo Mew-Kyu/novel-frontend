@@ -3,7 +3,7 @@
 api.ts
 api/admin-controller-api.ts
 api/ai-controller-api.ts
-api/auth-controller-api.ts
+api/authentication-api.ts
 api/chapter-controller-api.ts
 api/cloudinary-api.ts
 api/comment-controller-api.ts
@@ -18,15 +18,15 @@ api/rating-controller-api.ts
 api/reading-history-controller-api.ts
 api/stats-controller-api.ts
 api/story-management-api.ts
-api/user-controller-api.ts
+api/user-management-api.ts
 base.ts
 common.ts
 configuration.ts
 docs/AdminControllerApi.md
 docs/AdminResetPasswordRequest.md
 docs/AiControllerApi.md
-docs/AuthControllerApi.md
 docs/AuthResponse.md
+docs/AuthenticationApi.md
 docs/ChangePasswordRequest.md
 docs/ChapterControllerApi.md
 docs/ChapterDto.md
@@ -98,8 +98,8 @@ docs/UpdateRoleRequest.md
 docs/UpdateStoryRequest.md
 docs/UploadAvatarRequest.md
 docs/UploadResponse.md
-docs/UserControllerApi.md
 docs/UserDto.md
+docs/UserManagementApi.md
 git_push.sh
 index.ts
 models/admin-reset-password-request.ts

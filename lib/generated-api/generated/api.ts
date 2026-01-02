@@ -16,7 +16,7 @@
 
 export * from './api/admin-controller-api';
 export * from './api/ai-controller-api';
-export * from './api/auth-controller-api';
+export * from './api/authentication-api';
 export * from './api/chapter-controller-api';
 export * from './api/cloudinary-api';
 export * from './api/comment-controller-api';
@@ -31,5 +31,5 @@ export * from './api/rating-controller-api';
 export * from './api/reading-history-controller-api';
 export * from './api/stats-controller-api';
 export * from './api/story-management-api';
-export * from './api/user-controller-api';
+export * from './api/user-management-api';
 
