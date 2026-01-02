@@ -14,6 +14,7 @@ All URIs are relative to *http://localhost:8080*
 |[**getStoryDetail**](#getstorydetail) | **GET** /api/stories/{id}/detail | Get story detail with metadata|
 |[**getTrendingStories**](#gettrendingstories) | **GET** /api/stories/trending | |
 |[**incrementViewCount**](#incrementviewcount) | **POST** /api/stories/{id}/view | |
+|[**refreshFeaturedStories**](#refreshfeaturedstories) | **POST** /api/stories/featured/refresh | Refresh featured stories|
 |[**removeGenreFromStory**](#removegenrefromstory) | **DELETE** /api/stories/{storyId}/genres/{genreId} | Remove a genre from a story|
 |[**setFeatured**](#setfeatured) | **PATCH** /api/stories/{id}/featured | |
 |[**setGenresForStory**](#setgenresforstory) | **PUT** /api/stories/{storyId}/genres | Set all genres for a story|
@@ -451,8 +452,8 @@ const { status, data } = await apiInstance.getStoryDetail(
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**404** | Story not found |  -  |
 |**200** | Story detail retrieved successfully |  -  |
+|**404** | Story not found |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -559,6 +560,50 @@ void (empty response body)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **refreshFeaturedStories**
+> string refreshFeaturedStories()
+
+Manually trigger the featured stories update process. This will reset all current featured stories and promote new ones based on performance metrics.
+
+### Example
+
+```typescript
+import {
+    StoryManagementApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new StoryManagementApi(configuration);
+
+const { status, data } = await apiInstance.refreshFeaturedStories();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**string**
+
+### Authorization
+
+[Bearer Authentication](../README.md#Bearer Authentication)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **removeGenreFromStory**
 > StoryDto removeGenreFromStory()
 
@@ -609,8 +654,8 @@ const { status, data } = await apiInstance.removeGenreFromStory(
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** | Genre removed successfully |  -  |
 |**404** | Story or genre not found |  -  |
+|**200** | Genre removed successfully |  -  |
 |**403** | Forbidden - requires ADMIN or MODERATOR role |  -  |
 |**401** | Unauthorized |  -  |
 
@@ -881,8 +926,8 @@ const { status, data } = await apiInstance.updateStory(
 |-------------|-------------|------------------|
 |**404** | Story or genre not found |  -  |
 |**400** | Invalid request body |  -  |
-|**403** | Forbidden - requires ADMIN or MODERATOR role |  -  |
 |**200** | Story updated successfully |  -  |
+|**403** | Forbidden - requires ADMIN or MODERATOR role |  -  |
 |**401** | Unauthorized |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

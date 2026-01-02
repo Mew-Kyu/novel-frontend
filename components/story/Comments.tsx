@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import { MessageCircle, Send } from "lucide-react";
 import { CommentDto } from "@/lib/generated-api/generated/models";
-import { CommentControllerApi } from "@/lib/generated-api/generated/api";
-import { Configuration } from "@/lib/generated-api/generated/configuration";
+import apiClient from "@/lib/generated-api";
+import { useAuthStore } from "@/lib/store/authStore";
 import { formatRelativeTime } from "@/lib/utils/format";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -21,6 +21,7 @@ export function Comments({ storyId }: CommentsProps) {
   const [error, setError] = useState<string | null>(null);
   const [newComment, setNewComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const { isAuthenticated } = useAuthStore();
 
   useEffect(() => {
     fetchComments();
@@ -31,17 +32,8 @@ export function Comments({ storyId }: CommentsProps) {
       setLoading(true);
       setError(null);
 
-      const token = localStorage.getItem("accessToken");
-      const config = new Configuration({
-        basePath:
-          process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080",
-        accessToken: token || undefined,
-      });
-
-      const commentApi = new CommentControllerApi(config);
-
       // Fetch comments with pagination
-      const response = await commentApi.getCommentsByStory(storyId, {
+      const response = await apiClient.comments.getCommentsByStory(storyId, {
         page: 0,
         size: 20,
         sort: ["createdAt,desc"],
@@ -61,8 +53,7 @@ export function Comments({ storyId }: CommentsProps) {
 
     if (!newComment.trim()) return;
 
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
+    if (!isAuthenticated) {
       setError("Vui lòng đăng nhập để bình luận");
       return;
     }
@@ -71,15 +62,7 @@ export function Comments({ storyId }: CommentsProps) {
       setSubmitting(true);
       setError(null);
 
-      const config = new Configuration({
-        basePath:
-          process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080",
-        accessToken: token,
-      });
-
-      const commentApi = new CommentControllerApi(config);
-
-      await commentApi.createComment({
+      await apiClient.comments.createComment({
         storyId,
         content: newComment,
       });
@@ -87,9 +70,13 @@ export function Comments({ storyId }: CommentsProps) {
       // Refresh comments
       await fetchComments();
       setNewComment("");
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to submit comment:", err);
-      setError("Không thể gửi bình luận. Vui lòng thử lại.");
+      if (err?.response?.status === 401 || err?.response?.status === 403) {
+        setError("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
+      } else {
+        setError("Không thể gửi bình luận. Vui lòng thử lại.");
+      }
     } finally {
       setSubmitting(false);
     }

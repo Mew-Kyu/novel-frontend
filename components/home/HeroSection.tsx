@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ChevronLeft, ChevronRight, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
 interface Story {
@@ -20,6 +21,7 @@ interface HeroSectionProps {
 
 export const HeroSection: React.FC<HeroSectionProps> = ({ stories }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const router = useRouter();
 
   useEffect(() => {
     if (stories.length === 0) return;
@@ -41,8 +43,16 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ stories }) => {
 
   if (stories.length === 0) {
     return (
-      <div className="w-full h-96 bg-[rgb(var(--card))] rounded-xl flex items-center justify-center border border-[rgb(var(--border))] shadow-[0_1px_3px_0_rgb(0_0_0_/_0.1)]">
-        <p className="text-[rgb(var(--text-muted))]">Không có truyện nổi bật</p>
+      <div className="w-full h-96 bg-gradient-to-br from-[rgb(var(--primary))]/5 via-[rgb(var(--card))] to-[rgb(var(--primary-light))]/5 rounded-xl flex items-center justify-center border border-[rgb(var(--border))] shadow-[0_1px_3px_0_rgb(0_0_0_/_0.1)]">
+        <div className="text-center">
+          <BookOpen className="w-16 h-16 text-[rgb(var(--text-muted))] mx-auto mb-4 opacity-50" />
+          <p className="text-[rgb(var(--text-muted))] text-lg">
+            Chưa có truyện nổi bật
+          </p>
+          <p className="text-[rgb(var(--text-muted))] text-sm mt-2">
+            Hãy quay lại sau để khám phá những câu chuyện tuyệt vời!
+          </p>
+        </div>
       </div>
     );
   }
@@ -92,7 +102,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ stories }) => {
           <Button
             variant="primary"
             size="lg"
-            onClick={() => console.log("Navigate to story:", currentStory.id)}
+            onClick={() => router.push(`/story/${currentStory.id}`)}
           >
             Đọc ngay
           </Button>
@@ -105,12 +115,14 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ stories }) => {
           <button
             onClick={handlePrev}
             className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-black/70 text-white rounded-full transition-all opacity-0 group-hover:opacity-100"
+            aria-label="Truyện trước"
           >
             <ChevronLeft className="w-6 h-6" />
           </button>
           <button
             onClick={handleNext}
             className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-black/70 text-white rounded-full transition-all opacity-0 group-hover:opacity-100"
+            aria-label="Truyện tiếp theo"
           >
             <ChevronRight className="w-6 h-6" />
           </button>
@@ -127,6 +139,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ stories }) => {
               className={`w-2 h-2 rounded-full transition-all ${
                 index === currentIndex ? "bg-white w-8" : "bg-white/50"
               }`}
+              aria-label={`Chuyển đến truyện ${index + 1}`}
             />
           ))}
         </div>

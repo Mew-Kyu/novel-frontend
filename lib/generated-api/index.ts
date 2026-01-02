@@ -1,5 +1,6 @@
 ﻿// Custom API wrapper for easier usage
 // Auto-generated - do not edit manually
+import axios from "axios";
 import {
   Configuration,
   AdminControllerApi,
@@ -53,6 +54,22 @@ export class NovelApiClient {
       accessToken: () => this.token || "",
     });
 
+    // Setup axios interceptor for handling 401/403 errors
+    if (typeof window !== "undefined") {
+      axios.interceptors.response.use(
+        (response) => response,
+        (error) => {
+          if (
+            error.response &&
+            (error.response.status === 401 || error.response.status === 403)
+          ) {
+            this.handleUnauthorized();
+          }
+          return Promise.reject(error);
+        }
+      );
+    }
+
     // Initialize all API controllers
     this.health = new HealthControllerApi(this.config);
     this.latestChapters = new LatestChaptersControllerApi(this.config);
@@ -101,7 +118,8 @@ export class NovelApiClient {
     this.unauthorizedCallback = callback;
   }
 
-  triggerUnauthorizedCallback() {
+  // Call the unauthorized callback if it exists
+  handleUnauthorized() {
     if (this.unauthorizedCallback) {
       this.unauthorizedCallback();
     }

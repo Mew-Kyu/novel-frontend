@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Pagination } from "@/components/common/Pagination";
 import { Avatar } from "@/components/common/Avatar";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 export default function CrawlManagerPage() {
   const [jobs, setJobs] = useState<CrawlJobDto[]>([]);
@@ -27,6 +28,15 @@ export default function CrawlManagerPage() {
   const [totalPages, setTotalPages] = useState(0);
   const pageSize = 20;
   const { user, hasRole } = useAuthStore();
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    message: "",
+    onConfirm: () => {},
+  });
 
   useEffect(() => {
     fetchJobs();
@@ -108,9 +118,17 @@ export default function CrawlManagerPage() {
     }
   };
 
-  const handleDelete = async (jobId: number) => {
-    if (!confirm("Bạn có chắc muốn xóa job này?")) return;
+  const handleDelete = (jobId: number) => {
+    setConfirmDialog({
+      isOpen: true,
+      message: "Bạn có chắc muốn xóa job này?",
+      onConfirm: async () => {
+        await performDelete(jobId);
+      },
+    });
+  };
 
+  const performDelete = async (jobId: number) => {
     try {
       await apiClient.crawlJobs.deleteJob(jobId);
       toast.success("Đã xóa job thành công!");

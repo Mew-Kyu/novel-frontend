@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Shield, Plus, Edit2, Trash2, Save, X } from "lucide-react";
 import toast from "react-hot-toast";
 import apiClient from "@/lib/generated-api";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 interface Role {
   id?: number;
@@ -20,6 +21,15 @@ export default function RolesManagementPage() {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
+  });
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    message: "",
+    onConfirm: () => {},
   });
 
   useEffect(() => {
@@ -83,11 +93,17 @@ export default function RolesManagementPage() {
     }
   };
 
-  const handleDeleteRole = async (roleId: number, roleName: string) => {
-    if (!confirm(`Bạn có chắc muốn xóa role "${roleName}"?`)) {
-      return;
-    }
+  const handleDeleteRole = (roleId: number, roleName: string) => {
+    setConfirmDialog({
+      isOpen: true,
+      message: `Bạn có chắc muốn xóa role "${roleName}"?`,
+      onConfirm: async () => {
+        await performDeleteRole(roleId);
+      },
+    });
+  };
 
+  const performDeleteRole = async (roleId: number) => {
     try {
       await apiClient.admin.deleteRole(roleId);
       fetchRoles();
@@ -360,6 +376,16 @@ export default function RolesManagementPage() {
           </div>
         </div>
       )}
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        title="Xóa role"
+        message={confirmDialog.message}
+        variant="danger"
+        onConfirm={confirmDialog.onConfirm}
+        onCancel={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
+      />
     </div>
   );
 }

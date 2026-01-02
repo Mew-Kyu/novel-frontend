@@ -51,10 +51,9 @@ export const useAuthStore = create<AuthState>()(
           // Save token
           apiClient.setToken(accessToken);
 
-          // Convert roles Set to array of strings
-          const rolesArray = user.roles
-            ? Array.from(user.roles).map((role) => role.name || "USER")
-            : [];
+          // Convert role to array of strings
+          // Backend returns 'role' (singular) as RoleDto object, not 'roles' array
+          const rolesArray = user.role?.name ? [user.role.name] : ["USER"];
 
           // Save user
           set({
@@ -119,9 +118,8 @@ export const useAuthStore = create<AuthState>()(
       },
 
       setUser: (userDto: UserDto) => {
-        const rolesArray = userDto.roles
-          ? Array.from(userDto.roles).map((role) => role.name || "USER")
-          : [];
+        // Backend returns 'role' (singular) as RoleDto object, not 'roles' array
+        const rolesArray = userDto.role?.name ? [userDto.role.name] : ["USER"];
 
         set({
           user: {

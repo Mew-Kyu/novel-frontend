@@ -13,12 +13,8 @@ import {
   StoryDetailDtoStatusEnum,
 } from "@/lib/generated-api/generated/models";
 import { formatNumber, formatRating } from "@/lib/utils/format";
-import {
-  ExportApi,
-  StoryManagementApi,
-} from "@/lib/generated-api/generated/api";
+import apiClient from "@/lib/generated-api";
 import { downloadBlob } from "@/lib/utils/format";
-import { Configuration } from "@/lib/generated-api/generated/configuration";
 
 interface StoryHeroProps {
   story: StoryDetailDto;
@@ -137,30 +133,27 @@ export function StoryHero({
     setDownloadError(null);
 
     try {
-      // Get auth token from localStorage
-      const token = localStorage.getItem("accessToken");
-
-      const config = new Configuration({
-        basePath:
-          process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080",
-        accessToken: token || undefined,
-      });
-
-      const exportApi = new ExportApi(config);
-
-      // Call API with responseType: 'blob'
-      const response = await exportApi.exportToEpub(story.id, start, end, {
-        responseType: "blob",
-      });
+      const response = await apiClient.export.exportToEpub(
+        story.id,
+        start,
+        end,
+        {
+          responseType: "blob",
+        }
+      );
 
       // Download the blob
       const filename = `${story.title || "story"}${
         start && end ? `_c${start}-c${end}` : ""
       }.epub`;
       downloadBlob(response.data as unknown as Blob, filename);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Download error:", error);
-      setDownloadError("Không thể tải file EPUB. Vui lòng thử lại sau.");
+      if (error?.response?.status === 401 || error?.response?.status === 403) {
+        setDownloadError("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
+      } else {
+        setDownloadError("Không thể tải file EPUB. Vui lòng thử lại sau.");
+      }
     } finally {
       setIsDownloading(false);
     }

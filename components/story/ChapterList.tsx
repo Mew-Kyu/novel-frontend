@@ -4,8 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Clock } from "lucide-react";
 import { ChapterDto } from "@/lib/generated-api/generated/models";
-import { ChapterControllerApi } from "@/lib/generated-api/generated/api";
-import { Configuration } from "@/lib/generated-api/generated/configuration";
+import apiClient from "@/lib/generated-api";
 import { formatRelativeTime } from "@/lib/utils/format";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -26,15 +25,7 @@ export function ChapterList({ storyId }: ChapterListProps) {
         setLoading(true);
         setError(null);
 
-        const token = localStorage.getItem("accessToken");
-        const config = new Configuration({
-          basePath:
-            process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080",
-          accessToken: token || undefined,
-        });
-
-        const chapterApi = new ChapterControllerApi(config);
-        const response = await chapterApi.getChaptersByStoryId(storyId);
+        const response = await apiClient.chapters.getChaptersByStoryId(storyId);
 
         setChapters(response.data || []);
       } catch (err) {

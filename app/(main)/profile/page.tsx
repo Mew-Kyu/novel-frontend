@@ -107,8 +107,13 @@ export default function ProfilePage() {
       const formData = new FormData();
       formData.append("file", file);
 
-      // Direct axios call to uploadAvatar endpoint
-      const token = localStorage.getItem("accessToken");
+      // Get token from apiClient
+      const token = apiClient.getToken();
+      if (!token) {
+        throw new Error("Vui lòng đăng nhập để tiếp tục");
+      }
+
+      // Direct fetch call to uploadAvatar endpoint
       const axiosResponse = await fetch(
         "http://localhost:8080/api/user/avatar",
         {

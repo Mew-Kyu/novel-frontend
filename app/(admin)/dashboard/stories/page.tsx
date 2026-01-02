@@ -4,11 +4,12 @@ import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import apiClient from "@/lib/generated-api";
 import type { StoryDto } from "@/lib/generated-api/generated/models";
-import { Plus, Search, Edit, Trash2, Loader2 } from "lucide-react";
+import { Plus, Search, Edit, Trash2, Loader2, Star } from "lucide-react";
 import Link from "next/link";
 import { Pagination } from "@/components/common/Pagination";
 import { Avatar } from "@/components/common/Avatar";
 import { useAuthStore } from "@/lib/store/authStore";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 export default function StoriesPage() {
   const { user, hasRole } = useAuthStore();
@@ -20,6 +21,17 @@ export default function StoriesPage() {
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
   const pageSize = 12;
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+    onConfirm: () => {},
+  });
 
   const isAdmin = hasRole("ADMIN");
   const isModerator = hasRole("MODERATOR");
@@ -73,9 +85,18 @@ export default function StoriesPage() {
     setStories(filtered.slice(start, end));
   }, [allStories, searchTerm, currentPage]);
 
-  const handleDelete = async (storyId: number) => {
-    if (!confirm("Bạn có chắc muốn xóa truyện này?")) return;
+  const handleDelete = (storyId: number) => {
+    setConfirmDialog({
+      isOpen: true,
+      title: "Xóa truyện",
+      message: "Bạn có chắc muốn xóa truyện này?",
+      onConfirm: async () => {
+        await performDelete(storyId);
+      },
+    });
+  };
 
+  const performDelete = async (storyId: number) => {
     try {
       await apiClient.stories.deleteStory(storyId);
       toast.success("Đã xóa truyện thành công!");
@@ -83,6 +104,24 @@ export default function StoriesPage() {
     } catch (error) {
       console.error("Failed to delete story:", error);
       toast.error("Lỗi khi xóa truyện");
+    }
+  };
+
+  const handleToggleFeatured = async (
+    storyId: number,
+    currentFeatured: boolean
+  ) => {
+    try {
+      await apiClient.stories.setFeatured(storyId, !currentFeatured);
+      toast.success(
+        !currentFeatured
+          ? "Đã đánh dấu truyện nổi bật!"
+          : "Đã bỏ đánh dấu truyện nổi bật!"
+      );
+      fetchStories();
+    } catch (error) {
+      console.error("Failed to toggle featured:", error);
+      toast.error("Lỗi khi cập nhật trạng thái nổi bật");
     }
   };
 
@@ -226,8 +265,33 @@ export default function StoriesPage() {
                         className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center justify-center gap-2 transition"
                       >
                         <Edit size={16} />
-                        Edit
+                        Chỉnh sửa
                       </Link>
+                      {isAdmin && (
+                        <button
+                          onClick={() =>
+                            handleToggleFeatured(
+                              story.id!,
+                              story.featured || false
+                            )
+                          }
+                          aria-label={
+                            story.featured
+                              ? "Bỏ đánh dấu nổi bật"
+                              : "Đánh dấu nổi bật"
+                          }
+                          className={`px-4 py-2 rounded-lg flex items-center justify-center transition ${
+                            story.featured
+                              ? "bg-yellow-500 hover:bg-yellow-600 text-white"
+                              : "bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300"
+                          }`}
+                        >
+                          <Star
+                            size={16}
+                            className={story.featured ? "fill-current" : ""}
+                          />
+                        </button>
+                      )}
                       <button
                         onClick={() => handleDelete(story.id!)}
                         aria-label="Delete story"
@@ -259,6 +323,16 @@ export default function StoriesPage() {
           />
         </div>
       )}
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        variant="danger"
+        onConfirm={confirmDialog.onConfirm}
+        onCancel={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
+      />
     </div>
   );
 }

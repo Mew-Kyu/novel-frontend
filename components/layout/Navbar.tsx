@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
@@ -46,6 +46,7 @@ export const Navbar = () => {
   const [genreMenuOpen, setGenreMenuOpen] = useState(false);
   const [mobileGenresOpen, setMobileGenresOpen] = useState(false);
   const [genres, setGenres] = useState<Genre[]>([]);
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchGenres = async () => {
@@ -58,6 +59,26 @@ export const Navbar = () => {
     };
     fetchGenres();
   }, []);
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        userMenuRef.current &&
+        !userMenuRef.current.contains(event.target as Node)
+      ) {
+        setUserMenuOpen(false);
+      }
+    };
+
+    if (userMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [userMenuOpen]);
 
   const handleLogout = () => {
     logout();
@@ -169,7 +190,7 @@ export const Navbar = () => {
               ) : (
                 <>
                   {/* User Avatar */}
-                  <div className="relative">
+                  <div className="relative" ref={userMenuRef}>
                     <button
                       onClick={() => setUserMenuOpen(!userMenuOpen)}
                       className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[rgb(var(--border))] transition-colors"

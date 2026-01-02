@@ -471,6 +471,40 @@ export const StoryManagementApiAxiosParamCreator = function (configuration?: Con
             };
         },
         /**
+         * Manually trigger the featured stories update process. This will reset all current featured stories and promote new ones based on performance metrics.
+         * @summary Refresh featured stories
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        refreshFeaturedStories: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/stories/featured/refresh`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer Authentication required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Remove a single genre from a story without affecting other genres. Requires ADMIN or MODERATOR role.
          * @summary Remove a genre from a story
          * @param {number} storyId Story ID
@@ -861,6 +895,18 @@ export const StoryManagementApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * Manually trigger the featured stories update process. This will reset all current featured stories and promote new ones based on performance metrics.
+         * @summary Refresh featured stories
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async refreshFeaturedStories(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.refreshFeaturedStories(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['StoryManagementApi.refreshFeaturedStories']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * Remove a single genre from a story without affecting other genres. Requires ADMIN or MODERATOR role.
          * @summary Remove a genre from a story
          * @param {number} storyId Story ID
@@ -1050,6 +1096,15 @@ export const StoryManagementApiFactory = function (configuration?: Configuration
             return localVarFp.incrementViewCount(id, options).then((request) => request(axios, basePath));
         },
         /**
+         * Manually trigger the featured stories update process. This will reset all current featured stories and promote new ones based on performance metrics.
+         * @summary Refresh featured stories
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        refreshFeaturedStories(options?: RawAxiosRequestConfig): AxiosPromise<string> {
+            return localVarFp.refreshFeaturedStories(options).then((request) => request(axios, basePath));
+        },
+        /**
          * Remove a single genre from a story without affecting other genres. Requires ADMIN or MODERATOR role.
          * @summary Remove a genre from a story
          * @param {number} storyId Story ID
@@ -1226,6 +1281,16 @@ export class StoryManagementApi extends BaseAPI {
      */
     public incrementViewCount(id: number, options?: RawAxiosRequestConfig) {
         return StoryManagementApiFp(this.configuration).incrementViewCount(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Manually trigger the featured stories update process. This will reset all current featured stories and promote new ones based on performance metrics.
+     * @summary Refresh featured stories
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public refreshFeaturedStories(options?: RawAxiosRequestConfig) {
+        return StoryManagementApiFp(this.configuration).refreshFeaturedStories(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

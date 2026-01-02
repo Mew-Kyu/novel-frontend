@@ -8,7 +8,7 @@ import * as z from "zod";
 import toast from "react-hot-toast";
 import apiClient from "@/lib/generated-api";
 import type {
-  StoryDto,
+  StoryDetailDto,
   GenreDto,
   ChapterDto,
 } from "@/lib/generated-api/generated/models";
@@ -21,9 +21,12 @@ import {
   Languages,
   RefreshCw,
   FileText,
+  Plus,
+  Trash2,
 } from "lucide-react";
 import Link from "next/link";
 import { useAuthStore } from "@/lib/store/authStore";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 const storySchema = z.object({
   title: z.string().min(1, "Tiêu đề là bắt buộc"),
@@ -49,7 +52,7 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
   const router = useRouter();
   const { user, hasRole } = useAuthStore();
 
-  const [story, setStory] = useState<StoryDto | null>(null);
+  const [story, setStory] = useState<StoryDetailDto | null>(null);
   const [chapters, setChapters] = useState<ChapterDto[]>([]);
   const [genres, setGenres] = useState<GenreDto[]>([]);
   const [loading, setLoading] = useState(false);
@@ -60,6 +63,22 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
   const [translatingStory, setTranslatingStory] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [permissionError, setPermissionError] = useState(false);
+  const [showCreateChapterModal, setShowCreateChapterModal] = useState(false);
+  const [newChapterTitle, setNewChapterTitle] = useState("");
+  const [newChapterIndex, setNewChapterIndex] = useState("");
+  const [creatingChapter, setCreatingChapter] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    variant?: "danger" | "warning" | "info";
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+    onConfirm: () => {},
+  });
 
   const isAdmin = hasRole("ADMIN");
   const isModerator = hasRole("MODERATOR");
@@ -196,7 +215,7 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
     }
   };
 
-  const handleTranslateUntranslated = async () => {
+  const handleTranslateUntranslated = () => {
     const untranslatedChapters = chapters.filter(
       (ch) => ch.translateStatus !== "SUCCESS" && ch.id
     );
@@ -206,13 +225,18 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
       return;
     }
 
-    if (
-      !confirm(
-        `Bạn có muốn dịch ${untranslatedChapters.length} chương chưa dịch?`
-      )
-    )
-      return;
+    setConfirmDialog({
+      isOpen: true,
+      title: "Dịch chương",
+      message: `Bạn có muốn dịch ${untranslatedChapters.length} chương chưa dịch?`,
+      variant: "info",
+      onConfirm: async () => {
+        await performTranslateUntranslated();
+      },
+    });
+  };
 
+  const performTranslateUntranslated = async () => {
     setTranslating(true);
     setTranslationProgress(0);
 
@@ -251,9 +275,19 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
     }
   };
 
-  const handleReTranslateChapter = async (chapterId: number) => {
-    if (!confirm("Bạn có muốn dịch lại chương này?")) return;
+  const handleReTranslateChapter = (chapterId: number) => {
+    setConfirmDialog({
+      isOpen: true,
+      title: "Dịch lại chương",
+      message: "Bạn có muốn dịch lại chương này?",
+      variant: "info",
+      onConfirm: async () => {
+        await performReTranslateChapter(chapterId);
+      },
+    });
+  };
 
+  const performReTranslateChapter = async (chapterId: number) => {
     try {
       await apiClient.chapters.translateChapter(storyId, chapterId);
       toast.success("Dịch lại chương thành công!");
@@ -266,10 +300,19 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
     }
   };
 
-  const handleTranslateStoryMetadata = async () => {
-    if (!confirm("Bạn có muốn dịch tiêu đề, mô tả và tên tác giả của truyện?"))
-      return;
+  const handleTranslateStoryMetadata = () => {
+    setConfirmDialog({
+      isOpen: true,
+      title: "Dịch thông tin truyện",
+      message: "Bạn có muốn dịch tiêu đề, mô tả và tên tác giả của truyện?",
+      variant: "info",
+      onConfirm: async () => {
+        await performTranslateStoryMetadata();
+      },
+    });
+  };
 
+  const performTranslateStoryMetadata = async () => {
     setTranslatingStory(true);
     try {
       const response = await apiClient.stories.translateStory({
@@ -288,6 +331,66 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
       toast.error(errorMessage);
     } finally {
       setTranslatingStory(false);
+    }
+  };
+
+  const handleCreateChapter = async () => {
+    if (!newChapterTitle.trim()) {
+      toast.error("Vui lòng nhập tiêu đề chương");
+      return;
+    }
+
+    const chapterIndex = parseInt(newChapterIndex);
+    if (isNaN(chapterIndex) || chapterIndex < 1) {
+      toast.error("Số thứ tự chương phải là số dương");
+      return;
+    }
+
+    setCreatingChapter(true);
+    try {
+      await apiClient.chapters.createChapter(storyId, {
+        title: newChapterTitle,
+        chapterIndex: chapterIndex,
+        rawContent: "",
+      });
+
+      toast.success("Tạo chương mới thành công!");
+      setShowCreateChapterModal(false);
+      setNewChapterTitle("");
+      setNewChapterIndex("");
+      fetchChapters();
+    } catch (error: any) {
+      console.error("Failed to create chapter:", error);
+      const errorMessage =
+        error?.response?.data?.message || "Lỗi khi tạo chương mới.";
+      toast.error(errorMessage);
+    } finally {
+      setCreatingChapter(false);
+    }
+  };
+
+  const handleDeleteChapter = (chapterId: number, chapterTitle: string) => {
+    setConfirmDialog({
+      isOpen: true,
+      title: "Xóa chương",
+      message: `Bạn có chắc muốn xóa chương "${chapterTitle}"?`,
+      variant: "danger",
+      onConfirm: async () => {
+        await performDeleteChapter(chapterId);
+      },
+    });
+  };
+
+  const performDeleteChapter = async (chapterId: number) => {
+    try {
+      await apiClient.chapters.deleteChapter(storyId, chapterId);
+      toast.success("Đã xóa chương thành công!");
+      fetchChapters();
+    } catch (error: any) {
+      console.error("Failed to delete chapter:", error);
+      const errorMessage =
+        error?.response?.data?.message || "Lỗi khi xóa chương.";
+      toast.error(errorMessage);
     }
   };
 
@@ -455,6 +558,7 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
           <RichTextEditor
             content={description}
             onChange={(content) => setValue("description", content)}
+            enableImageUpload={false}
           />
           {errors.description && (
             <p className="mt-2 text-sm text-red-600">
@@ -503,12 +607,43 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
                 {...register("status")}
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
               >
-                <option value="DRAFT">Draft</option>
-                <option value="PUBLISHED">Published</option>
-                <option value="COMPLETED">Completed</option>
-                <option value="ARCHIVED">Archived</option>
+                <option value="DRAFT">Bản nháp</option>
+                <option value="PUBLISHED">Đã xuất bản</option>
+                <option value="COMPLETED">Hoàn thành</option>
+                <option value="ARCHIVED">Lưu trữ</option>
               </select>
             </div>
+
+            {isAdmin && (
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={story?.featured || false}
+                  onChange={async (e) => {
+                    try {
+                      await apiClient.stories.setFeatured(
+                        storyId,
+                        e.target.checked
+                      );
+                      toast.success(
+                        e.target.checked
+                          ? "Đã đánh dấu truyện nổi bật!"
+                          : "Đã bỏ đánh dấu truyện nổi bật!"
+                      );
+                      fetchStory();
+                    } catch (error) {
+                      console.error("Failed to toggle featured:", error);
+                      toast.error("Lỗi khi cập nhật trạng thái nổi bật");
+                    }
+                  }}
+                  id="featured"
+                  className="w-4 h-4 text-yellow-500 rounded focus:ring-2 focus:ring-yellow-500"
+                />
+                <label htmlFor="featured" className="text-sm font-medium">
+                  Truyện nổi bật
+                </label>
+              </div>
+            )}
 
             <div className="flex items-center gap-2">
               <input
@@ -559,23 +694,32 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
             <FileText size={24} />
             Quản lý Chương ({chapters.length})
           </h2>
-          <button
-            onClick={handleTranslateUntranslated}
-            disabled={translating}
-            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition"
-          >
-            {translating ? (
-              <>
-                <Loader2 className="animate-spin" size={18} />
-                Đang dịch...
-              </>
-            ) : (
-              <>
-                <Languages size={18} />
-                Dịch chương chưa dịch
-              </>
-            )}
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowCreateChapterModal(true)}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium flex items-center gap-2 transition"
+            >
+              <Plus size={18} />
+              Thêm chương mới
+            </button>
+            <button
+              onClick={handleTranslateUntranslated}
+              disabled={translating}
+              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition"
+            >
+              {translating ? (
+                <>
+                  <Loader2 className="animate-spin" size={18} />
+                  Đang dịch...
+                </>
+              ) : (
+                <>
+                  <Languages size={18} />
+                  Dịch chương chưa dịch
+                </>
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Translation Progress */}
@@ -624,28 +768,120 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
                     )}
                   </p>
                 </Link>
-                {chapter.translateStatus === "SUCCESS" ? (
+                <div className="flex gap-2">
+                  {chapter.translateStatus === "SUCCESS" ? (
+                    <button
+                      onClick={() => handleReTranslateChapter(chapter.id!)}
+                      className="px-3 py-1 text-sm text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition flex items-center gap-1"
+                    >
+                      <RefreshCw size={14} />
+                      Dịch lại
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleReTranslateChapter(chapter.id!)}
+                      className="px-3 py-1 text-sm text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30 rounded transition flex items-center gap-1"
+                    >
+                      <Languages size={14} />
+                      Dịch
+                    </button>
+                  )}
                   <button
-                    onClick={() => handleReTranslateChapter(chapter.id!)}
-                    className="px-3 py-1 text-sm text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition flex items-center gap-1"
+                    onClick={() =>
+                      handleDeleteChapter(
+                        chapter.id!,
+                        chapter.title || `Chương ${chapter.chapterIndex}`
+                      )
+                    }
+                    className="px-3 py-1 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition flex items-center gap-1"
+                    aria-label="Xóa chương"
                   >
-                    <RefreshCw size={14} />
-                    Dịch lại
+                    <Trash2 size={14} />
+                    Xóa
                   </button>
-                ) : (
-                  <button
-                    onClick={() => handleReTranslateChapter(chapter.id!)}
-                    className="px-3 py-1 text-sm text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30 rounded transition flex items-center gap-1"
-                  >
-                    <Languages size={14} />
-                    Dịch
-                  </button>
-                )}
+                </div>
               </div>
             ))
           )}
         </div>
       </div>
+
+      {/* Create Chapter Modal */}
+      {showCreateChapterModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+              Tạo chương mới
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Tiêu đề chương <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={newChapterTitle}
+                  onChange={(e) => setNewChapterTitle(e.target.value)}
+                  placeholder="Nhập tiêu đề chương..."
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Số thứ tự chương <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  value={newChapterIndex}
+                  onChange={(e) => setNewChapterIndex(e.target.value)}
+                  placeholder="Ví dụ: 1, 2, 3..."
+                  min="1"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => {
+                  setShowCreateChapterModal(false);
+                  setNewChapterTitle("");
+                  setNewChapterIndex("");
+                }}
+                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={handleCreateChapter}
+                disabled={creatingChapter}
+                className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              >
+                {creatingChapter ? (
+                  <>
+                    <Loader2 className="animate-spin" size={18} />
+                    Đang tạo...
+                  </>
+                ) : (
+                  <>
+                    <Plus size={18} />
+                    Tạo chương
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        variant={confirmDialog.variant}
+        onConfirm={confirmDialog.onConfirm}
+        onCancel={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
+      />
     </div>
   );
 }

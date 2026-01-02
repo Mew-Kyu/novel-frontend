@@ -65,7 +65,23 @@ export default function HomePage() {
           apiClient.genres.getAllGenresWithCounts().catch(() => ({ data: [] })),
         ]);
 
-      setFeaturedStories(featuredRes.data as StoryDetail[]);
+      // If no featured stories, use trending or latest stories as fallback
+      let featured = featuredRes.data as StoryDetail[];
+      if (!featured || featured.length === 0) {
+        // Try to get some recent stories as fallback
+        try {
+          const recentRes = await apiClient.stories.getStoriesWithMetadata({
+            page: 0,
+            size: 5,
+            sort: ["createdAt,desc"],
+          });
+          featured = (recentRes.data.content || []) as StoryDetail[];
+        } catch (err) {
+          console.error("Failed to load fallback stories:", err);
+        }
+      }
+
+      setFeaturedStories(featured);
       setStats(statsRes.data as StatsSummary);
       setTrendingStories(trendingRes.data as StoryDetail[]);
       setLatestChapters(latestRes.data as LatestChapter[]);

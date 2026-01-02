@@ -9,6 +9,7 @@ import { useAuthStore } from "@/lib/store/authStore";
 import { StoryGrid } from "@/components/home/StoryGrid";
 import { Button } from "@/components/ui/Button";
 import { Pagination } from "@/components/common/Pagination";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 interface FavoriteStory {
   id: number;
@@ -35,6 +36,15 @@ export default function FavoritesPage() {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const pageSize = 12;
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    message: "",
+    onConfirm: () => {},
+  });
 
   useEffect(() => {
     setMounted(true);
@@ -167,15 +177,15 @@ export default function FavoritesPage() {
                   <button
                     onClick={(e) => {
                       e.preventDefault();
-                      if (
-                        confirm(
-                          `Bạn có chắc muốn bỏ yêu thích "${
-                            story.translatedTitle || story.title
-                          }"?`
-                        )
-                      ) {
-                        handleUnfavorite(story.id);
-                      }
+                      setConfirmDialog({
+                        isOpen: true,
+                        message: `Bạn có chắc muốn bỏ yêu thích "${
+                          story.translatedTitle || story.title
+                        }"?`,
+                        onConfirm: () => {
+                          handleUnfavorite(story.id);
+                        },
+                      });
                     }}
                     className="absolute top-2 right-2 z-10 p-2 bg-red-500/90 hover:bg-red-600 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
                     title="Bỏ yêu thích"
@@ -265,6 +275,16 @@ export default function FavoritesPage() {
           </>
         )}
       </div>
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        title="Bỏ yêu thích"
+        message={confirmDialog.message}
+        variant="warning"
+        onConfirm={confirmDialog.onConfirm}
+        onCancel={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
+      />
     </div>
   );
 }

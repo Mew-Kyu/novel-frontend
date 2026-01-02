@@ -3,8 +3,8 @@
 import { useState, useEffect, ReactNode } from "react";
 import toast from "react-hot-toast";
 import { StoryDetailDto } from "@/lib/generated-api/generated/models";
-import { FavoriteControllerApi } from "@/lib/generated-api/generated/api";
-import { Configuration } from "@/lib/generated-api/generated/configuration";
+import apiClient from "@/lib/generated-api";
+import { useAuthStore } from "@/lib/store/authStore";
 import { StoryHero } from "@/components/story/StoryHero";
 
 interface StoryClientWrapperProps {
@@ -18,30 +18,22 @@ export default function StoryClientWrapper({
 }: StoryClientWrapperProps) {
   const [isFavorite, setIsFavorite] = useState(false);
   const [checkingFavorite, setCheckingFavorite] = useState(true);
+  const { isAuthenticated } = useAuthStore();
 
   useEffect(() => {
     checkFavoriteStatus();
-  }, [story.id]);
+  }, [story.id, isAuthenticated]);
 
   const checkFavoriteStatus = async () => {
     if (!story.id) return;
 
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
+    if (!isAuthenticated) {
       setCheckingFavorite(false);
       return;
     }
 
     try {
-      const config = new Configuration({
-        basePath:
-          process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080",
-        accessToken: token,
-      });
-
-      const favoriteApi = new FavoriteControllerApi(config);
-      const response = await favoriteApi.checkFavoriteStatus(story.id);
-
+      const response = await apiClient.favorites.checkFavoriteStatus(story.id);
       setIsFavorite(response.data.isFavorite || false);
     } catch (error: any) {
       // Ignore 403/401 errors (user not logged in or no permission)
@@ -56,31 +48,28 @@ export default function StoryClientWrapper({
   const handleToggleFavorite = async () => {
     if (!story.id) return;
 
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
+    if (!isAuthenticated) {
       toast.error("Vui lòng đăng nhập để thêm vào yêu thích");
       return;
     }
 
     try {
-      const config = new Configuration({
-        basePath:
-          process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080",
-        accessToken: token,
-      });
-
-      const favoriteApi = new FavoriteControllerApi(config);
-
       if (isFavorite) {
-        await favoriteApi.removeFromFavorites(story.id);
+        await apiClient.favorites.removeFromFavorites(story.id);
         setIsFavorite(false);
+        toast.success("Đã xóa khỏi yêu thích");
       } else {
-        await favoriteApi.addToFavorites(story.id);
+        await apiClient.favorites.addToFavorites(story.id);
         setIsFavorite(true);
+        toast.success("Đã thêm vào yêu thích");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to toggle favorite:", error);
-      toast.error("Không thể thực hiện. Vui lòng thử lại.");
+      if (error?.response?.status === 401 || error?.response?.status === 403) {
+        toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
+      } else {
+        toast.error("Không thể thực hiện. Vui lòng thử lại.");
+      }
     }
   };
 

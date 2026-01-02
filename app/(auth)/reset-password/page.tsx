@@ -8,8 +8,10 @@ import { Input } from "@/components/ui/Input";
 import { useToast } from "@/lib/contexts/ToastProvider";
 import apiClient from "@/lib/generated-api";
 import Link from "next/link";
+import { useAuthStore } from "@/lib/store/authStore";
 
 function ResetPasswordForm() {
+  const { isAuthenticated } = useAuthStore();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -18,6 +20,13 @@ function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push("/");
+    }
+  }, [isAuthenticated, router]);
 
   useEffect(() => {
     if (!token) {

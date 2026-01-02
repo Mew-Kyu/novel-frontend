@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import { Star } from "lucide-react";
 import toast from "react-hot-toast";
 import { cn } from "@/lib/utils/cn";
-import { RatingControllerApi } from "@/lib/generated-api/generated/api";
-import { Configuration } from "@/lib/generated-api/generated/configuration";
+import apiClient from "@/lib/generated-api";
+import { useAuthStore } from "@/lib/store/authStore";
 
 interface RatingProps {
   storyId: number;
@@ -27,25 +27,19 @@ export function Rating({
   const [userRating, setUserRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { isAuthenticated } = useAuthStore();
 
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-    if (token) {
-      setIsLoggedIn(true);
-      fetchUserRating(token);
+    if (isAuthenticated) {
+      fetchUserRating();
+    } else {
+      setUserRating(0);
     }
-  }, [storyId]);
+  }, [storyId, isAuthenticated]);
 
-  const fetchUserRating = async (token: string) => {
+  const fetchUserRating = async () => {
     try {
-      const config = new Configuration({
-        basePath:
-          process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080",
-        accessToken: token,
-      });
-      const ratingApi = new RatingControllerApi(config);
-      const response = await ratingApi.getMyRatingForStory(storyId);
+      const response = await apiClient.ratings.getMyRatingForStory(storyId);
       if (response.data) {
         const data = response.data as any;
         if (data && typeof data.rating === "number") {
@@ -58,6 +52,11 @@ export function Rating({
         setUserRating(0);
         return;
       }
+      // 401/403 means token is invalid - let the global handler deal with it
+      if (error?.response?.status === 401 || error?.response?.status === 403) {
+        setUserRating(0);
+        return;
+      }
       // Only log other errors
       console.error("Failed to fetch user rating:", error);
     }
@@ -66,31 +65,29 @@ export function Rating({
   const handleRate = async (value: number) => {
     if (readonly || isSubmitting) return;
 
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
+    if (!isAuthenticated) {
       toast.error("Vui lòng đăng nhập để đánh giá!");
       return;
     }
 
     setIsSubmitting(true);
     try {
-      const config = new Configuration({
-        basePath:
-          process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080",
-        accessToken: token,
-      });
-      const ratingApi = new RatingControllerApi(config);
-
-      await ratingApi.createOrUpdateRating({
+      await apiClient.ratings.createOrUpdateRating({
         storyId,
         rating: value,
       });
 
       setUserRating(value);
+      toast.success("Đánh giá thành công!");
       if (onRate) await onRate(value);
       if (onRateSuccess) await onRateSuccess();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to rate:", error);
+      if (error?.response?.status === 401 || error?.response?.status === 403) {
+        toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
+      } else {
+        toast.error("Đánh giá thất bại. Vui lòng thử lại!");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -102,7 +99,7 @@ export function Rating({
     lg: "w-6 h-6",
   };
 
-  const displayRating = isLoggedIn ? userRating : averageRating;
+  const displayRating = isAuthenticated ? userRating : averageRating;
 
   return (
     <div className="flex items-center gap-0.5" suppressHydrationWarning>
