@@ -142,9 +142,11 @@ export function StoryHero({
         start && end ? `_c${start}-c${end}` : ""
       }.epub`;
       downloadBlob(response.data as unknown as Blob, filename);
-    } catch (error: any) {
+    } catch (error) {
       console.error("Download error:", error);
-      if (error?.response?.status === 401 || error?.response?.status === 403) {
+      const status = (error as { response?: { status?: number } })?.response
+        ?.status;
+      if (status === 401 || status === 403) {
         setDownloadError("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
       } else {
         setDownloadError("Không thể tải file EPUB. Vui lòng thử lại sau.");

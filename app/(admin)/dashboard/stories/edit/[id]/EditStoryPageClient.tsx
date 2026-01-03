@@ -956,7 +956,7 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
                 className="bg-green-600 h-full transition-all duration-300"
                 style={
                   { width: `${translationProgress}%` } as React.CSSProperties
-                }
+                } // Dynamic width
               />
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 text-center">

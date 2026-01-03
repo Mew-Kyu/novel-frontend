@@ -17,33 +17,29 @@ export default function StoryClientWrapper({
   children,
 }: StoryClientWrapperProps) {
   const [isFavorite, setIsFavorite] = useState(false);
-  const [checkingFavorite, setCheckingFavorite] = useState(true);
   const { isAuthenticated } = useAuthStore();
 
   useEffect(() => {
-    checkFavoriteStatus();
-  }, [story.id, isAuthenticated]);
+    if (!story.id || !isAuthenticated) return;
 
-  const checkFavoriteStatus = async () => {
-    if (!story.id) return;
-
-    if (!isAuthenticated) {
-      setCheckingFavorite(false);
-      return;
-    }
-
-    try {
-      const response = await apiClient.favorites.checkFavoriteStatus(story.id);
-      setIsFavorite(response.data.isFavorite || false);
-    } catch (error: any) {
-      // Ignore 403/401 errors (user not logged in or no permission)
-      if (error?.response?.status !== 403 && error?.response?.status !== 401) {
-        console.error("Failed to check favorite status:", error);
+    const checkStatus = async () => {
+      try {
+        const response = await apiClient.favorites.checkFavoriteStatus(
+          story.id!
+        );
+        setIsFavorite(response.data.isFavorite || false);
+      } catch (error) {
+        // Ignore 403/401 errors (user not logged in or no permission)
+        const status = (error as { response?: { status?: number } })?.response
+          ?.status;
+        if (status !== 403 && status !== 401) {
+          console.error("Failed to check favorite status:", error);
+        }
       }
-    } finally {
-      setCheckingFavorite(false);
-    }
-  };
+    };
+
+    void checkStatus();
+  }, [story.id, isAuthenticated]);
 
   const handleToggleFavorite = async () => {
     if (!story.id) return;
@@ -63,9 +59,11 @@ export default function StoryClientWrapper({
         setIsFavorite(true);
         toast.success("Đã thêm vào yêu thích");
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Failed to toggle favorite:", error);
-      if (error?.response?.status === 401 || error?.response?.status === 403) {
+      const status = (error as { response?: { status?: number } })?.response
+        ?.status;
+      if (status === 401 || status === 403) {
         toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
       } else {
         toast.error("Không thể thực hiện. Vui lòng thử lại.");

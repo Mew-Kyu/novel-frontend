@@ -1,9 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import toast from "react-hot-toast";
 import apiClient from "@/lib/generated-api";
-import type { CrawlJobDto } from "@/lib/generated-api/generated/models";
+import type {
+  CrawlJobDto,
+  CrawlNovelRequest,
+} from "@/lib/generated-api/generated/models";
 import { useAuthStore } from "@/lib/store/authStore";
 import {
   Download,
@@ -20,7 +23,6 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 export default function CrawlManagerPage() {
   const [jobs, setJobs] = useState<CrawlJobDto[]>([]);
-  const [allJobs, setAllJobs] = useState<CrawlJobDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [crawlUrl, setCrawlUrl] = useState("");
   const [startChapter, setStartChapter] = useState("");
@@ -40,14 +42,7 @@ export default function CrawlManagerPage() {
     onConfirm: () => {},
   });
 
-  useEffect(() => {
-    fetchJobs();
-    // Auto-refresh every 5 seconds
-    const interval = setInterval(fetchJobs, 5000);
-    return () => clearInterval(interval);
-  }, [currentPage]);
-
-  const fetchJobs = async () => {
+  const fetchJobs = useCallback(async () => {
     try {
       const response = await apiClient.crawlJobs.getAllJobs();
       let jobsList = response.data;
@@ -59,8 +54,6 @@ export default function CrawlManagerPage() {
         );
       }
 
-      setAllJobs(jobsList);
-
       // Calculate pagination
       const total = Math.ceil(jobsList.length / pageSize);
       setTotalPages(total);
@@ -69,15 +62,24 @@ export default function CrawlManagerPage() {
       const start = currentPage * pageSize;
       const end = start + pageSize;
       setJobs(jobsList.slice(start, end));
-    } catch (error: any) {
+    } catch (error) {
       // Don't show error for 403 - it's handled by the interceptor
-      if (error?.response?.status !== 403) {
+      if (
+        (error as { response?: { status?: number } })?.response?.status !== 403
+      ) {
         console.error("Failed to fetch jobs:", error);
       }
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, hasRole, user?.id]);
+
+  useEffect(() => {
+    fetchJobs();
+    // Auto-refresh every 5 seconds
+    const interval = setInterval(fetchJobs, 5000);
+    return () => clearInterval(interval);
+  }, [fetchJobs]);
 
   const handleStartCrawl = async (autoCrawl: boolean = false) => {
     if (!crawlUrl.trim()) {
@@ -95,7 +97,7 @@ export default function CrawlManagerPage() {
     );
 
     try {
-      const crawlRequest: any = {
+      const crawlRequest: CrawlNovelRequest = {
         novelUrl: crawlUrl,
       };
 
@@ -160,13 +162,16 @@ export default function CrawlManagerPage() {
       setStartChapter("");
       setEndChapter("");
       fetchJobs();
-    } catch (error: any) {
+    } catch (error) {
       toast.dismiss(loadingToast);
 
-      if (error?.response?.status !== 403) {
+      if (
+        (error as { response?: { status?: number } })?.response?.status !== 403
+      ) {
         console.error("Failed to start crawl:", error);
         const errorMessage =
-          error?.response?.data?.message || "Lỗi khi crawl. Vui lòng thử lại.";
+          (error as { response?: { data?: { message?: string } } })?.response
+            ?.data?.message || "Lỗi khi crawl. Vui lòng thử lại.";
 
         // Check for concurrent access error
         if (errorMessage.includes("already being crawled")) {
@@ -182,14 +187,16 @@ export default function CrawlManagerPage() {
     }
   };
 
-  const handleRetry = async (jobId: number) => {
+  const handleRetry = async () => {
     try {
       // Assuming there's a retry endpoint
       // await apiClient.crawlJob.retryJob(jobId);
       toast.error("Chức năng retry đang được phát triển...");
       fetchJobs();
-    } catch (error: any) {
-      if (error?.response?.status !== 403) {
+    } catch (error) {
+      if (
+        (error as { response?: { status?: number } })?.response?.status !== 403
+      ) {
         console.error("Failed to retry job:", error);
         toast.error("Lỗi khi retry job.");
       }
@@ -211,8 +218,10 @@ export default function CrawlManagerPage() {
       await apiClient.crawlJobs.deleteJob(jobId);
       toast.success("Đã xóa job thành công!");
       fetchJobs();
-    } catch (error: any) {
-      if (error?.response?.status !== 403) {
+    } catch (error) {
+      if (
+        (error as { response?: { status?: number } })?.response?.status !== 403
+      ) {
         console.error("Failed to delete job:", error);
         toast.error("Lỗi khi xóa job.");
       }
@@ -492,7 +501,7 @@ export default function CrawlManagerPage() {
                       <div className="flex justify-end gap-2">
                         {job.status === "FAILED" && (
                           <button
-                            onClick={() => handleRetry(job.id!)}
+                            onClick={() => handleRetry()}
                             className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
                             title="Thử lại"
                           >

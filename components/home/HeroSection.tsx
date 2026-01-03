@@ -85,7 +85,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ stories }) => {
                   ? "opacity-20 dark:opacity-30"
                   : "opacity-0"
               }`}
-              style={{ backgroundImage: `url(${story.coverImageUrl})` }}
+              style={{ backgroundImage: `url(${story.coverImageUrl})` }} // Dynamic background image
             />
           )
       )}

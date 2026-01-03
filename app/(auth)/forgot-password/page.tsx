@@ -30,15 +30,16 @@ export default function ForgotPasswordPage() {
     setLoading(true);
 
     try {
-      await apiClient.userController.forgotPassword({ email });
+      await apiClient.user.forgotPassword({ email });
       setEmailSent(true);
       showToast(
         "Liên kết đặt lại mật khẩu đã được gửi đến email của bạn",
         "success"
       );
-    } catch (error: any) {
+    } catch (error) {
       showToast(
-        error?.response?.data?.message || "Gửi liên kết thất bại",
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message || "Gửi liên kết thất bại",
         "error"
       );
     } finally {

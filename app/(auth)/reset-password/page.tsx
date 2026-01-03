@@ -65,9 +65,10 @@ function ResetPasswordForm() {
       setTimeout(() => {
         router.push("/login");
       }, 2000);
-    } catch (error: any) {
+    } catch (error) {
       showToast(
-        error?.response?.data?.message ||
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message ||
           "Đặt lại mật khẩu thất bại. Liên kết có thể đã hết hạn.",
         "error"
       );

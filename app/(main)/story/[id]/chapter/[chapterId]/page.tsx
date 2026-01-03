@@ -248,7 +248,7 @@ export default function ChapterReaderPage() {
                   <div className="w-24 h-2 bg-[rgb(var(--border))] rounded-full overflow-hidden">
                     <div
                       className="h-full bg-blue-500 transition-all duration-300"
-                      style={{ width: `${scrollProgress}%` }}
+                      style={{ width: `${scrollProgress}%` }} // Dynamic width
                     />
                   </div>
                   <span className="text-sm font-medium text-[rgb(var(--text))]">
@@ -308,7 +308,7 @@ export default function ChapterReaderPage() {
           <div className="prose prose-slate dark:prose-invert max-w-none">
             <div
               className="text-[rgb(var(--text))] leading-relaxed whitespace-pre-wrap"
-              style={{ fontSize: `${fontSize}px` }}
+              style={{ fontSize: `${fontSize}px` }} // Dynamic font size
               dangerouslySetInnerHTML={{ __html: chapter.content }}
             />
           </div>

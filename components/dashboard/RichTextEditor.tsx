@@ -21,11 +21,11 @@ import {
   AlignCenter,
   AlignRight,
   AlignJustify,
-  Type,
   Maximize2,
   X,
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import NextImage from "next/image";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import apiClient from "@/lib/generated-api";
@@ -41,7 +41,6 @@ interface RichTextEditorProps {
 export function RichTextEditor({
   content,
   onChange,
-  placeholder = "Start writing...",
   enableImageUpload = true,
 }: RichTextEditorProps) {
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -145,18 +144,18 @@ export function RichTextEditor({
         if (editor && imageUrl) {
           editor.chain().focus().setImage({ src: imageUrl }).run();
         }
-      } catch (error: any) {
+      } catch (error) {
         console.error("Failed to upload image:", error);
 
         // Handle authentication errors
-        if (
-          error?.response?.status === 401 ||
-          error?.response?.status === 403
-        ) {
+        const status = (error as { response?: { status?: number } })?.response
+          ?.status;
+        const message = (error as { message?: string })?.message;
+        if (status === 401 || status === 403) {
           toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
           logout();
           router.push("/login");
-        } else if (error?.message === "Network Error") {
+        } else if (message === "Network Error") {
           toast.error("Lỗi kết nối. Vui lòng kiểm tra internet và thử lại.");
         } else {
           toast.error("Không thể tải ảnh lên. Vui lòng thử lại.");
@@ -362,14 +361,15 @@ export function RichTextEditor({
 
             {/* Image Preview */}
             <div className="mb-6 border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-900 flex justify-center items-center min-h-[200px]">
-              <div
-                className="max-w-full"
-                style={{ width: `${imageWidth}${widthUnit}` }}
-              >
-                <img
+              <div className="max-w-full relative">
+                <NextImage
                   src={selectedImage.src}
                   alt="Preview"
-                  className="rounded-lg w-full h-auto"
+                  width={imageWidth}
+                  height={0}
+                  style={{ width: `${imageWidth}${widthUnit}`, height: "auto" }}
+                  className="rounded-lg"
+                  unoptimized
                 />
               </div>
             </div>

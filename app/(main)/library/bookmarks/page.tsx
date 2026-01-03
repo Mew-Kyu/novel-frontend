@@ -223,7 +223,7 @@ export default function BookmarksPage() {
                           <div className="w-full h-2 bg-[rgb(var(--border))] rounded-full overflow-hidden">
                             <div
                               className="h-full bg-blue-500 transition-all"
-                              style={{ width: `${item.progressPercent}%` }}
+                              style={{ width: `${item.progressPercent}%` }} // Dynamic width
                             />
                           </div>
                         </div>

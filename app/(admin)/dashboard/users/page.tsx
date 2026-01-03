@@ -2,7 +2,12 @@
 
 import { useState, useEffect } from "react";
 import apiClient from "@/lib/generated-api";
-import { UserDto, Pageable, RoleDto } from "@/lib/generated-api/generated";
+import {
+  UserDto,
+  Pageable,
+  RoleDto,
+  RegisterRequest,
+} from "@/lib/generated-api/generated";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -10,12 +15,13 @@ import { Modal } from "@/components/ui/Modal";
 import { Pagination } from "@/components/common/Pagination";
 import { Avatar } from "@/components/common/Avatar";
 import { useToast } from "@/lib/contexts/ToastProvider";
+import { useAuthStore } from "@/lib/store/authStore";
+import { UserPlus } from "lucide-react";
 
 export default function UsersManagementPage() {
   const [users, setUsers] = useState<UserDto[]>([]);
   const [roles, setRoles] = useState<RoleDto[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isRemoving, setIsRemoving] = useState(false);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
@@ -26,24 +32,36 @@ export default function UsersManagementPage() {
   // Modals
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showResetPasswordModal, setShowResetPasswordModal] = useState(false);
+  const [showCreateUserModal, setShowCreateUserModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
   const [newPassword, setNewPassword] = useState("");
 
+  // Create user form
+  const [newUserData, setNewUserData] = useState<RegisterRequest>({
+    email: "",
+    password: "",
+    displayName: "",
+    roleName: "MODERATOR",
+  });
+  const [creatingUser, setCreatingUser] = useState(false);
+
   const { showToast } = useToast();
+  const { hasRole } = useAuthStore();
 
   const fetchRoles = async () => {
     try {
       const response = await apiClient.admin.getAllRoles();
       setRoles(response.data || []);
-    } catch (error: any) {
+    } catch (error) {
       showToast(
-        error?.response?.data?.message || "Không thể tải danh sách roles",
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message || "Không thể tải danh sách roles",
         "error"
       );
     }
   };
 
-  const fetchUsers = async (pageNum: number = 0) => {
+  const fetchUsers = async (pageNum: number = 0, search: string = "") => {
     try {
       setLoading(true);
 
@@ -57,8 +75,8 @@ export default function UsersManagementPage() {
       let filteredUsers = response.data.content || [];
 
       // Client-side filtering for comprehensive search
-      if (searchTerm) {
-        const lowerSearch = searchTerm.toLowerCase();
+      if (search) {
+        const lowerSearch = search.toLowerCase();
         filteredUsers = filteredUsers.filter((u) => {
           // Search in display name
           const matchName = u.displayName?.toLowerCase().includes(lowerSearch);
@@ -78,9 +96,10 @@ export default function UsersManagementPage() {
       setTotalPages(response.data.totalPages || 0);
       setTotalElements(filteredUsers.length);
       setPage(pageNum);
-    } catch (error: any) {
+    } catch (error) {
       showToast(
-        error?.response?.data?.message || "Không thể tải danh sách người dùng",
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message || "Không thể tải danh sách người dùng",
         "error"
       );
     } finally {
@@ -88,39 +107,41 @@ export default function UsersManagementPage() {
     }
   };
 
+  // Load initial data
   useEffect(() => {
     fetchRoles();
-    fetchUsers(0);
+    fetchUsers(0, searchTerm);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Debounced search effect
   useEffect(() => {
-    if (isRemoving) return; // Don't fetch while removing
-
     const timer = setTimeout(() => {
-      fetchUsers(0);
+      fetchUsers(0, searchTerm);
     }, 500);
 
     return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTerm]);
 
   const handleSearch = () => {
-    fetchUsers(0);
+    fetchUsers(0, searchTerm);
   };
 
   const handleReset = () => {
     setSearchTerm("");
-    setTimeout(() => fetchUsers(0), 100);
+    setTimeout(() => fetchUsers(0, ""), 100);
   };
 
   const handleUpdateRole = async (userId: number, newRoleName: string) => {
     try {
       await apiClient.admin.updateUserRole(userId, newRoleName);
       showToast("Cập nhật role thành công", "success");
-      fetchUsers(page);
-    } catch (error: any) {
+      fetchUsers(page, searchTerm);
+    } catch (error) {
       showToast(
-        error?.response?.data?.message || "Không thể cập nhật role",
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message || "Không thể cập nhật role",
         "error"
       );
     }
@@ -132,15 +153,16 @@ export default function UsersManagementPage() {
     try {
       await apiClient.admin.deleteUser(selectedUser.id!);
       showToast(
-        `User ${selectedUser.displayName} deleted successfully`,
+        `Xóa người dùng ${selectedUser.displayName} thành công`,
         "success"
       );
       setShowDeleteModal(false);
       setSelectedUser(null);
-      fetchUsers(page);
-    } catch (error: any) {
+      fetchUsers(page, searchTerm);
+    } catch (error) {
       showToast(
-        error?.response?.data?.message || "Failed to delete user",
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message || "Không thể xóa người dùng",
         "error"
       );
     }
@@ -160,11 +182,48 @@ export default function UsersManagementPage() {
       setShowResetPasswordModal(false);
       setSelectedUser(null);
       setNewPassword("");
-    } catch (error: any) {
+    } catch (error) {
       showToast(
-        error?.response?.data?.message || "Không thể đặt lại mật khẩu",
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message || "Không thể đặt lại mật khẩu",
         "error"
       );
+    }
+  };
+
+  const handleCreateUser = async () => {
+    if (
+      !newUserData.email ||
+      !newUserData.password ||
+      !newUserData.displayName
+    ) {
+      showToast("Vui lòng điền đầy đủ thông tin", "error");
+      return;
+    }
+
+    setCreatingUser(true);
+    try {
+      await apiClient.authentication.register(newUserData);
+      showToast(
+        `Tạo người dùng ${newUserData.displayName} thành công!`,
+        "success"
+      );
+      setShowCreateUserModal(false);
+      setNewUserData({
+        email: "",
+        password: "",
+        displayName: "",
+        roleName: "MODERATOR",
+      });
+      fetchUsers(page, searchTerm);
+    } catch (error) {
+      showToast(
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message || "Không thể tạo người dùng",
+        "error"
+      );
+    } finally {
+      setCreatingUser(false);
     }
   };
 
@@ -212,6 +271,19 @@ export default function UsersManagementPage() {
 
       {/* Users Table */}
       <Card className="overflow-hidden">
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
+          <div className="font-medium text-lg">Danh sách người dùng</div>
+          {hasRole("ADMIN") && (
+            <Button
+              onClick={() => setShowCreateUserModal(true)}
+              className="flex items-center gap-2 w-full sm:w-auto justify-center"
+              size="sm"
+            >
+              <UserPlus size={16} />
+              Thêm người dùng
+            </Button>
+          )}
+        </div>
         {loading ? (
           <div className="p-8 text-center">Đang tải...</div>
         ) : users.length === 0 ? (
@@ -270,7 +342,7 @@ export default function UsersManagementPage() {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         <select
-                          value={user.role?.name || "USER"}
+                          value={user.role?.name || "MODERATOR"}
                           onChange={(e) =>
                             handleUpdateRole(user.id!, e.target.value)
                           }
@@ -316,7 +388,7 @@ export default function UsersManagementPage() {
                               setShowDeleteModal(true);
                             }}
                           >
-                            Vô hiệu hóa
+                            Xóa tài khoản
                           </Button>
                         ) : null}
                       </div>
@@ -411,6 +483,110 @@ export default function UsersManagementPage() {
             </Button>
             <Button onClick={handleResetPassword} disabled={!newPassword}>
               Đặt lại mật khẩu
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Create User Modal */}
+      <Modal
+        isOpen={showCreateUserModal}
+        onClose={() => {
+          setShowCreateUserModal(false);
+          setNewUserData({
+            email: "",
+            password: "",
+            displayName: "",
+            roleName: "MODERATOR",
+          });
+        }}
+        title="Thêm người dùng mới"
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-2">
+              Tên hiển thị *
+            </label>
+            <Input
+              placeholder="Nhập tên hiển thị"
+              value={newUserData.displayName}
+              onChange={(e) =>
+                setNewUserData({ ...newUserData, displayName: e.target.value })
+              }
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">Email *</label>
+            <Input
+              type="email"
+              placeholder="Nhập email"
+              value={newUserData.email}
+              onChange={(e) =>
+                setNewUserData({ ...newUserData, email: e.target.value })
+              }
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">Mật khẩu *</label>
+            <Input
+              type="password"
+              placeholder="Nhập mật khẩu"
+              value={newUserData.password}
+              onChange={(e) =>
+                setNewUserData({ ...newUserData, password: e.target.value })
+              }
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">Vai trò</label>
+            <select
+              value={newUserData.roleName}
+              onChange={(e) =>
+                setNewUserData({ ...newUserData, roleName: e.target.value })
+              }
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+              aria-label="Chọn vai trò cho người dùng mới"
+            >
+              {roles.map((role) => (
+                <option key={role.id} value={role.name}>
+                  {role.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Một email chào mừng sẽ được gửi đến địa chỉ email đã cung cấp.
+          </p>
+
+          <div className="flex gap-2 justify-end">
+            <Button
+              onClick={() => {
+                setShowCreateUserModal(false);
+                setNewUserData({
+                  email: "",
+                  password: "",
+                  displayName: "",
+                  roleName: "MODERATOR",
+                });
+              }}
+              disabled={creatingUser}
+            >
+              Hủy
+            </Button>
+            <Button
+              onClick={handleCreateUser}
+              disabled={
+                creatingUser ||
+                !newUserData.email ||
+                !newUserData.password ||
+                !newUserData.displayName
+              }
+            >
+              {creatingUser ? "Đang tạo..." : "Tạo người dùng"}
             </Button>
           </div>
         </div>

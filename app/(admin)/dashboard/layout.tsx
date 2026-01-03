@@ -33,18 +33,20 @@ export default function DashboardLayout({
   const { user, logout, hasRole } = useAuthStore();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = useState(true);
-  const [systemMenuOpen, setSystemMenuOpen] = useState(false);
+  // Auto-expand system menu based on pathname - derive state instead of syncing
+  const isSystemPage = pathname?.startsWith("/dashboard/system") || false;
+  const [manualSystemMenuState, setManualSystemMenuState] = useState(false);
+  // If on system page, always show menu; otherwise use manual state
+  const systemMenuOpen = isSystemPage || manualSystemMenuState;
+  // Use a wrapper to update manual state
+  const setSystemMenuOpen = (value: boolean) => setManualSystemMenuState(value);
 
   useEffect(() => {
     // Role protection: Only ADMIN and MODERATOR can access
     if (!user || (!hasRole("ADMIN") && !hasRole("MODERATOR"))) {
       router.push("/");
     }
-    // Auto-expand system menu if on a system page
-    if (pathname?.startsWith("/dashboard/system")) {
-      setSystemMenuOpen(true);
-    }
-  }, [user, hasRole, router, pathname]);
+  }, [user, hasRole, router]);
 
   const handleLogout = () => {
     logout();
