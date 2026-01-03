@@ -3,7 +3,9 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { Search, Filter, X } from "lucide-react";
+import toast from "react-hot-toast";
 import apiClient from "@/lib/generated-api";
+import { handleRateLimitError, getErrorMessage } from "@/lib/utils";
 import { StoryGrid } from "@/components/home/StoryGrid";
 import { Button } from "@/components/ui/Button";
 import { Pagination } from "@/components/common/Pagination";
@@ -101,6 +103,16 @@ export default function SearchPage() {
       } catch (error) {
         console.error("Semantic search failed:", error);
         setStories([]);
+
+        // Handle rate limit error with countdown
+        if (!handleRateLimitError(error, "search")) {
+          // If not rate limit error, show generic error
+          const errorMsg = getErrorMessage(
+            error,
+            "Lỗi khi tìm kiếm nguyên nghĩa. Vui lòng thử lại."
+          );
+          toast.error(errorMsg);
+        }
       } finally {
         setLoading(false);
       }

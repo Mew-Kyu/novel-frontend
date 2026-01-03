@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import toast from "react-hot-toast";
 import apiClient from "@/lib/generated-api";
+import { handleRateLimitError, getErrorMessage } from "@/lib/utils";
 import type { GenreDto } from "@/lib/generated-api/generated/models";
 import { ImageUploader } from "@/components/dashboard/ImageUploader";
 import { RichTextEditor } from "@/components/dashboard/RichTextEditor";
@@ -118,7 +119,16 @@ export default function CreateStoryPage() {
           await apiClient.ai.generateStoryEmbedding(createdStory.id);
         } catch (embeddingError) {
           console.error("Embedding generation failed:", embeddingError);
-          // Continue anyway, embedding can be done later
+
+          // Handle rate limit error with countdown
+          if (!handleRateLimitError(embeddingError, "embedding")) {
+            // If not rate limit error, show warning but continue
+            const errorMsg = getErrorMessage(
+              embeddingError,
+              "Không thể tạo embedding. Bạn có thể tạo lại sau."
+            );
+            toast.error(errorMsg, { duration: 5000 });
+          }
         }
       }
 

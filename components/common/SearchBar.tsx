@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Search, X } from "lucide-react";
 import apiClient from "@/lib/generated-api";
+import { isRateLimitError } from "@/lib/utils";
 
 interface SearchResult {
   id: number;
@@ -76,6 +77,13 @@ export const SearchBar = () => {
           "Semantic search error, falling back to regular search:",
           error
         );
+
+        // If rate limit error, don't fallback - show empty results
+        if (isRateLimitError(error)) {
+          setResults([]);
+          // Don't show toast here - it's a background search
+          return;
+        }
 
         // Fallback to regular search
         try {

@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import toast from "react-hot-toast";
 import apiClient from "@/lib/generated-api";
+import { handleRateLimitError, getErrorMessage } from "@/lib/utils";
 import type {
   StoryDetailDto,
   GenreDto,
@@ -204,6 +205,16 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
           await apiClient.ai.generateStoryEmbedding(storyId);
         } catch (embeddingError) {
           console.error("Embedding generation failed:", embeddingError);
+
+          // Handle rate limit error with countdown
+          if (!handleRateLimitError(embeddingError, "embedding")) {
+            // If not rate limit error, show generic error
+            const errorMsg = getErrorMessage(
+              embeddingError,
+              "Lỗi khi tạo embedding. Vui lòng thử lại."
+            );
+            toast.error(errorMsg);
+          }
         }
       }
 
@@ -398,48 +409,16 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
       console.error("Re-translation failed:", error);
       toast.dismiss(loadingToast);
 
-      const axiosError = error as {
-        response?: {
-          status?: number;
-          data?: {
-            message?: string;
-            retryAfterSeconds?: number;
-            status?: number;
-          };
-        };
-      };
+      // Handle rate limit error with countdown
+      if (handleRateLimitError(error, "translate")) {
+        return; // Rate limit error handled
+      }
 
-      const errorData = axiosError?.response?.data;
-      const errorMessage = errorData?.message || "Lỗi khi dịch lại chương.";
-      const retryAfterSeconds = errorData?.retryAfterSeconds;
-      const statusCode = axiosError?.response?.status || errorData?.status;
+      // Handle other errors
+      const errorMessage = getErrorMessage(error, "Lỗi khi dịch lại chương.");
 
-      // Check for rate limit error (429)
-      if (statusCode === 429 && retryAfterSeconds) {
-        let timeLeft = retryAfterSeconds;
-        const countdownToast = toast.error(
-          `⚠️ ${errorMessage}\n\n⏱️ Vui lòng thử lại sau: ${timeLeft}s`,
-          { duration: retryAfterSeconds * 1000 }
-        );
-
-        const countdownInterval = setInterval(() => {
-          timeLeft -= 1;
-          if (timeLeft <= 0) {
-            clearInterval(countdownInterval);
-            toast.dismiss(countdownToast);
-            toast.success("✅ Bạn có thể thử dịch lại ngay bây giờ!", {
-              duration: 5000,
-            });
-          }
-        }, 1000);
-      } else if (errorMessage.includes("already being translated")) {
+      if (errorMessage.includes("already being translated")) {
         toast.error("⚠️ " + errorMessage, { duration: 6000 });
-      } else if (
-        statusCode === 429 ||
-        errorMessage.includes("quota") ||
-        errorMessage.includes("Too Many Requests")
-      ) {
-        toast.error("⚠️ " + errorMessage, { duration: 10000 });
       } else {
         toast.error("❌ " + errorMessage, { duration: 5000 });
       }
@@ -476,55 +455,20 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
       console.error("Story translation failed:", error);
       toast.dismiss(loadingToast);
 
-      const axiosError = error as {
-        response?: {
-          status?: number;
-          data?: {
-            message?: string;
-            retryAfterSeconds?: number;
-            status?: number;
-          };
-        };
-      };
+      // Handle rate limit error with countdown
+      if (handleRateLimitError(error, "translate")) {
+        setTranslatingStory(false);
+        return; // Rate limit error handled
+      }
 
-      const errorData = axiosError?.response?.data;
-      const errorMessage =
-        errorData?.message || "Lỗi khi dịch thông tin truyện.";
-      const retryAfterSeconds = errorData?.retryAfterSeconds;
-      const statusCode = axiosError?.response?.status || errorData?.status;
+      // Handle other errors
+      const errorMessage = getErrorMessage(
+        error,
+        "Lỗi khi dịch thông tin truyện."
+      );
 
-      // Check for rate limit error (429) with retry countdown
-      if (statusCode === 429 && retryAfterSeconds) {
-        let timeLeft = retryAfterSeconds;
-        const countdownToast = toast.error(
-          `⚠️ ${errorMessage}\n\n⏱️ Vui lòng thử lại sau: ${timeLeft}s`,
-          { duration: retryAfterSeconds * 1000 }
-        );
-
-        const countdownInterval = setInterval(() => {
-          timeLeft -= 1;
-          if (timeLeft <= 0) {
-            clearInterval(countdownInterval);
-            toast.dismiss(countdownToast);
-            toast.success("✅ Bạn có thể thử dịch lại ngay bây giờ!", {
-              duration: 5000,
-            });
-          }
-        }, 1000);
-      } else if (errorMessage.includes("already being translated")) {
+      if (errorMessage.includes("already being translated")) {
         toast.error("⚠️ " + errorMessage, { duration: 6000 });
-      } else if (
-        statusCode === 429 ||
-        errorMessage.includes("quota") ||
-        errorMessage.includes("Too Many Requests")
-      ) {
-        toast.error("⚠️ " + errorMessage, { duration: 10000 });
-      } else if (statusCode === 500) {
-        toast.error(
-          "❌ Lỗi máy chủ khi dịch truyện. Vui lòng thử lại sau.\n\nChi tiết: " +
-            errorMessage,
-          { duration: 8000 }
-        );
       } else {
         toast.error("❌ " + errorMessage, { duration: 6000 });
       }
