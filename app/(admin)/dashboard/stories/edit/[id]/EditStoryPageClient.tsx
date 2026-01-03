@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -50,9 +49,7 @@ const storySchema = z.object({
 type StoryFormData = z.infer<typeof storySchema>;
 
 export default function EditStoryPageClient({ storyId }: { storyId: number }) {
-  const router = useRouter();
   const { user, hasRole } = useAuthStore();
-
   const [story, setStory] = useState<StoryDetailDto | null>(null);
   const [chapters, setChapters] = useState<ChapterDto[]>([]);
   const [genres, setGenres] = useState<GenreDto[]>([]);
@@ -74,7 +71,7 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
   const [confirmDialog, setConfirmDialog] = useState<{
     isOpen: boolean;
     title: string;
-    message: string;
+    message: React.ReactNode;
     onConfirm: () => void;
     variant?: "danger" | "warning" | "info";
   }>({
@@ -141,10 +138,11 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
       setValue("sourceSite", storyData.sourceSite || "");
       setValue("status", storyData.status || "DRAFT");
       setValue("genreIds", storyData.genres?.map((g: GenreDto) => g.id!) || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to fetch story:", error);
       const errorMessage =
-        error?.response?.data?.message || "Lỗi khi tải thông tin truyện";
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message || "Lỗi khi tải thông tin truyện";
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -188,14 +186,14 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
   const onSubmit = async (data: StoryFormData) => {
     setLoading(true);
     try {
-      const updatePayload: any = {
+      const updatePayload = {
         title: data.title,
         authorName: data.authorName,
         description: data.description,
         coverImageUrl: data.coverImageUrl,
         sourceUrl: data.sourceUrl,
         sourceSite: data.sourceSite,
-        genreIds: data.genreIds,
+        genreIds: new Set(data.genreIds),
       };
 
       await apiClient.stories.updateStory(storyId, updatePayload);
@@ -229,22 +227,69 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
       return;
     }
 
+    const MAX_CHAPTERS_PER_BATCH = 3;
+    const chaptersToTranslate = Math.min(
+      untranslatedChapters.length,
+      MAX_CHAPTERS_PER_BATCH
+    );
+    const remainingChapters = untranslatedChapters.length - chaptersToTranslate;
+
+    const message = (
+      <div className="space-y-3 text-left">
+        <p>
+          Hệ thống sẽ tiến hành dịch{" "}
+          <strong className="text-blue-600 dark:text-blue-400">
+            {chaptersToTranslate} chương
+          </strong>{" "}
+          tiếp theo.
+        </p>
+
+        {remainingChapters > 0 && (
+          <div className="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-md border border-amber-200 dark:border-amber-800">
+            <p className="text-amber-800 dark:text-amber-300 font-medium flex items-center gap-2 text-sm">
+              ⚠️ Giới hạn hệ thống
+            </p>
+            <ul className="list-disc list-inside mt-1 text-amber-700 dark:text-amber-400 text-sm space-y-1">
+              <li>
+                Còn lại <strong>{remainingChapters} chương</strong> sẽ cần dịch
+                trong lần tiếp theo.
+              </li>
+              <li>
+                Mỗi lần chỉ dịch tối đa {MAX_CHAPTERS_PER_BATCH} chương để đảm
+                bảo ổn định.
+              </li>
+            </ul>
+          </div>
+        )}
+
+        <div className="flex items-start gap-3 text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-700">
+          <span className="text-lg mt-0.5">⏱️</span>
+          <p className="text-sm">
+            Quá trình dịch có thể mất vài phút. Bạn có thể đóng cửa sổ này và
+            quay lại kiểm tra kết quả sau.
+          </p>
+        </div>
+      </div>
+    );
+
     setConfirmDialog({
       isOpen: true,
-      title: "Dịch chương",
-      message: `Bạn có muốn dịch ${untranslatedChapters.length} chương chưa dịch?`,
+      title: "Xác nhận dịch chương",
+      message: message,
       variant: "info",
       onConfirm: async () => {
-        await performTranslateUntranslated();
+        await performTranslateUntranslated(chaptersToTranslate);
       },
     });
   };
 
-  const performTranslateUntranslated = async () => {
+  const performTranslateUntranslated = async (chaptersToTranslate: number) => {
     setTranslating(true);
     setTranslationProgress(0);
 
-    const loadingToast = toast.loading("Đang dịch các chương chưa dịch...");
+    const loadingToast = toast.loading(
+      `Đang dịch ${chaptersToTranslate} chương... Vui lòng đợi trong giây lát.`
+    );
 
     try {
       // Call batch translation API - translates all chapters of story
@@ -266,23 +311,64 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
         clearInterval(progressInterval);
         setTranslationProgress(100);
         toast.dismiss(loadingToast);
-        toast.success("Dịch chương thành công!", { duration: 5000 });
+        toast.success(
+          `Đã gửi yêu cầu dịch ${chaptersToTranslate} chương!\n\nQuá trình dịch đang diễn ra. Vui lòng quay lại sau vài phút để kiểm tra kết quả.`,
+          { duration: 8000 }
+        );
         fetchChapters();
         setTranslating(false);
         setTranslationProgress(0);
       }, 4000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Translation failed:", error);
       toast.dismiss(loadingToast);
-      const errorMessage =
-        error?.response?.data?.message ||
-        "Lỗi khi dịch chương. Vui lòng thử lại.";
 
-      // Check for concurrent access error
-      if (errorMessage.includes("already being translated")) {
+      const axiosError = error as {
+        response?: {
+          status?: number;
+          data?: {
+            message?: string;
+            retryAfterSeconds?: number;
+            status?: number;
+          };
+        };
+      };
+
+      const errorData = axiosError?.response?.data;
+      const errorMessage =
+        errorData?.message || "Lỗi khi dịch chương. Vui lòng thử lại.";
+      const retryAfterSeconds = errorData?.retryAfterSeconds;
+      const statusCode = axiosError?.response?.status || errorData?.status;
+
+      // Check for rate limit error (429)
+      if (statusCode === 429 && retryAfterSeconds) {
+        // Show countdown notification
+        let timeLeft = retryAfterSeconds;
+        const countdownToast = toast.error(
+          `⚠️ ${errorMessage}\n\n⏱️ Vui lòng thử lại sau: ${timeLeft}s`,
+          { duration: retryAfterSeconds * 1000 }
+        );
+
+        const countdownInterval = setInterval(() => {
+          timeLeft -= 1;
+          if (timeLeft <= 0) {
+            clearInterval(countdownInterval);
+            toast.dismiss(countdownToast);
+            toast.success("✅ Bạn có thể thử dịch lại ngay bây giờ!", {
+              duration: 5000,
+            });
+          }
+        }, 1000);
+      } else if (errorMessage.includes("already being translated")) {
         toast.error("⚠️ " + errorMessage, { duration: 6000 });
+      } else if (
+        statusCode === 429 ||
+        errorMessage.includes("quota") ||
+        errorMessage.includes("Too Many Requests")
+      ) {
+        toast.error("⚠️ " + errorMessage, { duration: 10000 });
       } else {
-        toast.error(errorMessage, { duration: 5000 });
+        toast.error("❌ " + errorMessage, { duration: 5000 });
       }
       setTranslating(false);
       setTranslationProgress(0);
@@ -308,17 +394,54 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
       toast.dismiss(loadingToast);
       toast.success("Dịch lại chương thành công!", { duration: 5000 });
       fetchChapters();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Re-translation failed:", error);
       toast.dismiss(loadingToast);
-      const errorMessage =
-        error?.response?.data?.message || "Lỗi khi dịch lại chương.";
 
-      // Check for concurrent access error
-      if (errorMessage.includes("already being translated")) {
+      const axiosError = error as {
+        response?: {
+          status?: number;
+          data?: {
+            message?: string;
+            retryAfterSeconds?: number;
+            status?: number;
+          };
+        };
+      };
+
+      const errorData = axiosError?.response?.data;
+      const errorMessage = errorData?.message || "Lỗi khi dịch lại chương.";
+      const retryAfterSeconds = errorData?.retryAfterSeconds;
+      const statusCode = axiosError?.response?.status || errorData?.status;
+
+      // Check for rate limit error (429)
+      if (statusCode === 429 && retryAfterSeconds) {
+        let timeLeft = retryAfterSeconds;
+        const countdownToast = toast.error(
+          `⚠️ ${errorMessage}\n\n⏱️ Vui lòng thử lại sau: ${timeLeft}s`,
+          { duration: retryAfterSeconds * 1000 }
+        );
+
+        const countdownInterval = setInterval(() => {
+          timeLeft -= 1;
+          if (timeLeft <= 0) {
+            clearInterval(countdownInterval);
+            toast.dismiss(countdownToast);
+            toast.success("✅ Bạn có thể thử dịch lại ngay bây giờ!", {
+              duration: 5000,
+            });
+          }
+        }, 1000);
+      } else if (errorMessage.includes("already being translated")) {
         toast.error("⚠️ " + errorMessage, { duration: 6000 });
+      } else if (
+        statusCode === 429 ||
+        errorMessage.includes("quota") ||
+        errorMessage.includes("Too Many Requests")
+      ) {
+        toast.error("⚠️ " + errorMessage, { duration: 10000 });
       } else {
-        toast.error(errorMessage, { duration: 5000 });
+        toast.error("❌ " + errorMessage, { duration: 5000 });
       }
     }
   };
@@ -339,7 +462,7 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
     setTranslatingStory(true);
     const loadingToast = toast.loading("Đang dịch thông tin truyện...");
     try {
-      const response = await apiClient.stories.translateStory({
+      await apiClient.stories.translateStory({
         storyId: storyId,
         translateTitle: true,
         translateDescription: true,
@@ -349,17 +472,61 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
       toast.success("Dịch thông tin truyện thành công!", { duration: 5000 });
       // Refresh story data to get translated fields
       fetchStory();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Story translation failed:", error);
       toast.dismiss(loadingToast);
-      const errorMessage =
-        error?.response?.data?.message || "Lỗi khi dịch thông tin truyện.";
 
-      // Check for concurrent access error
-      if (errorMessage.includes("already being translated")) {
+      const axiosError = error as {
+        response?: {
+          status?: number;
+          data?: {
+            message?: string;
+            retryAfterSeconds?: number;
+            status?: number;
+          };
+        };
+      };
+
+      const errorData = axiosError?.response?.data;
+      const errorMessage =
+        errorData?.message || "Lỗi khi dịch thông tin truyện.";
+      const retryAfterSeconds = errorData?.retryAfterSeconds;
+      const statusCode = axiosError?.response?.status || errorData?.status;
+
+      // Check for rate limit error (429) with retry countdown
+      if (statusCode === 429 && retryAfterSeconds) {
+        let timeLeft = retryAfterSeconds;
+        const countdownToast = toast.error(
+          `⚠️ ${errorMessage}\n\n⏱️ Vui lòng thử lại sau: ${timeLeft}s`,
+          { duration: retryAfterSeconds * 1000 }
+        );
+
+        const countdownInterval = setInterval(() => {
+          timeLeft -= 1;
+          if (timeLeft <= 0) {
+            clearInterval(countdownInterval);
+            toast.dismiss(countdownToast);
+            toast.success("✅ Bạn có thể thử dịch lại ngay bây giờ!", {
+              duration: 5000,
+            });
+          }
+        }, 1000);
+      } else if (errorMessage.includes("already being translated")) {
         toast.error("⚠️ " + errorMessage, { duration: 6000 });
+      } else if (
+        statusCode === 429 ||
+        errorMessage.includes("quota") ||
+        errorMessage.includes("Too Many Requests")
+      ) {
+        toast.error("⚠️ " + errorMessage, { duration: 10000 });
+      } else if (statusCode === 500) {
+        toast.error(
+          "❌ Lỗi máy chủ khi dịch truyện. Vui lòng thử lại sau.\n\nChi tiết: " +
+            errorMessage,
+          { duration: 8000 }
+        );
       } else {
-        toast.error(errorMessage, { duration: 5000 });
+        toast.error("❌ " + errorMessage, { duration: 6000 });
       }
     } finally {
       setTranslatingStory(false);
@@ -391,10 +558,11 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
       setNewChapterTitle("");
       setNewChapterIndex("");
       fetchChapters();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to create chapter:", error);
       const errorMessage =
-        error?.response?.data?.message || "Lỗi khi tạo chương mới.";
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message || "Lỗi khi tạo chương mới.";
       toast.error(errorMessage);
     } finally {
       setCreatingChapter(false);
@@ -418,27 +586,35 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
       await apiClient.chapters.deleteChapter(storyId, chapterId);
       toast.success("Đã xóa chương thành công!");
       fetchChapters();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to delete chapter:", error);
       const errorMessage =
-        error?.response?.data?.message || "Lỗi khi xóa chương.";
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message || "Lỗi khi xóa chương.";
       toast.error(errorMessage);
     }
   };
 
-  const handleCrawlAdditionalChapters = async (autoCrawl: boolean = false) => {
+  const handleCrawlAdditionalChapters = async () => {
     if (!story?.sourceUrl) {
       toast.error("Truyện này không có URL nguồn để crawl");
       return;
     }
 
-    const crawlRequest: any = {
+    const crawlRequest: {
+      novelUrl: string;
+      startChapter?: number;
+      endChapter?: number;
+    } = {
       novelUrl: story.sourceUrl,
     };
 
-    // Auto-crawl mode: don't include chapter range
+    // Auto-detect: if no chapter range provided, auto-crawl next chapter
+    const hasChapterRange = crawlStartChapter.trim() || crawlEndChapter.trim();
+    const autoCrawl = !hasChapterRange;
+
+    // Add chapter range if provided
     if (!autoCrawl) {
-      // Add optional chapter range if provided
       if (crawlStartChapter.trim()) {
         const start = parseInt(crawlStartChapter);
         if (isNaN(start) || start < 1) {
@@ -471,8 +647,8 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
     setCrawlingChapters(true);
     const loadingToast = toast.loading(
       autoCrawl
-        ? "Đang tự động crawl chapter tiếp theo..."
-        : "Đang crawl chapters..."
+        ? "Đang tự động crawl chương tiếp theo..."
+        : "Các chương đang được crawl..."
     );
 
     try {
@@ -481,33 +657,32 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
 
       toast.dismiss(loadingToast);
 
-      if (result.message) {
-        toast.success(result.message, { duration: 5000 });
-      } else {
-        toast.success(
-          `Crawl thành công! Đã crawl ${result.chaptersCrawled || 0} chương (${
-            result.chaptersSucceeded || 0
-          } thành công, ${result.chaptersFailed || 0} thất bại)`,
-          { duration: 5000 }
-        );
-      }
+      // Always show Vietnamese message with chapter stats
+      const totalCrawled = result.chaptersCrawled || 0;
+      const succeeded = result.chaptersSucceeded || 0;
+      const failed = result.chaptersFailed || 0;
+
+      toast.success(
+        `Crawl hoàn tất: ${succeeded} thành công, ${failed} thất bại trong tổng số ${totalCrawled} chương`,
+        { duration: 5000 }
+      );
 
       setCrawlStartChapter("");
       setCrawlEndChapter("");
       fetchChapters();
       fetchStory();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.dismiss(loadingToast);
       console.error("Failed to crawl chapters:", error);
       const errorMessage =
-        error?.response?.data?.message ||
-        "Lỗi khi crawl chương. Vui lòng thử lại.";
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message || "Lỗi khi crawl chương. Vui lòng thử lại.";
 
       // Check for concurrent access or no next chapter errors
       if (errorMessage.includes("already being crawled")) {
-        toast.error("⚠️ " + errorMessage, { duration: 6000 });
+        toast.error(errorMessage, { duration: 6000 });
       } else if (errorMessage.includes("No next chapter available")) {
-        toast.error("ℹ️ " + errorMessage, { duration: 6000 });
+        toast.error(errorMessage, { duration: 6000 });
       } else {
         toast.error(errorMessage, { duration: 5000 });
       }
@@ -852,62 +1027,50 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
                   className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
-              <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-                <button
-                  onClick={() => handleCrawlAdditionalChapters(false)}
-                  disabled={crawlingChapters}
-                  className="w-full sm:w-auto px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition whitespace-nowrap"
-                >
-                  {crawlingChapters ? (
-                    <>
-                      <Loader2 className="animate-spin" size={18} />
-                      Đang crawl...
-                    </>
-                  ) : (
-                    <>
-                      <Download size={18} />
-                      Crawl theo khoảng
-                    </>
-                  )}
-                </button>
-                <button
-                  onClick={() => handleCrawlAdditionalChapters(true)}
-                  disabled={crawlingChapters}
-                  className="w-full sm:w-auto px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition whitespace-nowrap"
-                >
-                  {crawlingChapters ? (
-                    <>
-                      <Loader2 className="animate-spin" size={18} />
-                      Đang crawl...
-                    </>
-                  ) : (
-                    <>
-                      <RefreshCw size={18} />
-                      Tự động Crawl tiếp
-                    </>
-                  )}
-                </button>
-              </div>
+              <button
+                onClick={handleCrawlAdditionalChapters}
+                disabled={crawlingChapters}
+                className="w-full md:w-auto px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition whitespace-nowrap"
+              >
+                {crawlingChapters ? (
+                  <>
+                    <Loader2 className="animate-spin" size={18} />
+                    Đang crawl...
+                  </>
+                ) : (
+                  <>
+                    <Download size={18} />
+                    Bắt đầu Crawl
+                  </>
+                )}
+              </button>
             </div>
             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-              <p className="text-sm text-blue-800 dark:text-blue-300">
-                <strong>💡 Hướng dẫn:</strong>
+              <p className="text-sm text-blue-800 dark:text-blue-300 font-semibold mb-2">
+                💡 Cách sử dụng:
               </p>
-              <ul className="text-sm text-blue-700 dark:text-blue-400 mt-2 space-y-1 ml-4 list-disc">
+              <ul className="text-sm text-blue-700 dark:text-blue-400 space-y-2 ml-4 list-disc">
                 <li>
-                  <strong>Tự động Crawl tiếp:</strong> Tự động crawl chapter
-                  tiếp theo (không cần nhập số chương)
+                  <strong>Để trống số chương:</strong> Hệ thống tự động crawl
+                  chapter tiếp theo
                 </li>
                 <li>
-                  <strong>Crawl theo khoảng:</strong> Crawl từ chương X đến
-                  chương Y (nhập số chương)
+                  <strong>Nhập số chương:</strong> Crawl theo khoảng từ chương X
+                  đến Y
+                  <ul className="ml-4 mt-1 space-y-1 list-circle">
+                    <li>
+                      Chỉ nhập `Chương bắt đầu` → Crawl từ chương đó đến cuối
+                    </li>
+                    <li>Nhập cả 2 → Crawl chính xác khoảng chỉ định</li>
+                  </ul>
                 </li>
-                <li>
-                  <strong>Crawl theo range:</strong> Crawl từ chương X đến
-                  chương Y
-                </li>
-                <li>Re-crawl sẽ reset bản dịch cũ (cần dịch lại)</li>
               </ul>
+              <div className="mt-3 pt-3 border-t border-blue-200 dark:border-blue-700">
+                <p className="text-xs text-blue-600 dark:text-blue-400">
+                  ⚠️ <strong>Lưu ý:</strong> Re-crawl chapter đã tồn tại sẽ xóa
+                  bản dịch cũ (cần dịch lại)
+                </p>
+              </div>
             </div>
           </div>
         </div>

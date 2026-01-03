@@ -1,15 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import {
-  Save,
-  Globe,
-  Shield,
-  Bell,
-  Mail,
-  Database,
-  Server,
-} from "lucide-react";
+import { useState } from "react";
+import { Save, Globe, Shield, Bell, Server } from "lucide-react";
 
 interface SystemSettings {
   siteName: string;

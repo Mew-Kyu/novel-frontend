@@ -5,7 +5,7 @@ import { X, AlertTriangle } from "lucide-react";
 interface ConfirmDialogProps {
   isOpen: boolean;
   title?: string;
-  message: string;
+  message: React.ReactNode;
   confirmText?: string;
   cancelText?: string;
   variant?: "danger" | "warning" | "info";
@@ -61,7 +61,9 @@ export function ConfirmDialog({
           </button>
         </div>
 
-        <p className="text-gray-700 dark:text-gray-300 mb-6">{message}</p>
+        <div className="text-gray-700 dark:text-gray-300 mb-6 text-sm">
+          {message}
+        </div>
 
         <div className="flex gap-3">
           <button

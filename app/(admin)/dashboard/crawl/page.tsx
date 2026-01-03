@@ -81,7 +81,7 @@ export default function CrawlManagerPage() {
     return () => clearInterval(interval);
   }, [fetchJobs]);
 
-  const handleStartCrawl = async (autoCrawl: boolean = false) => {
+  const handleStartCrawl = async () => {
     if (!crawlUrl.trim()) {
       toast.error("Vui lòng nhập URL Syosetu");
       return;
@@ -89,11 +89,15 @@ export default function CrawlManagerPage() {
 
     setCrawling(true);
 
+    // Auto-detect: if no chapter range provided, auto-crawl next chapter
+    const hasChapterRange = startChapter.trim() || endChapter.trim();
+    const autoCrawl = !hasChapterRange;
+
     // Show loading toast for long-running operations
     const loadingToast = toast.loading(
       autoCrawl
-        ? "Đang tự động crawl chapter tiếp theo..."
-        : "Đang crawl chapters..."
+        ? "Đang tự động crawl chương tiếp theo..."
+        : "Các chương đang được crawl..."
     );
 
     try {
@@ -101,9 +105,8 @@ export default function CrawlManagerPage() {
         novelUrl: crawlUrl,
       };
 
-      // Auto-crawl mode: don't include chapter range
+      // Add chapter range if provided
       if (!autoCrawl) {
-        // Add optional chapter range if provided
         if (startChapter.trim()) {
           const start = parseInt(startChapter);
           if (isNaN(start) || start < 1) {
@@ -144,19 +147,15 @@ export default function CrawlManagerPage() {
 
       toast.dismiss(loadingToast);
 
-      // Handle different crawl scenarios
-      if (result.message) {
-        // If backend returns a message (e.g., "Story already exists, crawled X new chapters" or "No new chapters to crawl")
-        toast.success(result.message, { duration: 5000 });
-      } else {
-        // Default success message with chapter stats
-        const successMsg = `✅ Crawl thành công! Đã crawl ${
-          result.chaptersCrawled || 0
-        } chương (${result.chaptersSucceeded || 0} thành công, ${
-          result.chaptersFailed || 0
-        } thất bại)`;
-        toast.success(successMsg, { duration: 5000 });
-      }
+      // Always show Vietnamese message with chapter stats
+      const totalCrawled = result.chaptersCrawled || 0;
+      const succeeded = result.chaptersSucceeded || 0;
+      const failed = result.chaptersFailed || 0;
+
+      toast.success(
+        `Crawl hoàn tất: ${succeeded} thành công, ${failed} thất bại trong tổng số ${totalCrawled} chương`,
+        { duration: 5000 }
+      );
 
       setCrawlUrl("");
       setStartChapter("");
@@ -175,9 +174,9 @@ export default function CrawlManagerPage() {
 
         // Check for concurrent access error
         if (errorMessage.includes("already being crawled")) {
-          toast.error("⚠️ " + errorMessage, { duration: 6000 });
+          toast.error(errorMessage, { duration: 6000 });
         } else if (errorMessage.includes("No next chapter available")) {
-          toast.error("ℹ️ " + errorMessage, { duration: 6000 });
+          toast.error(errorMessage, { duration: 6000 });
         } else {
           toast.error(errorMessage, { duration: 5000 });
         }
@@ -332,65 +331,50 @@ export default function CrawlManagerPage() {
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
-            <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-              <button
-                onClick={() => handleStartCrawl(false)}
-                disabled={crawling}
-                className="w-full sm:w-auto px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition whitespace-nowrap"
-              >
-                {crawling ? (
-                  <>
-                    <Loader2 className="animate-spin" size={18} />
-                    Đang crawl...
-                  </>
-                ) : (
-                  <>
-                    <Download size={18} />
-                    Crawl theo khoảng
-                  </>
-                )}
-              </button>
-              <button
-                onClick={() => handleStartCrawl(true)}
-                disabled={crawling}
-                className="w-full sm:w-auto px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition whitespace-nowrap"
-              >
-                {crawling ? (
-                  <>
-                    <Loader2 className="animate-spin" size={18} />
-                    Đang crawl...
-                  </>
-                ) : (
-                  <>
-                    <RefreshCw size={18} />
-                    Tự động Crawl tiếp
-                  </>
-                )}
-              </button>
-            </div>
+            <button
+              onClick={handleStartCrawl}
+              disabled={crawling}
+              className="w-full md:w-auto px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition whitespace-nowrap"
+            >
+              {crawling ? (
+                <>
+                  <Loader2 className="animate-spin" size={18} />
+                  Đang crawl...
+                </>
+              ) : (
+                <>
+                  <Download size={18} />
+                  Bắt đầu Crawl
+                </>
+              )}
+            </button>
           </div>
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-            <p className="text-sm text-blue-800 dark:text-blue-300">
-              <strong>💡 Hướng dẫn:</strong>
+            <p className="text-sm text-blue-800 dark:text-blue-300 font-semibold mb-2">
+              💡 Cách sử dụng:
             </p>
-            <ul className="text-sm text-blue-700 dark:text-blue-400 mt-2 space-y-1 ml-4 list-disc">
+            <ul className="text-sm text-blue-700 dark:text-blue-400 space-y-2 ml-4 list-disc">
               <li>
-                <strong>Tự động Crawl tiếp:</strong> Tự động crawl chapter tiếp
-                theo (không cần nhập số chương)
+                <strong>Để trống số chương:</strong> Hệ thống tự động crawl
+                chapter tiếp theo
               </li>
               <li>
-                <strong>Crawl theo khoảng:</strong> Crawl từ chương X đến chương
-                Y (nhập số chương)
-              </li>
-              <li>
-                Hệ thống sẽ tự động phát hiện và thông báo nếu không còn chapter
-                mới
-              </li>
-              <li>
-                Khi re-crawl chapter đã tồn tại, bản dịch cũ sẽ bị reset (cần
-                dịch lại)
+                <strong>Nhập số chương:</strong> Crawl theo khoảng từ chương X
+                đến Y
+                <ul className="ml-4 mt-1 space-y-1 list-circle">
+                  <li>
+                    Chỉ nhập `Chương bắt đầu` → Crawl từ chương đó đến cuối
+                  </li>
+                  <li>Nhập cả 2 → Crawl chính xác khoảng chỉ định</li>
+                </ul>
               </li>
             </ul>
+            <div className="mt-3 pt-3 border-t border-blue-200 dark:border-blue-700">
+              <p className="text-xs text-blue-600 dark:text-blue-400">
+                ⚠️ <strong>Lưu ý:</strong> Re-crawl chapter đã tồn tại sẽ xóa
+                bản dịch cũ (cần dịch lại)
+              </p>
+            </div>
           </div>
         </div>
       </div>
