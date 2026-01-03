@@ -4,7 +4,15 @@ import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import apiClient from "@/lib/generated-api";
 import type { StoryDto } from "@/lib/generated-api/generated/models";
-import { Plus, Search, Edit, Trash2, Loader2, Star } from "lucide-react";
+import {
+  Plus,
+  Search,
+  Edit,
+  Trash2,
+  Loader2,
+  Star,
+  RefreshCw,
+} from "lucide-react";
 import Link from "next/link";
 import { Pagination } from "@/components/common/Pagination";
 import { Avatar } from "@/components/common/Avatar";
@@ -16,6 +24,7 @@ export default function StoriesPage() {
   const [stories, setStories] = useState<StoryDto[]>([]);
   const [allStories, setAllStories] = useState<StoryDto[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshingFeatured, setRefreshingFeatured] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -125,6 +134,25 @@ export default function StoriesPage() {
     }
   };
 
+  const handleRefreshFeatured = async () => {
+    setRefreshingFeatured(true);
+    const loadingToast = toast.loading("Đang cập nhật truyện nổi bật...");
+    try {
+      await apiClient.stories.refreshFeaturedStories();
+      toast.dismiss(loadingToast);
+      toast.success("Đã cập nhật truyện nổi bật dựa trên hiệu suất!", {
+        duration: 5000,
+      });
+      fetchStories();
+    } catch (error) {
+      console.error("Failed to refresh featured stories:", error);
+      toast.dismiss(loadingToast);
+      toast.error("Lỗi khi cập nhật truyện nổi bật");
+    } finally {
+      setRefreshingFeatured(false);
+    }
+  };
+
   // Check if user can edit/delete a story
   const canEditStory = (story: StoryDto): boolean => {
     if (isAdmin) return true; // Admin can edit all stories
@@ -149,19 +177,55 @@ export default function StoriesPage() {
     }
   };
 
+  const getStatusText = (status?: string) => {
+    switch (status) {
+      case "PUBLISHED":
+        return "Đang ra";
+      case "DRAFT":
+        return "Bản nháp";
+      case "COMPLETED":
+        return "Hoàn thành";
+      case "ARCHIVED":
+        return "Lưu trữ";
+      default:
+        return status || "Không rõ";
+    }
+  };
+
   return (
     <div>
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
           Kho Truyện
         </h1>
-        <Link
-          href="/dashboard/stories/create"
-          className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium flex items-center gap-2 transition"
-        >
-          <Plus size={18} />
-          Tạo truyện mới
-        </Link>
+        <div className="flex flex-wrap gap-3 w-full md:w-auto">
+          {isAdmin && (
+            <button
+              onClick={handleRefreshFeatured}
+              disabled={refreshingFeatured}
+              className="flex-1 md:flex-none px-6 py-3 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg font-medium flex items-center justify-center gap-2 transition disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+            >
+              {refreshingFeatured ? (
+                <>
+                  <Loader2 className="animate-spin" size={18} />
+                  Đang cập nhật...
+                </>
+              ) : (
+                <>
+                  <RefreshCw size={18} />
+                  Làm mới nổi bật
+                </>
+              )}
+            </button>
+          )}
+          <Link
+            href="/dashboard/stories/create"
+            className="flex-1 md:flex-none px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium flex items-center justify-center gap-2 transition whitespace-nowrap"
+          >
+            <Plus size={18} />
+            Tạo truyện mới
+          </Link>
+        </div>
       </div>
 
       {/* Search */}
@@ -224,7 +288,7 @@ export default function StoriesPage() {
                       story.status
                     )}`}
                   >
-                    {story.status}
+                    {getStatusText(story.status)}
                   </span>
                 </div>
 

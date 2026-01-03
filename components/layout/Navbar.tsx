@@ -88,7 +88,11 @@ export const Navbar = () => {
 
   return (
     <>
-      <nav className="bg-[rgb(var(--card))] border-b border-[rgb(var(--border))] sticky top-0 z-40 transition-colors shadow-[0_1px_3px_0_rgb(0_0_0_/_0.1)] backdrop-blur-sm bg-[rgb(var(--card))]/95">
+      <nav
+        className={`bg-[rgb(var(--card))] border-b border-[rgb(var(--border))] sticky top-0 z-40 transition-colors shadow-[0_1px_3px_0_rgb(0_0_0_/_0.1)] backdrop-blur-sm bg-[rgb(var(--card))]/95 ${
+          isDashboard ? "hidden md:block" : ""
+        }`}
+      >
         <div
           className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
           suppressHydrationWarning
@@ -321,9 +325,11 @@ export const Navbar = () => {
           </div>
 
           {/* Mobile Search Bar */}
-          <div className="md:hidden pb-4" suppressHydrationWarning>
-            <SearchBar />
-          </div>
+          {!isDashboard && (
+            <div className="md:hidden pb-4" suppressHydrationWarning>
+              <SearchBar />
+            </div>
+          )}
         </div>
       </nav>
 

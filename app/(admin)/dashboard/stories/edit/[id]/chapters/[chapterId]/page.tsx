@@ -1,12 +1,13 @@
 import EditChapterPageClient from "./EditChapterPageClient";
 
-export default function EditChapterPage({
+export default async function EditChapterPage({
   params,
 }: {
   params: { id: string; chapterId: string };
 }) {
-  const storyId = parseInt(params.id);
-  const chapterId = parseInt(params.chapterId);
+  const resolvedParams = await params;
+  const storyId = parseInt(resolvedParams.id);
+  const chapterId = parseInt(resolvedParams.chapterId);
 
   return <EditChapterPageClient storyId={storyId} chapterId={chapterId} />;
 }

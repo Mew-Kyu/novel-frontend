@@ -18,6 +18,8 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+  _hasHydrated: boolean;
+  setHasHydrated: (hasHydrated: boolean) => void;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   checkAuth: () => void;
@@ -32,11 +34,16 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       isLoading: false,
       error: null,
+      _hasHydrated: false,
+
+      setHasHydrated: (hasHydrated: boolean) => {
+        set({ _hasHydrated: hasHydrated });
+      },
 
       login: async (email: string, password: string) => {
         set({ isLoading: true, error: null });
         try {
-          const response = await apiClient.auth.login({
+          const response = await apiClient.authentication.login({
             email,
             password,
           });
@@ -45,7 +52,7 @@ export const useAuthStore = create<AuthState>()(
 
           // Validate response data
           if (!accessToken || !user) {
-            throw new Error("Invalid response from server");
+            throw new Error("Phản hồi từ máy chủ không hợp lệ");
           }
 
           // Save token
@@ -71,11 +78,34 @@ export const useAuthStore = create<AuthState>()(
             error: null,
           });
         } catch (error: unknown) {
-          const errorMessage =
-            error instanceof Error && "response" in error
-              ? (error as { response?: { data?: { message?: string } } })
-                  .response?.data?.message || "Đăng nhập thất bại"
-              : "Đăng nhập thất bại";
+          let errorMessage = "Đăng nhập thất bại";
+
+          if (error instanceof Error && "response" in error) {
+            const apiError = error as {
+              response?: { data?: { message?: string }; status?: number };
+            };
+            const apiMessage = apiError.response?.data?.message;
+            const status = apiError.response?.status;
+
+            // Translate common error messages to Vietnamese
+            if (
+              status === 401 ||
+              apiMessage?.toLowerCase().includes("invalid") ||
+              apiMessage?.toLowerCase().includes("unauthorized")
+            ) {
+              errorMessage = "Tên đăng nhập hoặc mật khẩu không đúng";
+            } else if (apiMessage?.toLowerCase().includes("not found")) {
+              errorMessage = "Tài khoản không tồn tại";
+            } else if (
+              apiMessage?.toLowerCase().includes("disabled") ||
+              apiMessage?.toLowerCase().includes("inactive")
+            ) {
+              errorMessage = "Tài khoản đã bị vô hiệu hóa";
+            } else if (apiMessage) {
+              errorMessage = apiMessage;
+            }
+          }
+
           set({
             error: errorMessage,
             isLoading: false,
@@ -97,19 +127,21 @@ export const useAuthStore = create<AuthState>()(
 
       checkAuth: () => {
         const token = apiClient.getToken();
-        const { user } = get();
+        const { user, isAuthenticated } = get();
 
-        // If we have both token and user data (from persisted state), we're authenticated
+        // If we have both token and user data (from persisted state), ensure sync
         if (token && user) {
-          set({ isAuthenticated: true });
-        } else {
-          // If token exists but no user data, we need to re-login
-          // or fetch user data from API
-          set({ isAuthenticated: false, user: null });
-          if (token) {
-            apiClient.clearToken();
+          // Make sure apiClient has the token
+          apiClient.setToken(token);
+          if (!isAuthenticated) {
+            set({ isAuthenticated: true });
           }
+        } else if (!token) {
+          // No token - clear auth state
+          set({ isAuthenticated: false, user: null });
         }
+        // If token exists but no user, leave it - the app will attempt to use it
+        // and 401/403 handler will clean up if invalid
       },
 
       hasRole: (role: string) => {
@@ -140,6 +172,9 @@ export const useAuthStore = create<AuthState>()(
         user: state.user,
         isAuthenticated: state.isAuthenticated,
       }),
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
     }
   )
 );

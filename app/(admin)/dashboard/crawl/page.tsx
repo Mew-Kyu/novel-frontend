@@ -23,6 +23,8 @@ export default function CrawlManagerPage() {
   const [allJobs, setAllJobs] = useState<CrawlJobDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [crawlUrl, setCrawlUrl] = useState("");
+  const [startChapter, setStartChapter] = useState("");
+  const [endChapter, setEndChapter] = useState("");
   const [crawling, setCrawling] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -77,27 +79,103 @@ export default function CrawlManagerPage() {
     }
   };
 
-  const handleStartCrawl = async () => {
+  const handleStartCrawl = async (autoCrawl: boolean = false) => {
     if (!crawlUrl.trim()) {
       toast.error("Vui lòng nhập URL Syosetu");
       return;
     }
 
     setCrawling(true);
-    try {
-      await apiClient.crawlJobs.createJob({
-        jobType: "STORY_CRAWL",
-        // Note: Backend might need URL in a different way
-        // Adjust this based on your actual API
-      });
 
-      toast.success("Crawl job đã được tạo thành công!");
+    // Show loading toast for long-running operations
+    const loadingToast = toast.loading(
+      autoCrawl
+        ? "Đang tự động crawl chapter tiếp theo..."
+        : "Đang crawl chapters..."
+    );
+
+    try {
+      const crawlRequest: any = {
+        novelUrl: crawlUrl,
+      };
+
+      // Auto-crawl mode: don't include chapter range
+      if (!autoCrawl) {
+        // Add optional chapter range if provided
+        if (startChapter.trim()) {
+          const start = parseInt(startChapter);
+          if (isNaN(start) || start < 1) {
+            toast.dismiss(loadingToast);
+            toast.error("Số chương bắt đầu phải là số dương");
+            setCrawling(false);
+            return;
+          }
+          crawlRequest.startChapter = start;
+        }
+
+        if (endChapter.trim()) {
+          const end = parseInt(endChapter);
+          if (isNaN(end) || end < 1) {
+            toast.dismiss(loadingToast);
+            toast.error("Số chương kết thúc phải là số dương");
+            setCrawling(false);
+            return;
+          }
+          crawlRequest.endChapter = end;
+        }
+
+        // Validate range
+        if (crawlRequest.startChapter && crawlRequest.endChapter) {
+          if (crawlRequest.startChapter > crawlRequest.endChapter) {
+            toast.dismiss(loadingToast);
+            toast.error(
+              "Số chương bắt đầu phải nhỏ hơn hoặc bằng số chương kết thúc"
+            );
+            setCrawling(false);
+            return;
+          }
+        }
+      }
+
+      const response = await apiClient.crawl.crawlSyosetuNovel(crawlRequest);
+      const result = response.data;
+
+      toast.dismiss(loadingToast);
+
+      // Handle different crawl scenarios
+      if (result.message) {
+        // If backend returns a message (e.g., "Story already exists, crawled X new chapters" or "No new chapters to crawl")
+        toast.success(result.message, { duration: 5000 });
+      } else {
+        // Default success message with chapter stats
+        const successMsg = `✅ Crawl thành công! Đã crawl ${
+          result.chaptersCrawled || 0
+        } chương (${result.chaptersSucceeded || 0} thành công, ${
+          result.chaptersFailed || 0
+        } thất bại)`;
+        toast.success(successMsg, { duration: 5000 });
+      }
+
       setCrawlUrl("");
+      setStartChapter("");
+      setEndChapter("");
       fetchJobs();
     } catch (error: any) {
+      toast.dismiss(loadingToast);
+
       if (error?.response?.status !== 403) {
         console.error("Failed to start crawl:", error);
-        toast.error("Lỗi khi tạo crawl job. Vui lòng thử lại.");
+        const errorMessage =
+          error?.response?.data?.message || "Lỗi khi crawl. Vui lòng thử lại.";
+
+        // Check for concurrent access error
+        if (errorMessage.includes("already being crawled")) {
+          toast.error("⚠️ " + errorMessage, { duration: 6000 });
+        } else if (errorMessage.includes("No next chapter available")) {
+          toast.error("ℹ️ " + errorMessage, { duration: 6000 });
+        } else {
+          toast.error(errorMessage, { duration: 5000 });
+        }
       }
     } finally {
       setCrawling(false);
@@ -138,6 +216,32 @@ export default function CrawlManagerPage() {
         console.error("Failed to delete job:", error);
         toast.error("Lỗi khi xóa job.");
       }
+    }
+  };
+
+  const getJobTypeLabel = (type: string) => {
+    switch (type) {
+      case "STORY_CRAWL":
+        return "Crawl Truyện";
+      default:
+        return type;
+    }
+  };
+
+  const getStatusLabel = (status?: string) => {
+    switch (status) {
+      case "RUNNING":
+        return "Đang chạy";
+      case "PENDING":
+        return "Đang chờ";
+      case "COMPLETED":
+      case "DONE":
+      case "SUCCESS":
+        return "Hoàn thành";
+      case "FAILED":
+        return "Thất bại";
+      default:
+        return status || "Không rõ";
     }
   };
 
@@ -182,31 +286,103 @@ export default function CrawlManagerPage() {
         <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
           Crawl nhanh
         </h2>
-        <div className="flex gap-4">
-          <input
-            type="text"
-            value={crawlUrl}
-            onChange={(e) => setCrawlUrl(e.target.value)}
-            placeholder="Nhập URL Syosetu (ví dụ: https://ncode.syosetu.com/n1234a/)"
-            className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-          <button
-            onClick={handleStartCrawl}
-            disabled={crawling}
-            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition"
-          >
-            {crawling ? (
-              <>
-                <Loader2 className="animate-spin" size={18} />
-                Đang tạo...
-              </>
-            ) : (
-              <>
-                <Download size={18} />
-                Bắt đầu Crawl
-              </>
-            )}
-          </button>
+        <div className="space-y-4">
+          <div className="flex gap-4">
+            <input
+              type="text"
+              value={crawlUrl}
+              onChange={(e) => setCrawlUrl(e.target.value)}
+              placeholder="Nhập URL Syosetu (ví dụ: https://ncode.syosetu.com/n1234a/)"
+              className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+          <div className="flex flex-col md:flex-row gap-4 md:items-end">
+            <div className="w-full md:flex-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Chương bắt đầu (tùy chọn)
+              </label>
+              <input
+                type="number"
+                value={startChapter}
+                onChange={(e) => setStartChapter(e.target.value)}
+                placeholder="Ví dụ: 1"
+                min="1"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+            <div className="w-full md:flex-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Chương kết thúc (tùy chọn)
+              </label>
+              <input
+                type="number"
+                value={endChapter}
+                onChange={(e) => setEndChapter(e.target.value)}
+                placeholder="Ví dụ: 10"
+                min="1"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+            <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+              <button
+                onClick={() => handleStartCrawl(false)}
+                disabled={crawling}
+                className="w-full sm:w-auto px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition whitespace-nowrap"
+              >
+                {crawling ? (
+                  <>
+                    <Loader2 className="animate-spin" size={18} />
+                    Đang crawl...
+                  </>
+                ) : (
+                  <>
+                    <Download size={18} />
+                    Crawl theo khoảng
+                  </>
+                )}
+              </button>
+              <button
+                onClick={() => handleStartCrawl(true)}
+                disabled={crawling}
+                className="w-full sm:w-auto px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition whitespace-nowrap"
+              >
+                {crawling ? (
+                  <>
+                    <Loader2 className="animate-spin" size={18} />
+                    Đang crawl...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw size={18} />
+                    Tự động Crawl tiếp
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <p className="text-sm text-blue-800 dark:text-blue-300">
+              <strong>💡 Hướng dẫn:</strong>
+            </p>
+            <ul className="text-sm text-blue-700 dark:text-blue-400 mt-2 space-y-1 ml-4 list-disc">
+              <li>
+                <strong>Tự động Crawl tiếp:</strong> Tự động crawl chapter tiếp
+                theo (không cần nhập số chương)
+              </li>
+              <li>
+                <strong>Crawl theo khoảng:</strong> Crawl từ chương X đến chương
+                Y (nhập số chương)
+              </li>
+              <li>
+                Hệ thống sẽ tự động phát hiện và thông báo nếu không còn chapter
+                mới
+              </li>
+              <li>
+                Khi re-crawl chapter đã tồn tại, bản dịch cũ sẽ bị reset (cần
+                dịch lại)
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
 
@@ -238,25 +414,25 @@ export default function CrawlManagerPage() {
             <table className="w-full">
               <thead className="bg-gray-50 dark:bg-gray-700">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     ID
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Mã truyện
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Loại job
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Trạng thái
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Số lần thử
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Thời gian tạo
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Người tạo
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -270,14 +446,14 @@ export default function CrawlManagerPage() {
                     key={job.id}
                     className="hover:bg-gray-50 dark:hover:bg-gray-700/50"
                   >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                    <td className="hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                       {job.id}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                       {job.storyId || "-"}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                      {job.jobType}
+                    <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                      {getJobTypeLabel(job.jobType || "")}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-2">
@@ -287,19 +463,19 @@ export default function CrawlManagerPage() {
                             job.status
                           )}`}
                         >
-                          {job.status}
+                          {getStatusLabel(job.status)}
                         </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                    <td className="hidden lg:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                       {job.attempts || 0}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                    <td className="hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                       {job.createdAt
                         ? new Date(job.createdAt).toLocaleString("vi-VN")
                         : "-"}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="hidden lg:table-cell px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">
                         <Avatar
                           src={undefined}
@@ -308,7 +484,7 @@ export default function CrawlManagerPage() {
                           size="sm"
                         />
                         <div className="text-sm text-gray-900 dark:text-white">
-                          User ID: {job.createdBy || "-"}
+                          ID: {job.createdBy || "-"}
                         </div>
                       </div>
                     </td>
@@ -373,6 +549,19 @@ export default function CrawlManagerPage() {
           />
         </div>
       )}
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        message={confirmDialog.message}
+        onConfirm={() => {
+          confirmDialog.onConfirm();
+          setConfirmDialog({ isOpen: false, message: "", onConfirm: () => {} });
+        }}
+        onCancel={() =>
+          setConfirmDialog({ isOpen: false, message: "", onConfirm: () => {} })
+        }
+      />
     </div>
   );
 }

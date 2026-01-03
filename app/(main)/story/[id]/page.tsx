@@ -22,13 +22,15 @@ interface PageProps {
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
+  const resolvedParams = await params;
   try {
     const config = new Configuration({
       basePath: process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080",
     });
 
     const storyApi = new StoryManagementApi(config);
-    const story = (await storyApi.getStoryDetail(parseInt(params.id))).data;
+    const story = (await storyApi.getStoryDetail(parseInt(resolvedParams.id)))
+      .data;
 
     return {
       title: `${story.title} - Novel Platform`,
@@ -47,7 +49,8 @@ export async function generateMetadata({
 }
 
 export default async function StoryDetailPage({ params }: PageProps) {
-  const storyId = parseInt(params.id);
+  const resolvedParams = await params;
+  const storyId = parseInt(resolvedParams.id);
 
   if (isNaN(storyId)) {
     notFound();

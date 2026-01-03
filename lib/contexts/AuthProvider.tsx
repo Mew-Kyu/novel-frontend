@@ -7,41 +7,71 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const { user, isAuthenticated, logout, checkAuth } = useAuthStore();
+  const { user, isAuthenticated, logout, _hasHydrated } = useAuthStore();
   const router = useRouter();
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    const initializeAuth = async () => {
-      const token = apiClient.getToken();
+    // Wait for Zustand to hydrate from localStorage
+    if (!_hasHydrated) {
+      return;
+    }
 
-      // Setup callback for 401/403 errors
+    const initializeAuth = () => {
+      // Setup callback for 401/403 errors - auto logout and redirect
       apiClient.setUnauthorizedCallback(() => {
-        toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+        console.warn("Unauthorized access detected (401/403) - Logging out");
+        toast.error(
+          "Phiên đăng nhập không hợp lệ hoặc đã hết hạn. Vui lòng đăng nhập lại.",
+          {
+            duration: 4000,
+          }
+        );
         logout();
-        router.push("/login");
+
+        // Redirect to login page
+        setTimeout(() => {
+          router.push("/login");
+        }, 100);
       });
 
-      // If we have persisted user data and a token, ensure they're in sync
-      if (isAuthenticated && user && token) {
+      // Get token from localStorage (apiClient already loaded it in constructor)
+      const token = apiClient.getToken();
+
+      // Sync auth state with token
+      if (token) {
+        // Token exists - ensure it's set in apiClient
         apiClient.setToken(token);
-      } else if (!token && isAuthenticated) {
-        // Token was cleared but auth state still thinks we're authenticated
-        // This can happen after browser restart or manual cookie deletion
-        logout();
-      } else if (token && !isAuthenticated) {
-        // Token exists but store doesn't show authenticated
-        // This likely means the token is stale/invalid
-        // Clear it to prevent 403 errors
-        console.warn("Found orphaned token without auth state, clearing...");
-        apiClient.clearToken();
+
+        // If we have user data from persisted state, we're good
+        if (isAuthenticated && user) {
+          // Everything is in sync
+          console.log("✓ Auth restored from localStorage");
+        } else if (user) {
+          // We have user but isAuthenticated is false - this is normal during hydration
+          console.log("✓ Auth state synchronized");
+        } else {
+          // Token exists but no user data
+          // Keep the token and let the app try to use it
+          // If it's invalid, the 401/403 interceptor will handle it
+          console.warn("⚠ Token found but no user data in store");
+        }
+      } else {
+        // No token found
+        if (isAuthenticated || user) {
+          // Auth state exists but no token - clear auth state
+          console.warn("⚠ Auth state found but no token - clearing auth");
+          logout();
+        }
       }
 
       setIsInitialized(true);
     };
 
     initializeAuth();
-  }, []);
+    // Dependencies: only re-run if hydration state changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [_hasHydrated]);
 
   // Don't render children until auth is initialized to prevent hydration issues
   if (!isInitialized) {

@@ -24,6 +24,7 @@ Name | Type | Description | Notes
 **createdBy** | **number** | ID of user who created this story | [optional] [default to undefined]
 **lastModifiedBy** | **number** | ID of user who last modified this story | [optional] [default to undefined]
 **status** | **string** | Story publication status | [optional] [default to undefined]
+**featured** | **boolean** | Whether this story is featured on homepage | [optional] [default to undefined]
 **genres** | [**Array&lt;GenreDto&gt;**](GenreDto.md) | List of genres associated with this story | [optional] [default to undefined]
 
 ## Example
@@ -50,6 +51,7 @@ const instance: StoryDto = {
     createdBy,
     lastModifiedBy,
     status,
+    featured,
     genres,
 };
 ```

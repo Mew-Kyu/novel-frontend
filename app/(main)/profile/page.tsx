@@ -61,7 +61,7 @@ export default function ProfilePage() {
     setLoading(true);
 
     try {
-      const response = await apiClient.user.updateProfile({
+      const response = await apiClient.userController.updateProfile({
         displayName,
       });
 
@@ -153,7 +153,7 @@ export default function ProfilePage() {
     }
 
     try {
-      await apiClient.user.changePassword({
+      await apiClient.userController.changePassword({
         currentPassword,
         newPassword,
       });

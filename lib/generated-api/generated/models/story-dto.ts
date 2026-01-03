@@ -94,6 +94,10 @@ export interface StoryDto {
      */
     'status'?: StoryDtoStatusEnum;
     /**
+     * Whether this story is featured on homepage
+     */
+    'featured'?: boolean;
+    /**
      * List of genres associated with this story
      */
     'genres'?: Array<GenreDto>;

@@ -27,7 +27,7 @@ const getStatusBadge = (status?: string) => {
 
   const statusConfig = {
     [StoryDetailDtoStatusEnum.Draft]: {
-      label: "Nháp",
+      label: "Bản nháp",
       className: "bg-gray-500/10 text-gray-500 border-gray-500/20",
     },
     [StoryDetailDtoStatusEnum.Published]: {
@@ -76,12 +76,7 @@ export function StoryHero({
 
     try {
       // Fetch updated story data immediately after rating
-      const config = new Configuration({
-        basePath:
-          process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080",
-      });
-      const storyApi = new StoryManagementApi(config);
-      const response = await storyApi.getStoryDetail(story.id, {
+      const response = await apiClient.stories.getStoryDetail(story.id, {
         headers: {
           "Cache-Control": "no-cache, no-store, must-revalidate",
           Pragma: "no-cache",
@@ -191,7 +186,10 @@ export function StoryHero({
           suppressHydrationWarning
         >
           {/* Cover Image */}
-          <div className="flex-shrink-0" suppressHydrationWarning>
+          <div
+            className="flex-shrink-0 mx-auto md:mx-0"
+            suppressHydrationWarning
+          >
             <div
               className="relative w-64 h-96 rounded-lg overflow-hidden shadow-2xl"
               suppressHydrationWarning

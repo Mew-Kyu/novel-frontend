@@ -23,6 +23,7 @@ import {
   FileText,
   Plus,
   Trash2,
+  Download,
 } from "lucide-react";
 import Link from "next/link";
 import { useAuthStore } from "@/lib/store/authStore";
@@ -67,6 +68,9 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
   const [newChapterTitle, setNewChapterTitle] = useState("");
   const [newChapterIndex, setNewChapterIndex] = useState("");
   const [creatingChapter, setCreatingChapter] = useState(false);
+  const [crawlStartChapter, setCrawlStartChapter] = useState("");
+  const [crawlEndChapter, setCrawlEndChapter] = useState("");
+  const [crawlingChapters, setCrawlingChapters] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState<{
     isOpen: boolean;
     title: string;
@@ -240,6 +244,8 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
     setTranslating(true);
     setTranslationProgress(0);
 
+    const loadingToast = toast.loading("Đang dịch các chương chưa dịch...");
+
     try {
       // Call batch translation API - translates all chapters of story
       await apiClient.chapters.translateAllChapters(storyId);
@@ -259,17 +265,25 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
       setTimeout(() => {
         clearInterval(progressInterval);
         setTranslationProgress(100);
-        toast.success("Dịch chương thành công!");
+        toast.dismiss(loadingToast);
+        toast.success("Dịch chương thành công!", { duration: 5000 });
         fetchChapters();
         setTranslating(false);
         setTranslationProgress(0);
       }, 4000);
     } catch (error: any) {
       console.error("Translation failed:", error);
+      toast.dismiss(loadingToast);
       const errorMessage =
         error?.response?.data?.message ||
         "Lỗi khi dịch chương. Vui lòng thử lại.";
-      toast.error(errorMessage);
+
+      // Check for concurrent access error
+      if (errorMessage.includes("already being translated")) {
+        toast.error("⚠️ " + errorMessage, { duration: 6000 });
+      } else {
+        toast.error(errorMessage, { duration: 5000 });
+      }
       setTranslating(false);
       setTranslationProgress(0);
     }
@@ -288,15 +302,24 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
   };
 
   const performReTranslateChapter = async (chapterId: number) => {
+    const loadingToast = toast.loading("Đang dịch lại chương...");
     try {
       await apiClient.chapters.translateChapter(storyId, chapterId);
-      toast.success("Dịch lại chương thành công!");
+      toast.dismiss(loadingToast);
+      toast.success("Dịch lại chương thành công!", { duration: 5000 });
       fetchChapters();
     } catch (error: any) {
       console.error("Re-translation failed:", error);
+      toast.dismiss(loadingToast);
       const errorMessage =
         error?.response?.data?.message || "Lỗi khi dịch lại chương.";
-      toast.error(errorMessage);
+
+      // Check for concurrent access error
+      if (errorMessage.includes("already being translated")) {
+        toast.error("⚠️ " + errorMessage, { duration: 6000 });
+      } else {
+        toast.error(errorMessage, { duration: 5000 });
+      }
     }
   };
 
@@ -314,6 +337,7 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
 
   const performTranslateStoryMetadata = async () => {
     setTranslatingStory(true);
+    const loadingToast = toast.loading("Đang dịch thông tin truyện...");
     try {
       const response = await apiClient.stories.translateStory({
         storyId: storyId,
@@ -321,14 +345,22 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
         translateDescription: true,
       });
 
-      toast.success("Dịch thông tin truyện thành công!");
+      toast.dismiss(loadingToast);
+      toast.success("Dịch thông tin truyện thành công!", { duration: 5000 });
       // Refresh story data to get translated fields
       fetchStory();
     } catch (error: any) {
       console.error("Story translation failed:", error);
+      toast.dismiss(loadingToast);
       const errorMessage =
         error?.response?.data?.message || "Lỗi khi dịch thông tin truyện.";
-      toast.error(errorMessage);
+
+      // Check for concurrent access error
+      if (errorMessage.includes("already being translated")) {
+        toast.error("⚠️ " + errorMessage, { duration: 6000 });
+      } else {
+        toast.error(errorMessage, { duration: 5000 });
+      }
     } finally {
       setTranslatingStory(false);
     }
@@ -394,6 +426,96 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
     }
   };
 
+  const handleCrawlAdditionalChapters = async (autoCrawl: boolean = false) => {
+    if (!story?.sourceUrl) {
+      toast.error("Truyện này không có URL nguồn để crawl");
+      return;
+    }
+
+    const crawlRequest: any = {
+      novelUrl: story.sourceUrl,
+    };
+
+    // Auto-crawl mode: don't include chapter range
+    if (!autoCrawl) {
+      // Add optional chapter range if provided
+      if (crawlStartChapter.trim()) {
+        const start = parseInt(crawlStartChapter);
+        if (isNaN(start) || start < 1) {
+          toast.error("Số chương bắt đầu phải là số dương");
+          return;
+        }
+        crawlRequest.startChapter = start;
+      }
+
+      if (crawlEndChapter.trim()) {
+        const end = parseInt(crawlEndChapter);
+        if (isNaN(end) || end < 1) {
+          toast.error("Số chương kết thúc phải là số dương");
+          return;
+        }
+        crawlRequest.endChapter = end;
+      }
+
+      // Validate range
+      if (crawlRequest.startChapter && crawlRequest.endChapter) {
+        if (crawlRequest.startChapter > crawlRequest.endChapter) {
+          toast.error(
+            "Số chương bắt đầu phải nhỏ hơn hoặc bằng số chương kết thúc"
+          );
+          return;
+        }
+      }
+    }
+
+    setCrawlingChapters(true);
+    const loadingToast = toast.loading(
+      autoCrawl
+        ? "Đang tự động crawl chapter tiếp theo..."
+        : "Đang crawl chapters..."
+    );
+
+    try {
+      const response = await apiClient.crawl.crawlSyosetuNovel(crawlRequest);
+      const result = response.data;
+
+      toast.dismiss(loadingToast);
+
+      if (result.message) {
+        toast.success(result.message, { duration: 5000 });
+      } else {
+        toast.success(
+          `Crawl thành công! Đã crawl ${result.chaptersCrawled || 0} chương (${
+            result.chaptersSucceeded || 0
+          } thành công, ${result.chaptersFailed || 0} thất bại)`,
+          { duration: 5000 }
+        );
+      }
+
+      setCrawlStartChapter("");
+      setCrawlEndChapter("");
+      fetchChapters();
+      fetchStory();
+    } catch (error: any) {
+      toast.dismiss(loadingToast);
+      console.error("Failed to crawl chapters:", error);
+      const errorMessage =
+        error?.response?.data?.message ||
+        "Lỗi khi crawl chương. Vui lòng thử lại.";
+
+      // Check for concurrent access or no next chapter errors
+      if (errorMessage.includes("already being crawled")) {
+        toast.error("⚠️ " + errorMessage, { duration: 6000 });
+      } else if (errorMessage.includes("No next chapter available")) {
+        toast.error("ℹ️ " + errorMessage, { duration: 6000 });
+      } else {
+        toast.error(errorMessage, { duration: 5000 });
+      }
+    } finally {
+      setCrawlingChapters(false);
+    }
+  };
+
   if (loadingStory) {
     return (
       <div className="flex justify-center py-12">
@@ -449,7 +571,7 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
 
   return (
     <div className="max-w-7xl mx-auto px-4">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div className="flex items-center gap-4">
           <Link
             href="/dashboard/stories"
@@ -464,7 +586,7 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
         <button
           onClick={handleTranslateStoryMetadata}
           disabled={translatingStory}
-          className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition"
+          className="w-full md:w-auto px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition whitespace-nowrap"
         >
           {translatingStory ? (
             <>
@@ -608,7 +730,7 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
               >
                 <option value="DRAFT">Bản nháp</option>
-                <option value="PUBLISHED">Đã xuất bản</option>
+                <option value="PUBLISHED">Đang ra</option>
                 <option value="COMPLETED">Hoàn thành</option>
                 <option value="ARCHIVED">Lưu trữ</option>
               </select>
@@ -687,17 +809,121 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
         </div>
       </form>
 
+      {/* Crawl Additional Chapters */}
+      {story?.sourceUrl && (
+        <div className="mt-8 bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <Download size={24} />
+            Crawl thêm chương mới
+          </h2>
+          <div className="mb-4">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+              <strong>URL nguồn:</strong> {story.sourceUrl}
+            </p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              <strong>Số chương hiện tại:</strong> {chapters.length}
+            </p>
+          </div>
+          <div className="space-y-4">
+            <div className="flex flex-col md:flex-row gap-4 md:items-end">
+              <div className="w-full md:flex-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Chương bắt đầu (tùy chọn)
+                </label>
+                <input
+                  type="number"
+                  value={crawlStartChapter}
+                  onChange={(e) => setCrawlStartChapter(e.target.value)}
+                  placeholder={`Ví dụ: ${chapters.length + 1}`}
+                  min="1"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+              <div className="w-full md:flex-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Chương kết thúc (tùy chọn)
+                </label>
+                <input
+                  type="number"
+                  value={crawlEndChapter}
+                  onChange={(e) => setCrawlEndChapter(e.target.value)}
+                  placeholder="Ví dụ: 100"
+                  min="1"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+              <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+                <button
+                  onClick={() => handleCrawlAdditionalChapters(false)}
+                  disabled={crawlingChapters}
+                  className="w-full sm:w-auto px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition whitespace-nowrap"
+                >
+                  {crawlingChapters ? (
+                    <>
+                      <Loader2 className="animate-spin" size={18} />
+                      Đang crawl...
+                    </>
+                  ) : (
+                    <>
+                      <Download size={18} />
+                      Crawl theo khoảng
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={() => handleCrawlAdditionalChapters(true)}
+                  disabled={crawlingChapters}
+                  className="w-full sm:w-auto px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition whitespace-nowrap"
+                >
+                  {crawlingChapters ? (
+                    <>
+                      <Loader2 className="animate-spin" size={18} />
+                      Đang crawl...
+                    </>
+                  ) : (
+                    <>
+                      <RefreshCw size={18} />
+                      Tự động Crawl tiếp
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+              <p className="text-sm text-blue-800 dark:text-blue-300">
+                <strong>💡 Hướng dẫn:</strong>
+              </p>
+              <ul className="text-sm text-blue-700 dark:text-blue-400 mt-2 space-y-1 ml-4 list-disc">
+                <li>
+                  <strong>Tự động Crawl tiếp:</strong> Tự động crawl chapter
+                  tiếp theo (không cần nhập số chương)
+                </li>
+                <li>
+                  <strong>Crawl theo khoảng:</strong> Crawl từ chương X đến
+                  chương Y (nhập số chương)
+                </li>
+                <li>
+                  <strong>Crawl theo range:</strong> Crawl từ chương X đến
+                  chương Y
+                </li>
+                <li>Re-crawl sẽ reset bản dịch cũ (cần dịch lại)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Chapter Management & AI Translation */}
       <div className="mt-8 bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
             <FileText size={24} />
             Quản lý Chương ({chapters.length})
           </h2>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2 w-full md:w-auto">
             <button
               onClick={() => setShowCreateChapterModal(true)}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium flex items-center gap-2 transition"
+              className="flex-1 md:flex-none px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium flex items-center justify-center gap-2 transition whitespace-nowrap"
             >
               <Plus size={18} />
               Thêm chương mới
@@ -705,7 +931,7 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
             <button
               onClick={handleTranslateUntranslated}
               disabled={translating}
-              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              className="flex-1 md:flex-none px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition whitespace-nowrap"
             >
               {translating ? (
                 <>
@@ -727,8 +953,10 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
           <div className="mb-6">
             <div className="bg-gray-200 dark:bg-gray-700 rounded-full h-4 overflow-hidden relative">
               <div
-                className="bg-green-600 h-full transition-all duration-300 absolute top-0 left-0"
-                style={{ width: `${translationProgress}%` }}
+                className="bg-green-600 h-full transition-all duration-300"
+                style={
+                  { width: `${translationProgress}%` } as React.CSSProperties
+                }
               />
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 text-center">

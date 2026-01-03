@@ -21,24 +21,37 @@ interface HeroSectionProps {
 
 export const HeroSection: React.FC<HeroSectionProps> = ({ stories }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     if (stories.length === 0) return;
 
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % stories.length);
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setCurrentIndex((prev) => (prev + 1) % stories.length);
+        setIsTransitioning(false);
+      }, 300);
     }, 5000);
 
     return () => clearInterval(interval);
   }, [stories.length]);
 
   const handlePrev = () => {
-    setCurrentIndex((prev) => (prev - 1 + stories.length) % stories.length);
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrentIndex((prev) => (prev - 1 + stories.length) % stories.length);
+      setIsTransitioning(false);
+    }, 300);
   };
 
   const handleNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % stories.length);
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrentIndex((prev) => (prev + 1) % stories.length);
+      setIsTransitioning(false);
+    }, 300);
   };
 
   if (stories.length === 0) {
@@ -61,51 +74,91 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ stories }) => {
 
   return (
     <div className="relative w-full h-96 md:h-[500px] bg-gradient-to-br from-[rgb(var(--primary))]/10 via-[rgb(var(--card))] to-[rgb(var(--primary-light))] rounded-xl overflow-hidden group shadow-[0_4px_6px_-1px_rgb(0_0_0_/_0.1)] border border-[rgb(var(--border))]">
-      {/* Background Image */}
-      {currentStory.coverImageUrl && (
-        <div
-          className="absolute inset-0 bg-cover bg-center opacity-20 dark:opacity-30"
-          style={{ backgroundImage: `url(${currentStory.coverImageUrl})` }}
-        />
+      {/* Background Images Layer - render all images with opacity transition */}
+      {stories.map(
+        (story, index) =>
+          story.coverImageUrl && (
+            <div
+              key={story.id}
+              className={`absolute inset-0 bg-cover bg-center transition-opacity duration-700 ease-in-out ${
+                index === currentIndex
+                  ? "opacity-20 dark:opacity-30"
+                  : "opacity-0"
+              }`}
+              style={{ backgroundImage: `url(${story.coverImageUrl})` }}
+            />
+          )
       )}
 
       {/* Content */}
-      <div className="relative h-full flex items-center px-6 md:px-12">
-        <div className="max-w-2xl">
-          <div className="flex flex-wrap gap-2 mb-4">
-            {currentStory.genres?.slice(0, 3).map((genre) => (
-              <span
-                key={genre.id}
-                className="px-3 py-1 bg-[rgb(var(--primary))]/80 text-white text-xs font-medium rounded-full"
+      <div className="relative h-full flex items-center px-4 py-6 md:px-12 md:py-0">
+        <div className="w-full flex flex-col md:flex-row items-center gap-8 md:gap-12">
+          {/* Text Content */}
+          <div
+            className={`flex-1 flex flex-col transition-all duration-500 ${
+              isTransitioning
+                ? "opacity-0 transform translate-x-8"
+                : "opacity-100 transform translate-x-0"
+            }`}
+          >
+            <div className="flex flex-wrap gap-2 mb-2 md:mb-3">
+              {currentStory.genres?.slice(0, 3).map((genre) => (
+                <span
+                  key={genre.id}
+                  className="px-3 py-1 bg-[rgb(var(--primary))]/80 text-white text-xs font-medium rounded-full"
+                >
+                  {genre.name}
+                </span>
+              ))}
+            </div>
+
+            <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-[rgb(var(--text))] mb-2 line-clamp-2">
+              {currentStory.translatedTitle || currentStory.title}
+            </h1>
+
+            {currentStory.translatedTitle && (
+              <p className="text-sm md:text-lg text-[rgb(var(--text-muted))] mb-2 line-clamp-1">
+                {currentStory.title}
+              </p>
+            )}
+
+            {(currentStory.translatedDescription ||
+              currentStory.description) && (
+              <p className="text-sm md:text-base text-[rgb(var(--text-muted))] mb-3 md:mb-4 line-clamp-4 md:line-clamp-3">
+                {currentStory.translatedDescription || currentStory.description}
+              </p>
+            )}
+
+            <div>
+              <Button
+                variant="primary"
+                size="lg"
+                onClick={() => router.push(`/story/${currentStory.id}`)}
               >
-                {genre.name}
-              </span>
-            ))}
+                Đọc ngay
+              </Button>
+            </div>
           </div>
 
-          <h1 className="text-3xl md:text-5xl font-bold text-[rgb(var(--text))] mb-4">
-            {currentStory.translatedTitle || currentStory.title}
-          </h1>
-
-          {currentStory.translatedTitle && (
-            <p className="text-lg text-[rgb(var(--text-muted))] mb-4">
-              {currentStory.title}
-            </p>
+          {/* Cover Image - Desktop only */}
+          {currentStory.coverImageUrl && (
+            <div
+              className={`hidden md:block flex-shrink-0 transition-all duration-500 ${
+                isTransitioning
+                  ? "opacity-0 transform translate-x-8"
+                  : "opacity-100 transform translate-x-0"
+              }`}
+            >
+              <div className="relative w-64 h-96 rounded-lg overflow-hidden shadow-2xl border-4 border-white/10">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={currentStory.coverImageUrl}
+                  alt={currentStory.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
           )}
-
-          {(currentStory.translatedDescription || currentStory.description) && (
-            <p className="text-[rgb(var(--text-muted))] mb-6 line-clamp-3">
-              {currentStory.translatedDescription || currentStory.description}
-            </p>
-          )}
-
-          <Button
-            variant="primary"
-            size="lg"
-            onClick={() => router.push(`/story/${currentStory.id}`)}
-          >
-            Đọc ngay
-          </Button>
         </div>
       </div>
 

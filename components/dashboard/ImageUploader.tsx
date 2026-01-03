@@ -84,10 +84,10 @@ export function ImageUploader({
       <label className="block text-sm font-medium mb-2">{label}</label>
 
       {previewUrl ? (
-        <div className="flex gap-4">
+        <div className="flex flex-col sm:flex-row gap-4">
           {/* Portrait preview (for book covers) */}
-          <div className="flex-shrink-0">
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+          <div className="flex-shrink-0 mx-auto sm:mx-0">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 text-center sm:text-left">
               Chiều dọc (Ảnh bìa)
             </p>
             <div className="relative w-48 h-72 rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700">
@@ -108,11 +108,11 @@ export function ImageUploader({
           </div>
 
           {/* Landscape preview */}
-          <div className="flex-1">
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+          <div className="flex-1 w-full">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 text-center sm:text-left">
               Chiều ngang
             </p>
-            <div className="relative rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700 h-72">
+            <div className="relative rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700 h-48 sm:h-72">
               <img
                 src={previewUrl}
                 alt="Preview Landscape"

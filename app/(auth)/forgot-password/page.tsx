@@ -30,7 +30,7 @@ export default function ForgotPasswordPage() {
     setLoading(true);
 
     try {
-      await apiClient.user.forgotPassword({ email });
+      await apiClient.userController.forgotPassword({ email });
       setEmailSent(true);
       showToast(
         "Liên kết đặt lại mật khẩu đã được gửi đến email của bạn",

@@ -30,7 +30,7 @@ function ResetPasswordForm() {
 
   useEffect(() => {
     if (!token) {
-      showToast("Invalid reset link", "error");
+      showToast("Liên kết đặt lại không hợp lệ", "error");
       router.push("/forgot-password");
     }
   }, [token, router, showToast]);
@@ -39,17 +39,17 @@ function ResetPasswordForm() {
     e.preventDefault();
 
     if (password !== confirmPassword) {
-      showToast("Passwords do not match", "error");
+      showToast("Mật khẩu xác nhận không khớp", "error");
       return;
     }
 
     if (password.length < 6) {
-      showToast("Password must be at least 6 characters", "error");
+      showToast("Mật khẩu phải có ít nhất 6 ký tự", "error");
       return;
     }
 
     if (!token) {
-      showToast("Invalid reset link", "error");
+      showToast("Liên kết đặt lại không hợp lệ", "error");
       return;
     }
 
@@ -61,14 +61,14 @@ function ResetPasswordForm() {
         newPassword: password,
       });
       setSuccess(true);
-      showToast("Password reset successfully!", "success");
+      showToast("Đặt lại mật khẩu thành công!", "success");
       setTimeout(() => {
         router.push("/login");
       }, 2000);
     } catch (error: any) {
       showToast(
         error?.response?.data?.message ||
-          "Failed to reset password. Link may be expired.",
+          "Đặt lại mật khẩu thất bại. Liên kết có thể đã hết hạn.",
         "error"
       );
     } finally {
@@ -84,9 +84,11 @@ function ResetPasswordForm() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
       <Card className="w-full max-w-md p-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-2">Reset Password</h1>
+          <h1 className="text-3xl font-bold mb-2">Đặt Lại Mật Khẩu</h1>
           <p className="text-gray-600 dark:text-gray-400">
-            {success ? "Password reset successful!" : "Enter your new password"}
+            {success
+              ? "Đặt lại mật khẩu thành công!"
+              : "Nhập mật khẩu mới của bạn"}
           </p>
         </div>
 
@@ -109,60 +111,60 @@ function ResetPasswordForm() {
                 </svg>
                 <div>
                   <h3 className="text-sm font-medium text-green-800 dark:text-green-300">
-                    Password Reset Successful
+                    Đặt Lại Mật Khẩu Thành Công
                   </h3>
                   <p className="text-sm text-green-700 dark:text-green-400 mt-1">
-                    Your password has been reset successfully. You will be
-                    redirected to the login page shortly.
+                    Mật khẩu của bạn đã được đặt lại thành công. Bạn sẽ được
+                    chuyển đến trang đăng nhập ngay.
                   </p>
                 </div>
               </div>
             </div>
 
             <Link href="/login">
-              <Button className="w-full">Go to Login</Button>
+              <Button className="w-full">Đến Trang Đăng Nhập</Button>
             </Link>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-medium mb-2">
-                New Password
+                Mật Khẩu Mới
               </label>
               <Input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter new password (min 6 characters)"
+                placeholder="Nhập mật khẩu mới (tối thiểu 6 ký tự)"
                 required
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium mb-2">
-                Confirm Password
+                Xác Nhận Mật Khẩu
               </label>
               <Input
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Confirm new password"
+                placeholder="Xác nhận mật khẩu mới"
                 required
               />
             </div>
 
             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
               <p className="text-sm text-blue-800 dark:text-blue-300">
-                <strong>Password Requirements:</strong>
+                <strong>Yêu Cầu Mật Khẩu:</strong>
                 <ul className="list-disc list-inside mt-1">
-                  <li>At least 6 characters long</li>
-                  <li>Must match confirmation password</li>
+                  <li>Ít nhất 6 ký tự</li>
+                  <li>Phải khớp với mật khẩu xác nhận</li>
                 </ul>
               </p>
             </div>
 
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Resetting..." : "Reset Password"}
+              {loading ? "Đang đặt lại..." : "Đặt Lại Mật Khẩu"}
             </Button>
           </form>
         )}
@@ -172,7 +174,7 @@ function ResetPasswordForm() {
             href="/login"
             className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
           >
-            Back to Login
+            Quay Lại Đăng Nhập
           </Link>
         </div>
       </Card>
@@ -185,7 +187,7 @@ export default function ResetPasswordPage() {
     <Suspense
       fallback={
         <div className="min-h-screen flex items-center justify-center">
-          Loading...
+          Đang tải...
         </div>
       }
     >

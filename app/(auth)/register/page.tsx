@@ -51,7 +51,7 @@ export default function RegisterPage() {
       setErrorMessage("");
       setSuccessMessage("");
 
-      await apiClient.auth.register({
+      await apiClient.authentication.register({
         displayName: data.displayName,
         email: data.email,
         password: data.password,

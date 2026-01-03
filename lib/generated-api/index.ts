@@ -1,6 +1,5 @@
 ﻿// Custom API wrapper for easier usage
 // Auto-generated - do not edit manually
-import axios from "axios";
 import {
   Configuration,
   AdminControllerApi,
@@ -22,11 +21,13 @@ import {
   StoryManagementApi,
   UserManagementApi,
 } from "./generated";
+import axios, { AxiosInstance } from "axios";
 
 export class NovelApiClient {
   private config: Configuration;
   private token: string | null = null;
   private unauthorizedCallback: (() => void) | null = null;
+  private axiosInstance: AxiosInstance;
 
   // API controllers
   public latestChapters: LatestChaptersControllerApi;
@@ -40,7 +41,6 @@ export class NovelApiClient {
   public stats: StatsControllerApi;
   public authentication: AuthenticationApi;
   public chapters: ChapterControllerApi;
-  public auth: AuthenticationApi;
   public admin: AdminControllerApi;
   public ai: AiControllerApi;
   public crawlJobs: CrawlJobControllerApi;
@@ -50,47 +50,123 @@ export class NovelApiClient {
   public comments: CommentControllerApi;
 
   constructor(basePath: string = "http://localhost:8080") {
+    // Try to restore token from localStorage immediately
+    if (typeof window !== "undefined") {
+      this.token = localStorage.getItem("accessToken");
+    }
+
+    // Create custom axios instance with interceptors
+    this.axiosInstance = axios.create({
+      baseURL: basePath,
+    });
+
+    // Setup response interceptor to handle 401/403 errors
+    this.axiosInstance.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response) {
+          const status = error.response.status;
+          // Handle 401 (Unauthorized) or 403 (Forbidden)
+          if (status === 401 || status === 403) {
+            // Use console.warn instead of console.error to avoid Next.js error overlay
+            console.warn(
+              `[Auth] Phát hiện lỗi xác thực (${status}) - Đang đăng xuất tự động`
+            );
+            this.triggerUnauthorizedCallback();
+          }
+        }
+        return Promise.reject(error);
+      }
+    );
+
     this.config = new Configuration({
       basePath,
       accessToken: () => this.token || "",
     });
 
-    // Setup axios interceptor for handling 401/403 errors
-    if (typeof window !== "undefined") {
-      axios.interceptors.response.use(
-        (response) => response,
-        (error) => {
-          if (
-            error.response &&
-            (error.response.status === 401 || error.response.status === 403)
-          ) {
-            this.handleUnauthorized();
-          }
-          return Promise.reject(error);
-        }
-      );
-    }
-
-    // Initialize all API controllers
-    this.latestChapters = new LatestChaptersControllerApi(this.config);
-    this.ratings = new RatingControllerApi(this.config);
-    this.health = new HealthControllerApi(this.config);
-    this.favorites = new FavoriteControllerApi(this.config);
-    this.genres = new GenreControllerApi(this.config);
-    this.user = new UserManagementApi(this.config);
-    this.stories = new StoryManagementApi(this.config);
-    this.readingHistory = new ReadingHistoryControllerApi(this.config);
-    this.stats = new StatsControllerApi(this.config);
-    this.authentication = new AuthenticationApi(this.config);
-    this.chapters = new ChapterControllerApi(this.config);
-    this.auth = new AuthenticationApi(this.config);
-    this.admin = new AdminControllerApi(this.config);
-    this.ai = new AiControllerApi(this.config);
-    this.crawlJobs = new CrawlJobControllerApi(this.config);
-    this.export = new ExportApi(this.config);
-    this.crawl = new CrawlControllerApi(this.config);
-    this.cloudinary = new CloudinaryApi(this.config);
-    this.comments = new CommentControllerApi(this.config);
+    // Initialize all API controllers with custom axios instance
+    this.latestChapters = new LatestChaptersControllerApi(
+      this.config,
+      basePath,
+      this.axiosInstance
+    );
+    this.ratings = new RatingControllerApi(
+      this.config,
+      basePath,
+      this.axiosInstance
+    );
+    this.health = new HealthControllerApi(
+      this.config,
+      basePath,
+      this.axiosInstance
+    );
+    this.favorites = new FavoriteControllerApi(
+      this.config,
+      basePath,
+      this.axiosInstance
+    );
+    this.genres = new GenreControllerApi(
+      this.config,
+      basePath,
+      this.axiosInstance
+    );
+    this.user = new UserManagementApi(
+      this.config,
+      basePath,
+      this.axiosInstance
+    );
+    this.stories = new StoryManagementApi(
+      this.config,
+      basePath,
+      this.axiosInstance
+    );
+    this.readingHistory = new ReadingHistoryControllerApi(
+      this.config,
+      basePath,
+      this.axiosInstance
+    );
+    this.stats = new StatsControllerApi(
+      this.config,
+      basePath,
+      this.axiosInstance
+    );
+    this.authentication = new AuthenticationApi(
+      this.config,
+      basePath,
+      this.axiosInstance
+    );
+    this.chapters = new ChapterControllerApi(
+      this.config,
+      basePath,
+      this.axiosInstance
+    );
+    this.admin = new AdminControllerApi(
+      this.config,
+      basePath,
+      this.axiosInstance
+    );
+    this.ai = new AiControllerApi(this.config, basePath, this.axiosInstance);
+    this.crawlJobs = new CrawlJobControllerApi(
+      this.config,
+      basePath,
+      this.axiosInstance
+    );
+    this.export = new ExportApi(this.config, basePath, this.axiosInstance);
+    this.crawl = new CrawlControllerApi(
+      this.config,
+      basePath,
+      this.axiosInstance
+    );
+    this.cloudinary = new CloudinaryApi(
+      this.config,
+      basePath,
+      this.axiosInstance
+    );
+    this.comments = new CommentControllerApi(
+      this.config,
+      basePath,
+      this.axiosInstance
+    );
   }
 
   // Authentication methods
@@ -120,8 +196,7 @@ export class NovelApiClient {
     this.unauthorizedCallback = callback;
   }
 
-  // Call the unauthorized callback if it exists
-  handleUnauthorized() {
+  triggerUnauthorizedCallback() {
     if (this.unauthorizedCallback) {
       this.unauthorizedCallback();
     }
