@@ -452,8 +452,8 @@ const { status, data } = await apiInstance.getStoryDetail(
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** | Story detail retrieved successfully |  -  |
 |**404** | Story not found |  -  |
+|**200** | Story detail retrieved successfully |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -764,10 +764,10 @@ const { status, data } = await apiInstance.setGenresForStory(
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** | Genres updated successfully |  -  |
 |**404** | Story or genre not found |  -  |
 |**400** | Invalid request body |  -  |
 |**403** | Forbidden - requires ADMIN role or story ownership |  -  |
+|**200** | Genres updated successfully |  -  |
 |**401** | Unauthorized |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

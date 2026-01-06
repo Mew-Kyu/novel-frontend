@@ -15,25 +15,38 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { PageableObject } from './pageable-object';
-// May contain unused imports in some cases
-// @ts-ignore
-import type { RatingDto } from './rating-dto';
-// May contain unused imports in some cases
-// @ts-ignore
-import type { SortObject } from './sort-object';
+import type { StoryDto } from './story-dto';
 
-export interface PageRatingDto {
-    'totalElements'?: number;
-    'totalPages'?: number;
-    'size'?: number;
-    'content'?: Array<RatingDto>;
-    'number'?: number;
-    'first'?: boolean;
-    'last'?: boolean;
-    'numberOfElements'?: number;
-    'sort'?: SortObject;
-    'pageable'?: PageableObject;
-    'empty'?: boolean;
+/**
+ * Personalized story recommendations for user
+ */
+export interface RecommendationDto {
+    /**
+     * List of recommended stories
+     */
+    'stories'?: Array<StoryDto>;
+    /**
+     * Recommendation algorithm used
+     */
+    'type'?: RecommendationDtoTypeEnum;
+    /**
+     * Total number of recommendations
+     */
+    'totalCount'?: number;
+    /**
+     * Explanation of why these stories were recommended
+     */
+    'explanation'?: string;
 }
+
+export const RecommendationDtoTypeEnum = {
+    Collaborative: 'COLLABORATIVE',
+    ContentBased: 'CONTENT_BASED',
+    Semantic: 'SEMANTIC',
+    Trending: 'TRENDING',
+    Hybrid: 'HYBRID'
+} as const;
+
+export type RecommendationDtoTypeEnum = typeof RecommendationDtoTypeEnum[keyof typeof RecommendationDtoTypeEnum];
+
 

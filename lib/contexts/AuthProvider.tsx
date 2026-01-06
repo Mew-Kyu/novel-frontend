@@ -10,6 +10,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { user, isAuthenticated, logout, _hasHydrated } = useAuthStore();
   const router = useRouter();
   const [isInitialized, setIsInitialized] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
     // Wait for Zustand to hydrate from localStorage
@@ -20,6 +21,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const initializeAuth = () => {
       // Setup callback for 401/403 errors - auto logout and redirect
       apiClient.setUnauthorizedCallback(() => {
+        // Prevent multiple simultaneous logout calls
+        if (isLoggingOut) {
+          console.log("Logout already in progress, skipping...");
+          return;
+        }
+
+        setIsLoggingOut(true);
         console.warn("Unauthorized access detected (401/403) - Logging out");
         toast.error(
           "Phiên đăng nhập không hợp lệ hoặc đã hết hạn. Vui lòng đăng nhập lại.",
@@ -32,6 +40,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Redirect to login page
         setTimeout(() => {
           router.push("/login");
+          // Reset flag after redirect
+          setTimeout(() => setIsLoggingOut(false), 1000);
         }, 100);
       });
 

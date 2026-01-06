@@ -16,6 +16,7 @@ api/health-controller-api.ts
 api/latest-chapters-controller-api.ts
 api/rating-controller-api.ts
 api/reading-history-controller-api.ts
+api/recommendations-api.ts
 api/stats-controller-api.ts
 api/story-management-api.ts
 api/user-management-api.ts
@@ -71,6 +72,8 @@ docs/RatingControllerApi.md
 docs/RatingDto.md
 docs/ReadingHistoryControllerApi.md
 docs/ReadingHistoryDto.md
+docs/RecommendationDto.md
+docs/RecommendationsApi.md
 docs/RegisterRequest.md
 docs/ResetPasswordRequest.md
 docs/RoleDto.md
@@ -137,6 +140,7 @@ models/pageable-object.ts
 models/pageable.ts
 models/rating-dto.ts
 models/reading-history-dto.ts
+models/recommendation-dto.ts
 models/register-request.ts
 models/reset-password-request.ts
 models/role-dto.ts

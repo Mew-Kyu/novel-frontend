@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { TrendingUp, Star, Eye } from "lucide-react";
+import { TrendingUp, Star, Eye, Book } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 
 interface Story {
@@ -56,9 +56,10 @@ export const TrendingSection: React.FC<TrendingSectionProps> = ({
                     className="w-full h-full object-cover rounded-lg"
                   />
                 ) : (
-                  <div className="w-full h-full bg-[rgb(var(--border))] rounded-lg flex items-center justify-center">
-                    <span className="text-[rgb(var(--text-muted))] text-sm">
-                      No Image
+                  <div className="w-full h-full bg-[rgb(var(--card-hover))] border border-[rgb(var(--border))] rounded-lg flex flex-col items-center justify-center p-3 text-center">
+                    <Book className="w-8 h-8 text-[rgb(var(--text-muted))] mb-2 opacity-50" />
+                    <span className="text-[rgb(var(--text-muted))] text-xs font-medium line-clamp-2">
+                      {story.translatedTitle || story.title}
                     </span>
                   </div>
                 )}

@@ -15,8 +15,11 @@ import { LatestUpdates } from "@/components/home/LatestUpdates";
 import { GenreGrid } from "@/components/home/GenreGrid";
 import { StoryGrid } from "@/components/home/StoryGrid";
 import { Pagination } from "@/components/common/Pagination";
+import { RecommendationSection } from "@/components/home/RecommendationSection";
+import { useAuthStore } from "@/lib/store/authStore";
 
 export default function HomePage() {
+  const { isAuthenticated } = useAuthStore();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -155,6 +158,9 @@ export default function HomePage() {
         {trendingStories.length > 0 && (
           <TrendingSection stories={trendingStories} />
         )}
+
+        {/* Personalized Recommendations - Only for authenticated users */}
+        {isAuthenticated && <RecommendationSection limit={12} />}
 
         {/* Latest Updates */}
         {latestChapters.length > 0 && (

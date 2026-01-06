@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Bookmark, Loader2, BookOpen, Clock } from "lucide-react";
+import { Bookmark, Loader2, BookOpen, Clock, Book } from "lucide-react";
 import apiClient from "@/lib/generated-api";
 import { useAuthStore } from "@/lib/store/authStore";
 import { Button } from "@/components/ui/Button";
@@ -192,8 +192,11 @@ export default function BookmarksPage() {
                           className="w-20 h-28 object-cover rounded-lg"
                         />
                       ) : (
-                        <div className="w-20 h-28 bg-[rgb(var(--border))] rounded-lg flex items-center justify-center">
-                          <BookOpen className="w-8 h-8 text-[rgb(var(--text-muted))]" />
+                        <div className="w-20 h-28 bg-[rgb(var(--card-hover))] border border-[rgb(var(--border))] rounded-lg flex flex-col items-center justify-center p-1 text-center">
+                          <Book className="w-6 h-6 text-[rgb(var(--text-muted))] mb-1 opacity-50" />
+                          <span className="text-[rgb(var(--text-muted))] text-[10px] line-clamp-2">
+                            {item.storyTitle}
+                          </span>
                         </div>
                       )}
                     </a>

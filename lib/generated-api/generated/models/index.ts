@@ -32,6 +32,7 @@ export * from './pageable';
 export * from './pageable-object';
 export * from './rating-dto';
 export * from './reading-history-dto';
+export * from './recommendation-dto';
 export * from './register-request';
 export * from './reset-password-request';
 export * from './role-dto';

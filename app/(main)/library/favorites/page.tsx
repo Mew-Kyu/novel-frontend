@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Heart, Loader2, Trash2 } from "lucide-react";
+import { Heart, Loader2, Trash2, Book } from "lucide-react";
 import toast from "react-hot-toast";
 import apiClient from "@/lib/generated-api";
 import { useAuthStore } from "@/lib/store/authStore";
@@ -208,9 +208,10 @@ export default function FavoritesPage() {
                           className="w-full h-full object-cover rounded-lg"
                         />
                       ) : (
-                        <div className="w-full h-full bg-[rgb(var(--border))] rounded-lg flex items-center justify-center">
-                          <span className="text-[rgb(var(--text-muted))]">
-                            Không có ảnh
+                        <div className="w-full h-full bg-[rgb(var(--card-hover))] border border-[rgb(var(--border))] rounded-lg flex flex-col items-center justify-center p-4">
+                          <Book className="w-12 h-12 text-[rgb(var(--text-muted))] mb-2 opacity-50" />
+                          <span className="text-[rgb(var(--text-muted))] text-sm text-center font-medium line-clamp-2">
+                            {story.translatedTitle || story.title}
                           </span>
                         </div>
                       )}

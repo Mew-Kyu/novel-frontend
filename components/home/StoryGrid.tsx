@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Star, Eye, BookOpen } from "lucide-react";
+import { Star, Eye, BookOpen, Book } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 
 interface Story {
@@ -45,9 +45,10 @@ export const StoryGrid: React.FC<StoryGridProps> = ({ stories }) => {
                   className="w-full h-full object-cover rounded-lg"
                 />
               ) : (
-                <div className="w-full h-full bg-[rgb(var(--border))] rounded-lg flex items-center justify-center">
-                  <span className="text-[rgb(var(--text-muted))]">
-                    No Image
+                <div className="w-full h-full bg-[rgb(var(--card-hover))] border border-[rgb(var(--border))] rounded-lg flex flex-col items-center justify-center p-4">
+                  <Book className="w-12 h-12 text-[rgb(var(--text-muted))] mb-2 opacity-50" />
+                  <span className="text-[rgb(var(--text-muted))] text-xs text-center font-medium line-clamp-2">
+                    {story.translatedTitle || story.title}
                   </span>
                 </div>
               )}

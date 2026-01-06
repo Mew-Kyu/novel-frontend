@@ -24,16 +24,16 @@ import type { ReadingHistoryDto } from './reading-history-dto';
 import type { SortObject } from './sort-object';
 
 export interface PageReadingHistoryDto {
-    'totalPages'?: number;
     'totalElements'?: number;
+    'totalPages'?: number;
     'size'?: number;
     'content'?: Array<ReadingHistoryDto>;
     'number'?: number;
+    'first'?: boolean;
+    'last'?: boolean;
     'numberOfElements'?: number;
     'sort'?: SortObject;
     'pageable'?: PageableObject;
-    'first'?: boolean;
-    'last'?: boolean;
     'empty'?: boolean;
 }
 

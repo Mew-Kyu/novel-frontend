@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Search, X } from "lucide-react";
+import { Search, X, Book } from "lucide-react";
 import apiClient from "@/lib/generated-api";
 import { isRateLimitError } from "@/lib/utils";
 
@@ -214,10 +214,8 @@ export const SearchBar = () => {
                       className="w-12 h-16 object-cover rounded flex-shrink-0"
                     />
                   ) : (
-                    <div className="w-12 h-16 bg-[rgb(var(--border))] rounded flex-shrink-0 flex items-center justify-center">
-                      <span className="text-[rgb(var(--text-muted))] text-xs">
-                        Không có ảnh
-                      </span>
+                    <div className="w-12 h-16 bg-[rgb(var(--card-hover))] border border-[rgb(var(--border))] rounded flex-shrink-0 flex items-center justify-center">
+                      <Book className="w-6 h-6 text-[rgb(var(--text-muted))]" />
                     </div>
                   )}
 
@@ -233,7 +231,10 @@ export const SearchBar = () => {
                     )}
                     {result.description && (
                       <p className="text-sm text-[rgb(var(--text-muted))] line-clamp-2 mt-1">
-                        {result.description.substring(0, 100)}...
+                        {result.description
+                          .replace(/<[^>]*>?/gm, "")
+                          .substring(0, 100)}
+                        ...
                       </p>
                     )}
                   </div>

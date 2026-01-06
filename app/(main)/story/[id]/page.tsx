@@ -3,6 +3,7 @@ import { Metadata } from "next";
 import { StoryManagementApi } from "@/lib/generated-api/generated/api";
 import { Configuration } from "@/lib/generated-api/generated/configuration";
 import { StoryTabs } from "@/components/story/StoryTabs";
+import SimilarStoriesWrapper from "./SimilarStoriesWrapper";
 
 // Disable caching for this page to always get fresh data
 export const revalidate = 0;
@@ -142,6 +143,9 @@ export default async function StoryDetailPage({ params }: PageProps) {
               </div>
             </div>
           </div>
+
+          {/* Similar Stories Section - Full Width */}
+          <SimilarStoriesWrapper storyId={storyId} limit={6} />
         </div>
       </StoryClientWrapper>
     </div>

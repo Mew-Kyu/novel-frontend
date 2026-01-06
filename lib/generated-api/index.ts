@@ -1,9 +1,11 @@
 ﻿// Custom API wrapper for easier usage
 // Auto-generated - do not edit manually
+import axios, { AxiosInstance, AxiosError } from "axios";
 import {
   Configuration,
   AdminControllerApi,
   AiControllerApi,
+  AuthControllerApi,
   AuthenticationApi,
   ChapterControllerApi,
   CloudinaryApi,
@@ -17,30 +19,35 @@ import {
   LatestChaptersControllerApi,
   RatingControllerApi,
   ReadingHistoryControllerApi,
+  RecommendationsApi,
   StatsControllerApi,
   StoryManagementApi,
+  UserControllerApi,
   UserManagementApi,
 } from "./generated";
-import axios, { AxiosInstance } from "axios";
 
 export class NovelApiClient {
   private config: Configuration;
   private token: string | null = null;
   private unauthorizedCallback: (() => void) | null = null;
   private axiosInstance: AxiosInstance;
+  private isHandlingUnauthorized: boolean = false;
 
   // API controllers
-  public latestChapters: LatestChaptersControllerApi;
   public ratings: RatingControllerApi;
-  public health: HealthControllerApi;
-  public favorites: FavoriteControllerApi;
-  public genres: GenreControllerApi;
-  public user: UserManagementApi;
-  public stories: StoryManagementApi;
   public readingHistory: ReadingHistoryControllerApi;
+  public latestChapters: LatestChaptersControllerApi;
+  public genres: GenreControllerApi;
+  public health: HealthControllerApi;
+  public userController: UserControllerApi;
+  public userManagement: UserManagementApi;
+  public stories: StoryManagementApi;
+  public recommendations: RecommendationsApi;
   public stats: StatsControllerApi;
+  public favorites: FavoriteControllerApi;
   public authentication: AuthenticationApi;
   public chapters: ChapterControllerApi;
+  public auth: AuthControllerApi;
   public admin: AdminControllerApi;
   public ai: AiControllerApi;
   public crawlJobs: CrawlJobControllerApi;
@@ -50,29 +57,38 @@ export class NovelApiClient {
   public comments: CommentControllerApi;
 
   constructor(basePath: string = "http://localhost:8080") {
-    // Try to restore token from localStorage immediately
+    // Load token from localStorage if available
     if (typeof window !== "undefined") {
       this.token = localStorage.getItem("accessToken");
     }
 
-    // Create custom axios instance with interceptors
+    // Create axios instance with interceptors
     this.axiosInstance = axios.create({
       baseURL: basePath,
     });
 
-    // Setup response interceptor to handle 401/403 errors
+    // Add response interceptor to handle 401/403 errors
     this.axiosInstance.interceptors.response.use(
       (response) => response,
-      (error) => {
-        if (error.response) {
-          const status = error.response.status;
-          // Handle 401 (Unauthorized) or 403 (Forbidden)
-          if (status === 401 || status === 403) {
-            // Use console.warn instead of console.error to avoid Next.js error overlay
-            console.warn(
-              `[Auth] Phát hiện lỗi xác thực (${status}) - Đang đăng xuất tự động`
-            );
-            this.triggerUnauthorizedCallback();
+      (error: AxiosError) => {
+        // Check if error is 401 or 403
+        if (error.response?.status === 401 || error.response?.status === 403) {
+          console.warn(
+            `${error.response.status} error detected - triggering unauthorized callback`
+          );
+
+          // Trigger unauthorized callback if set (only once to avoid multiple calls)
+          if (this.unauthorizedCallback && !this.isHandlingUnauthorized) {
+            this.isHandlingUnauthorized = true;
+
+            // Use setTimeout to avoid blocking the error flow
+            setTimeout(() => {
+              this.triggerUnauthorized();
+              // Reset flag after 2 seconds to allow future unauthorized errors
+              setTimeout(() => {
+                this.isHandlingUnauthorized = false;
+              }, 2000);
+            }, 0);
           }
         }
         return Promise.reject(error);
@@ -85,37 +101,7 @@ export class NovelApiClient {
     });
 
     // Initialize all API controllers with custom axios instance
-    this.latestChapters = new LatestChaptersControllerApi(
-      this.config,
-      basePath,
-      this.axiosInstance
-    );
     this.ratings = new RatingControllerApi(
-      this.config,
-      basePath,
-      this.axiosInstance
-    );
-    this.health = new HealthControllerApi(
-      this.config,
-      basePath,
-      this.axiosInstance
-    );
-    this.favorites = new FavoriteControllerApi(
-      this.config,
-      basePath,
-      this.axiosInstance
-    );
-    this.genres = new GenreControllerApi(
-      this.config,
-      basePath,
-      this.axiosInstance
-    );
-    this.user = new UserManagementApi(
-      this.config,
-      basePath,
-      this.axiosInstance
-    );
-    this.stories = new StoryManagementApi(
       this.config,
       basePath,
       this.axiosInstance
@@ -125,7 +111,47 @@ export class NovelApiClient {
       basePath,
       this.axiosInstance
     );
+    this.latestChapters = new LatestChaptersControllerApi(
+      this.config,
+      basePath,
+      this.axiosInstance
+    );
+    this.genres = new GenreControllerApi(
+      this.config,
+      basePath,
+      this.axiosInstance
+    );
+    this.health = new HealthControllerApi(
+      this.config,
+      basePath,
+      this.axiosInstance
+    );
+    this.userController = new UserControllerApi(
+      this.config,
+      basePath,
+      this.axiosInstance
+    );
+    this.userManagement = new UserManagementApi(
+      this.config,
+      basePath,
+      this.axiosInstance
+    );
+    this.stories = new StoryManagementApi(
+      this.config,
+      basePath,
+      this.axiosInstance
+    );
+    this.recommendations = new RecommendationsApi(
+      this.config,
+      basePath,
+      this.axiosInstance
+    );
     this.stats = new StatsControllerApi(
+      this.config,
+      basePath,
+      this.axiosInstance
+    );
+    this.favorites = new FavoriteControllerApi(
       this.config,
       basePath,
       this.axiosInstance
@@ -136,6 +162,11 @@ export class NovelApiClient {
       this.axiosInstance
     );
     this.chapters = new ChapterControllerApi(
+      this.config,
+      basePath,
+      this.axiosInstance
+    );
+    this.auth = new AuthControllerApi(
       this.config,
       basePath,
       this.axiosInstance
@@ -191,12 +222,13 @@ export class NovelApiClient {
     return this.token;
   }
 
-  // Unauthorized callback for handling 401/403 errors
+  // Unauthorized callback for 401/403 errors
   setUnauthorizedCallback(callback: () => void) {
     this.unauthorizedCallback = callback;
   }
 
-  triggerUnauthorizedCallback() {
+  // Trigger unauthorized callback if set
+  triggerUnauthorized() {
     if (this.unauthorizedCallback) {
       this.unauthorizedCallback();
     }

@@ -127,8 +127,17 @@ export const Navbar = () => {
                   {genreMenuOpen && (
                     <div className="absolute left-0 top-full w-64 pt-2 z-50">
                       <div className="bg-[rgb(var(--card))] border border-[rgb(var(--border))] rounded-lg shadow-xl py-2 max-h-96 overflow-y-auto no-scrollbar">
+                        <div className="px-2 pb-2 mb-2 border-b border-[rgb(var(--border))]">
+                          <Link
+                            href="/search"
+                            onClick={() => setGenreMenuOpen(false)}
+                            className="block px-3 py-2 text-sm font-medium text-[rgb(var(--primary))] hover:bg-[rgb(var(--border))] rounded transition-colors"
+                          >
+                            Tất cả
+                          </Link>
+                        </div>
                         {genres.length > 0 ? (
-                          <div className="grid grid-cols-2 gap-1 p-2">
+                          <div className="grid grid-cols-2 gap-1 p-2 pt-0">
                             {genres
                               .filter((g) => g.id && g.name)
                               .map((genre) => (

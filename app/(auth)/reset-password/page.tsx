@@ -56,7 +56,7 @@ function ResetPasswordForm() {
     setLoading(true);
 
     try {
-      await apiClient.user.resetPassword({
+      await apiClient.userController.resetPassword({
         token,
         newPassword: password,
       });
