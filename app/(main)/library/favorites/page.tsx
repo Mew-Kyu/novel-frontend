@@ -6,7 +6,6 @@ import { Heart, Loader2, Trash2, Book } from "lucide-react";
 import toast from "react-hot-toast";
 import apiClient from "@/lib/generated-api";
 import { useAuthStore } from "@/lib/store/authStore";
-import { StoryGrid } from "@/components/home/StoryGrid";
 import { Button } from "@/components/ui/Button";
 import { Pagination } from "@/components/common/Pagination";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
