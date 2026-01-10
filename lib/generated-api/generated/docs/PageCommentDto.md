@@ -10,11 +10,11 @@ Name | Type | Description | Notes
 **size** | **number** |  | [optional] [default to undefined]
 **content** | [**Array&lt;CommentDto&gt;**](CommentDto.md) |  | [optional] [default to undefined]
 **number** | **number** |  | [optional] [default to undefined]
-**first** | **boolean** |  | [optional] [default to undefined]
-**last** | **boolean** |  | [optional] [default to undefined]
 **numberOfElements** | **number** |  | [optional] [default to undefined]
 **sort** | [**SortObject**](SortObject.md) |  | [optional] [default to undefined]
 **pageable** | [**PageableObject**](PageableObject.md) |  | [optional] [default to undefined]
+**first** | **boolean** |  | [optional] [default to undefined]
+**last** | **boolean** |  | [optional] [default to undefined]
 **empty** | **boolean** |  | [optional] [default to undefined]
 
 ## Example
@@ -28,11 +28,11 @@ const instance: PageCommentDto = {
     size,
     content,
     number,
-    first,
-    last,
     numberOfElements,
     sort,
     pageable,
+    first,
+    last,
     empty,
 };
 ```

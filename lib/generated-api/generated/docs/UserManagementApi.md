@@ -48,7 +48,7 @@ const { status, data } = await apiInstance.changePassword(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 
@@ -91,7 +91,7 @@ This endpoint does not have any parameters.
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 
@@ -143,7 +143,7 @@ const { status, data } = await apiInstance.forgotPassword(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 
@@ -186,7 +186,7 @@ This endpoint does not have any parameters.
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 
@@ -237,7 +237,7 @@ const { status, data } = await apiInstance.resetPassword(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 
@@ -288,7 +288,7 @@ const { status, data } = await apiInstance.updateProfile(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 
@@ -339,7 +339,7 @@ const { status, data } = await apiInstance.uploadAvatar(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 

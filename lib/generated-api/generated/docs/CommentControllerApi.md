@@ -49,7 +49,7 @@ void (empty response body)
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 
@@ -100,7 +100,7 @@ const { status, data } = await apiInstance.createComment(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 
@@ -150,7 +150,7 @@ void (empty response body)
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 
@@ -201,7 +201,7 @@ const { status, data } = await apiInstance.getAllCommentsForAdmin(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 
@@ -251,7 +251,7 @@ const { status, data } = await apiInstance.getCommentById(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 
@@ -301,7 +301,7 @@ const { status, data } = await apiInstance.getCommentCountByStory(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 
@@ -355,7 +355,7 @@ const { status, data } = await apiInstance.getCommentsByStory(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 
@@ -406,7 +406,7 @@ const { status, data } = await apiInstance.getMyComments(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 
@@ -460,7 +460,7 @@ const { status, data } = await apiInstance.updateComment(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 

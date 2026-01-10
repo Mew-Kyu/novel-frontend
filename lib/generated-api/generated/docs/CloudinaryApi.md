@@ -42,7 +42,7 @@ const { status, data } = await apiInstance.uploadImage(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+[bearerAuth](../README.md#bearerAuth)
 
 ### HTTP request headers
 
@@ -54,10 +54,10 @@ const { status, data } = await apiInstance.uploadImage(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**403** | Forbidden - Insufficient permissions (requires ADMIN or MODERATOR role) |  -  |
-|**500** | Internal server error during upload |  -  |
-|**200** | Image uploaded successfully |  -  |
 |**401** | Unauthorized - JWT token missing or invalid |  -  |
+|**500** | Internal server error during upload |  -  |
 |**400** | Invalid file or file too large |  -  |
+|**200** | Image uploaded successfully |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

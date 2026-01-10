@@ -44,7 +44,7 @@ const { status, data } = await apiInstance.login(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 
@@ -96,7 +96,7 @@ const { status, data } = await apiInstance.register(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 

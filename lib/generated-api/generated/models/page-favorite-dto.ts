@@ -29,11 +29,11 @@ export interface PageFavoriteDto {
     'size'?: number;
     'content'?: Array<FavoriteDto>;
     'number'?: number;
-    'first'?: boolean;
-    'last'?: boolean;
     'numberOfElements'?: number;
     'sort'?: SortObject;
     'pageable'?: PageableObject;
+    'first'?: boolean;
+    'last'?: boolean;
     'empty'?: boolean;
 }
 

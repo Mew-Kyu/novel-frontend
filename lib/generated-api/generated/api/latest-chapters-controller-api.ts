@@ -47,10 +47,6 @@ export const LatestChaptersControllerApiAxiosParamCreator = function (configurat
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-            // authentication Bearer Authentication required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
             if (limit !== undefined) {
                 localVarQueryParameter['limit'] = limit;
             }

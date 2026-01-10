@@ -41,7 +41,7 @@ const { status, data } = await apiInstance.getLatestChapters(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 

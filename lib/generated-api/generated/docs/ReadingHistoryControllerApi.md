@@ -43,7 +43,7 @@ const { status, data } = await apiInstance.getReadingHistory(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 
@@ -94,7 +94,7 @@ const { status, data } = await apiInstance.updateReadingProgress(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 

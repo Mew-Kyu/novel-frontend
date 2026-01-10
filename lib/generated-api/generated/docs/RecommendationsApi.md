@@ -4,11 +4,108 @@ All URIs are relative to *http://localhost:8080*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
+|[**checkColdStartStatus**](#checkcoldstartstatus) | **GET** /api/recommendations/cold-start/check | Check if user is in cold-start state|
+|[**getColdStartRecommendations**](#getcoldstartrecommendations) | **GET** /api/recommendations/cold-start | Get cold-start recommendations|
 |[**getCollaborativeRecommendations**](#getcollaborativerecommendations) | **GET** /api/recommendations/collaborative | Get collaborative filtering recommendations|
 |[**getContentBasedRecommendations**](#getcontentbasedrecommendations) | **GET** /api/recommendations/content-based | Get content-based recommendations|
 |[**getRecommendationsForYou**](#getrecommendationsforyou) | **GET** /api/recommendations/for-you | Get personalized recommendations (CÃ³ thá» báº¡n sáº½ thÃ­ch)|
 |[**getSimilarStories**](#getsimilarstories) | **GET** /api/recommendations/similar/{storyId} | Get similar stories|
 |[**getSimilarStoriesPublic**](#getsimilarstoriespublic) | **GET** /api/recommendations/similar/{storyId}/public | Get similar stories (public)|
+
+# **checkColdStartStatus**
+> ColdStartStatusResponse checkColdStartStatus()
+
+Determine if user needs cold-start recommendations
+
+### Example
+
+```typescript
+import {
+    RecommendationsApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new RecommendationsApi(configuration);
+
+const { status, data } = await apiInstance.checkColdStartStatus();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**ColdStartStatusResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getColdStartRecommendations**
+> Array<StoryDto> getColdStartRecommendations()
+
+Get recommendations for new users with little to no interaction history.  **Features:** - Automatically detects if user is in cold-start state - Uses trending and popular stories for new users - Can be combined with onboarding preferences - Gradually transitions to personalized recommendations as user interacts
+
+### Example
+
+```typescript
+import {
+    RecommendationsApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new RecommendationsApi(configuration);
+
+let limit: number; // (optional) (default to 10)
+
+const { status, data } = await apiInstance.getColdStartRecommendations(
+    limit
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **limit** | [**number**] |  | (optional) defaults to 10|
+
+
+### Return type
+
+**Array<StoryDto>**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getCollaborativeRecommendations**
 > RecommendationDto getCollaborativeRecommendations()
@@ -46,7 +143,7 @@ const { status, data } = await apiInstance.getCollaborativeRecommendations(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+[bearerAuth](../README.md#bearerAuth)
 
 ### HTTP request headers
 
@@ -98,7 +195,7 @@ const { status, data } = await apiInstance.getContentBasedRecommendations(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+[bearerAuth](../README.md#bearerAuth)
 
 ### HTTP request headers
 
@@ -150,7 +247,7 @@ const { status, data } = await apiInstance.getRecommendationsForYou(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+[bearerAuth](../README.md#bearerAuth)
 
 ### HTTP request headers
 
@@ -205,7 +302,7 @@ const { status, data } = await apiInstance.getSimilarStories(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+[bearerAuth](../README.md#bearerAuth)
 
 ### HTTP request headers
 
@@ -260,7 +357,7 @@ const { status, data } = await apiInstance.getSimilarStoriesPublic(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 

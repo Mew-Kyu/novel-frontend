@@ -45,7 +45,7 @@ const { status, data } = await apiInstance.addToFavorites(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 
@@ -95,7 +95,7 @@ const { status, data } = await apiInstance.checkFavoriteStatus(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 
@@ -145,7 +145,7 @@ const { status, data } = await apiInstance.getFavoriteCount(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 
@@ -196,7 +196,7 @@ const { status, data } = await apiInstance.getUserFavorites(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 
@@ -246,7 +246,7 @@ void (empty response body)
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 

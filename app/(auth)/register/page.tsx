@@ -58,12 +58,12 @@ export default function RegisterPage() {
       });
 
       setSuccessMessage(
-        "Đăng ký thành công! Một email xác nhận đã được gửi đến hộp thư của bạn. Đang chuyển đến trang đăng nhập..."
+        "Đăng ký thành công! Vui lòng đăng nhập để tiếp tục thiết lập tài khoản của bạn..."
       );
 
-      // Redirect to login after 2 seconds
+      // Redirect to login after 2 seconds (user will be redirected to onboarding after login)
       setTimeout(() => {
-        router.push("/login");
+        router.push("/login?redirect=/onboarding");
       }, 2000);
     } catch (error: unknown) {
       const errorMsg =

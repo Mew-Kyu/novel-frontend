@@ -16,6 +16,7 @@ import { GenreGrid } from "@/components/home/GenreGrid";
 import { StoryGrid } from "@/components/home/StoryGrid";
 import { Pagination } from "@/components/common/Pagination";
 import { RecommendationSection } from "@/components/home/RecommendationSection";
+import { ColdStartRecommendations } from "@/components/recommendations";
 import { useAuthStore } from "@/lib/store/authStore";
 
 export default function HomePage() {
@@ -159,8 +160,15 @@ export default function HomePage() {
           <TrendingSection stories={trendingStories} />
         )}
 
-        {/* Personalized Recommendations - Only for authenticated users */}
-        {isAuthenticated && <RecommendationSection limit={12} />}
+        {/* Cold-Start Recommendations or Personalized Recommendations - Only for authenticated users */}
+        {isAuthenticated && (
+          <>
+            {/* ColdStartRecommendations will auto-detect if user needs it */}
+            <ColdStartRecommendations limit={12} />
+            {/* If not cold-start, show personalized recommendations */}
+            <RecommendationSection limit={12} />
+          </>
+        )}
 
         {/* Latest Updates */}
         {latestChapters.length > 0 && (

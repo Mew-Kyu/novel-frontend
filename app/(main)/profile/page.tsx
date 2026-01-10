@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { useToast } from "@/lib/contexts/ToastProvider";
 import { useRouter } from "next/navigation";
+import { UserAnalytics } from "@/components/profile";
+import Image from "next/image";
 
 export default function ProfilePage() {
   const { user, setUser } = useAuthStore();
@@ -61,7 +63,7 @@ export default function ProfilePage() {
     setLoading(true);
 
     try {
-      const response = await apiClient.userController.updateProfile({
+      const response = await apiClient.user.updateProfile({
         displayName,
       });
 
@@ -70,9 +72,10 @@ export default function ProfilePage() {
         "Cập nhật hồ sơ thành công! Email xác nhận đã được gửi.",
         "success"
       );
-    } catch (error: any) {
+    } catch (error) {
       showToast(
-        error?.response?.data?.message || "Không thể cập nhật hồ sơ",
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message || "Không thể cập nhật hồ sơ",
         "error"
       );
     } finally {
@@ -134,8 +137,11 @@ export default function ProfilePage() {
       setUser(updatedUser);
       setAvatarUrl(updatedUser.avatarUrl || "");
       showToast("Cập nhật ảnh đại diện thành công!", "success");
-    } catch (error: any) {
-      showToast(error?.message || "Không thể tải ảnh đại diện", "error");
+    } catch (error) {
+      showToast(
+        (error as Error)?.message || "Không thể tải ảnh đại diện",
+        "error"
+      );
     } finally {
       setUploadingAvatar(false);
     }
@@ -153,7 +159,7 @@ export default function ProfilePage() {
     }
 
     try {
-      await apiClient.userController.changePassword({
+      await apiClient.user.changePassword({
         currentPassword,
         newPassword,
       });
@@ -166,9 +172,10 @@ export default function ProfilePage() {
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
-    } catch (error: any) {
+    } catch (error) {
       showToast(
-        error?.response?.data?.message || "Không thể đổi mật khẩu",
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message || "Không thể đổi mật khẩu",
         "error"
       );
     }
@@ -183,10 +190,10 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4">
+    <div className="max-w-7xl mx-auto py-8 px-4">
       <h1 className="text-3xl font-bold mb-8">Hồ sơ của tôi</h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         {/* Avatar Section */}
         <Card className="p-6 lg:col-span-1">
           <h2 className="text-xl font-semibold mb-4">Ảnh đại diện</h2>
@@ -196,10 +203,11 @@ export default function ProfilePage() {
               onClick={handleAvatarClick}
             >
               {avatarUrl ? (
-                <img
+                <Image
                   src={avatarUrl}
                   alt="Ảnh đại diện"
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
                 />
               ) : (
                 <div className="w-full h-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-4xl font-bold text-gray-600 dark:text-gray-300">
@@ -306,6 +314,11 @@ export default function ProfilePage() {
             </div>
           </div>
         </Card>
+      </div>
+
+      {/* User Analytics Section */}
+      <div className="mt-8">
+        <UserAnalytics />
       </div>
 
       {/* Change Password Modal */}

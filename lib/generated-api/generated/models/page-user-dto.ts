@@ -29,11 +29,11 @@ export interface PageUserDto {
     'size'?: number;
     'content'?: Array<UserDto>;
     'number'?: number;
-    'first'?: boolean;
-    'last'?: boolean;
     'numberOfElements'?: number;
     'sort'?: SortObject;
     'pageable'?: PageableObject;
+    'first'?: boolean;
+    'last'?: boolean;
     'empty'?: boolean;
 }
 

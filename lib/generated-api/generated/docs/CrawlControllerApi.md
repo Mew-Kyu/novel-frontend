@@ -43,7 +43,7 @@ const { status, data } = await apiInstance.crawlSyosetuNovel(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 
@@ -86,7 +86,7 @@ This endpoint does not have any parameters.
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 

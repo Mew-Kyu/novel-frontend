@@ -29,11 +29,11 @@ export interface PageStoryDto {
     'size'?: number;
     'content'?: Array<StoryDto>;
     'number'?: number;
-    'first'?: boolean;
-    'last'?: boolean;
     'numberOfElements'?: number;
     'sort'?: SortObject;
     'pageable'?: PageableObject;
+    'first'?: boolean;
+    'last'?: boolean;
     'empty'?: boolean;
 }
 

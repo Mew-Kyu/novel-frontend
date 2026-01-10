@@ -65,6 +65,12 @@ export default function DashboardLayout({
       adminOnly: false,
     },
     {
+      name: "Metrics Gợi Ý",
+      href: "/dashboard/metrics",
+      icon: ChartArea,
+      adminOnly: true,
+    },
+    {
       name: "Quản lý người dùng",
       href: "/dashboard/users",
       icon: Users,

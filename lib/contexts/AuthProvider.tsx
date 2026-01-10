@@ -12,6 +12,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isInitialized, setIsInitialized] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
+  // Initialize token as early as possible (before hydration)
+  useEffect(() => {
+    // Load token from localStorage immediately on mount
+    if (typeof window !== "undefined") {
+      const storedToken = localStorage.getItem("accessToken");
+      if (storedToken) {
+        apiClient.setToken(storedToken);
+        console.log("✓ Token loaded from localStorage on mount");
+      }
+    }
+  }, []);
+
   useEffect(() => {
     // Wait for Zustand to hydrate from localStorage
     if (!_hasHydrated) {

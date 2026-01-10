@@ -22,12 +22,89 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
+import type { ColdStartStatusResponse } from '../models';
+// @ts-ignore
 import type { RecommendationDto } from '../models';
+// @ts-ignore
+import type { StoryDto } from '../models';
 /**
  * RecommendationsApi - axios parameter creator
  */
 export const RecommendationsApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
+        /**
+         * Determine if user needs cold-start recommendations
+         * @summary Check if user is in cold-start state
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        checkColdStartStatus: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/recommendations/cold-start/check`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Get recommendations for new users with little to no interaction history.  **Features:** - Automatically detects if user is in cold-start state - Uses trending and popular stories for new users - Can be combined with onboarding preferences - Gradually transitions to personalized recommendations as user interacts
+         * @summary Get cold-start recommendations
+         * @param {number} [limit] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getColdStartRecommendations: async (limit?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/recommendations/cold-start`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
         /**
          * Get recommendations based on users with similar tastes.  **Algorithm:** Collaborative Filtering (User-based) - Finds users who rated similar stories as you - Calculates similarity score using Jaccard similarity - Recommends highly-rated stories from similar users - Weighted by similarity score and rating value
          * @summary Get collaborative filtering recommendations
@@ -48,7 +125,7 @@ export const RecommendationsApiAxiosParamCreator = function (configuration?: Con
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-            // authentication Bearer Authentication required
+            // authentication bearerAuth required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
@@ -87,7 +164,7 @@ export const RecommendationsApiAxiosParamCreator = function (configuration?: Con
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-            // authentication Bearer Authentication required
+            // authentication bearerAuth required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
@@ -126,7 +203,7 @@ export const RecommendationsApiAxiosParamCreator = function (configuration?: Con
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-            // authentication Bearer Authentication required
+            // authentication bearerAuth required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
@@ -169,7 +246,7 @@ export const RecommendationsApiAxiosParamCreator = function (configuration?: Con
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-            // authentication Bearer Authentication required
+            // authentication bearerAuth required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
@@ -212,10 +289,6 @@ export const RecommendationsApiAxiosParamCreator = function (configuration?: Con
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-            // authentication Bearer Authentication required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
             if (limit !== undefined) {
                 localVarQueryParameter['limit'] = limit;
             }
@@ -240,6 +313,31 @@ export const RecommendationsApiAxiosParamCreator = function (configuration?: Con
 export const RecommendationsApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = RecommendationsApiAxiosParamCreator(configuration)
     return {
+        /**
+         * Determine if user needs cold-start recommendations
+         * @summary Check if user is in cold-start state
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async checkColdStartStatus(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ColdStartStatusResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.checkColdStartStatus(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['RecommendationsApi.checkColdStartStatus']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Get recommendations for new users with little to no interaction history.  **Features:** - Automatically detects if user is in cold-start state - Uses trending and popular stories for new users - Can be combined with onboarding preferences - Gradually transitions to personalized recommendations as user interacts
+         * @summary Get cold-start recommendations
+         * @param {number} [limit] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getColdStartRecommendations(limit?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<StoryDto>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getColdStartRecommendations(limit, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['RecommendationsApi.getColdStartRecommendations']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
         /**
          * Get recommendations based on users with similar tastes.  **Algorithm:** Collaborative Filtering (User-based) - Finds users who rated similar stories as you - Calculates similarity score using Jaccard similarity - Recommends highly-rated stories from similar users - Weighted by similarity score and rating value
          * @summary Get collaborative filtering recommendations
@@ -317,6 +415,25 @@ export const RecommendationsApiFactory = function (configuration?: Configuration
     const localVarFp = RecommendationsApiFp(configuration)
     return {
         /**
+         * Determine if user needs cold-start recommendations
+         * @summary Check if user is in cold-start state
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        checkColdStartStatus(options?: RawAxiosRequestConfig): AxiosPromise<ColdStartStatusResponse> {
+            return localVarFp.checkColdStartStatus(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Get recommendations for new users with little to no interaction history.  **Features:** - Automatically detects if user is in cold-start state - Uses trending and popular stories for new users - Can be combined with onboarding preferences - Gradually transitions to personalized recommendations as user interacts
+         * @summary Get cold-start recommendations
+         * @param {number} [limit] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getColdStartRecommendations(limit?: number, options?: RawAxiosRequestConfig): AxiosPromise<Array<StoryDto>> {
+            return localVarFp.getColdStartRecommendations(limit, options).then((request) => request(axios, basePath));
+        },
+        /**
          * Get recommendations based on users with similar tastes.  **Algorithm:** Collaborative Filtering (User-based) - Finds users who rated similar stories as you - Calculates similarity score using Jaccard similarity - Recommends highly-rated stories from similar users - Weighted by similarity score and rating value
          * @summary Get collaborative filtering recommendations
          * @param {number} [limit] 
@@ -375,6 +492,27 @@ export const RecommendationsApiFactory = function (configuration?: Configuration
  * RecommendationsApi - object-oriented interface
  */
 export class RecommendationsApi extends BaseAPI {
+    /**
+     * Determine if user needs cold-start recommendations
+     * @summary Check if user is in cold-start state
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public checkColdStartStatus(options?: RawAxiosRequestConfig) {
+        return RecommendationsApiFp(this.configuration).checkColdStartStatus(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Get recommendations for new users with little to no interaction history.  **Features:** - Automatically detects if user is in cold-start state - Uses trending and popular stories for new users - Can be combined with onboarding preferences - Gradually transitions to personalized recommendations as user interacts
+     * @summary Get cold-start recommendations
+     * @param {number} [limit] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getColdStartRecommendations(limit?: number, options?: RawAxiosRequestConfig) {
+        return RecommendationsApiFp(this.configuration).getColdStartRecommendations(limit, options).then((request) => request(this.axios, this.basePath));
+    }
+
     /**
      * Get recommendations based on users with similar tastes.  **Algorithm:** Collaborative Filtering (User-based) - Finds users who rated similar stories as you - Calculates similarity score using Jaccard similarity - Recommends highly-rated stories from similar users - Weighted by similarity score and rating value
      * @summary Get collaborative filtering recommendations

@@ -61,7 +61,7 @@ const { status, data } = await apiInstance.addGenreToStory(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+[bearerAuth](../README.md#bearerAuth)
 
 ### HTTP request headers
 
@@ -116,7 +116,7 @@ const { status, data } = await apiInstance.createStory(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+[bearerAuth](../README.md#bearerAuth)
 
 ### HTTP request headers
 
@@ -170,7 +170,7 @@ void (empty response body)
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 
@@ -220,7 +220,7 @@ const { status, data } = await apiInstance.getFeaturedStories(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 
@@ -280,7 +280,7 @@ const { status, data } = await apiInstance.getStories(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 
@@ -340,7 +340,7 @@ const { status, data } = await apiInstance.getStoriesWithMetadata(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 
@@ -390,7 +390,7 @@ const { status, data } = await apiInstance.getStoryById(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 
@@ -441,7 +441,7 @@ const { status, data } = await apiInstance.getStoryDetail(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 
@@ -495,7 +495,7 @@ const { status, data } = await apiInstance.getTrendingStories(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 
@@ -545,7 +545,7 @@ void (empty response body)
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 
@@ -589,7 +589,7 @@ This endpoint does not have any parameters.
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 
@@ -643,7 +643,7 @@ const { status, data } = await apiInstance.removeGenreFromStory(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+[bearerAuth](../README.md#bearerAuth)
 
 ### HTTP request headers
 
@@ -699,7 +699,7 @@ const { status, data } = await apiInstance.setFeatured(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 
@@ -753,7 +753,7 @@ const { status, data } = await apiInstance.setGenresForStory(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+[bearerAuth](../README.md#bearerAuth)
 
 ### HTTP request headers
 
@@ -808,7 +808,7 @@ const { status, data } = await apiInstance.translateStory(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 
@@ -858,7 +858,7 @@ const { status, data } = await apiInstance.translateStoryById(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+No authorization required
 
 ### HTTP request headers
 
@@ -913,7 +913,7 @@ const { status, data } = await apiInstance.updateStory(
 
 ### Authorization
 
-[Bearer Authentication](../README.md#Bearer Authentication)
+[bearerAuth](../README.md#bearerAuth)
 
 ### HTTP request headers
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -18,15 +18,17 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectUrl = searchParams.get("redirect");
   const { login, isAuthenticated } = useAuthStore();
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   // Redirect if already logged in
   useEffect(() => {
     if (isAuthenticated) {
-      router.push("/");
+      router.push(redirectUrl || "/");
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, router, redirectUrl]);
 
   const {
     register,
@@ -40,7 +42,7 @@ export default function LoginPage() {
     try {
       setErrorMessage("");
       await login(data.email, data.password);
-      router.push("/");
+      router.push(redirectUrl || "/");
     } catch (error: unknown) {
       setErrorMessage((error as Error).message || "Đăng nhập thất bại");
     }

@@ -51,7 +51,7 @@ export const CloudinaryApiAxiosParamCreator = function (configuration?: Configur
             const localVarQueryParameter = {} as any;
             const localVarFormParams = new ((configuration && configuration.formDataCtor) || FormData)();
 
-            // authentication Bearer Authentication required
+            // authentication bearerAuth required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
 

@@ -55,10 +55,6 @@ export const ReadingHistoryControllerApiAxiosParamCreator = function (configurat
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-            // authentication Bearer Authentication required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
             if (pageable !== undefined) {
                 for (const [key, value] of Object.entries(pageable)) {
                     localVarQueryParameter[key] = value;
@@ -96,10 +92,6 @@ export const ReadingHistoryControllerApiAxiosParamCreator = function (configurat
             const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
-            // authentication Bearer Authentication required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
 
     
