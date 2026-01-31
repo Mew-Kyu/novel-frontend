@@ -40,6 +40,8 @@ export default function HomePage() {
 
   useEffect(() => {
     loadStories(currentPage);
+    // Scroll to "All Stories" section when page changes
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, [currentPage]);
 
   const loadHomepageData = async () => {

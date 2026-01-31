@@ -62,6 +62,8 @@ export default function ChapterReaderPage() {
   const [allChapters, setAllChapters] = useState<ChapterOption[]>([]);
   const [loadingChapters, setLoadingChapters] = useState(false);
   const [showChapterList, setShowChapterList] = useState(false);
+  const [prevChapterId, setPrevChapterId] = useState<number | null>(null);
+  const [nextChapterId, setNextChapterId] = useState<number | null>(null);
 
   const contentRef = useRef<HTMLDivElement>(null);
   const lastSavedScrollRef = useRef(0);
@@ -94,10 +96,9 @@ export default function ChapterReaderPage() {
           content: data.translatedContent || data.rawContent || "",
           chapterNumber: data.chapterIndex || 0,
           storyId: data.storyId!,
-          storyTitle: "", // Not available in ChapterDto
-          previousChapterId:
-            data.chapterIndex && data.chapterIndex > 1 ? data.id! - 1 : null,
-          nextChapterId: data.id! + 1, // Simplified - actual prev/next logic would need additional API call
+          storyTitle: "",
+          previousChapterId: null,
+          nextChapterId: null,
         });
 
         // Track simple reading history (chapter opened)
@@ -118,6 +119,8 @@ export default function ChapterReaderPage() {
     };
 
     fetchChapter();
+    // Scroll to top when chapter changes
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, [chapterId, storyId]);
 
   // Fetch all chapters for the dropdown selector
@@ -146,6 +149,26 @@ export default function ChapterReaderPage() {
 
     fetchAllChapters();
   }, [storyId]);
+
+  // Update prev/next chapter IDs when allChapters or chapterId changes
+  useEffect(() => {
+    if (allChapters.length > 0 && chapterId) {
+      const currentIndex = allChapters.findIndex(
+        (ch) => ch.id === Number(chapterId),
+      );
+
+      if (currentIndex !== -1) {
+        setPrevChapterId(
+          currentIndex > 0 ? allChapters[currentIndex - 1].id : null,
+        );
+        setNextChapterId(
+          currentIndex < allChapters.length - 1
+            ? allChapters[currentIndex + 1].id
+            : null,
+        );
+      }
+    }
+  }, [allChapters, chapterId]);
 
   // Calculate scroll progress and auto-save bookmark
   const calculateProgress = useCallback(() => {
@@ -204,14 +227,14 @@ export default function ChapterReaderPage() {
   };
 
   const handlePrevChapter = () => {
-    if (chapter?.previousChapterId) {
-      router.push(`/story/${storyId}/chapter/${chapter.previousChapterId}`);
+    if (prevChapterId) {
+      router.push(`/story/${storyId}/chapter/${prevChapterId}`);
     }
   };
 
   const handleNextChapter = () => {
-    if (chapter?.nextChapterId) {
-      router.push(`/story/${storyId}/chapter/${chapter.nextChapterId}`);
+    if (nextChapterId) {
+      router.push(`/story/${storyId}/chapter/${nextChapterId}`);
     }
   };
 
@@ -426,9 +449,9 @@ export default function ChapterReaderPage() {
           <div className="flex items-center justify-between gap-3">
             {/* Previous Chapter Button */}
             <Button
-              variant={chapter.previousChapterId ? "secondary" : "ghost"}
+              variant={prevChapterId ? "secondary" : "ghost"}
               onClick={handlePrevChapter}
-              disabled={!chapter.previousChapterId}
+              disabled={!prevChapterId}
               className="h-10 flex-1 px-3 text-sm"
               title="Chương trước"
             >
@@ -450,9 +473,9 @@ export default function ChapterReaderPage() {
 
             {/* Next Chapter Button */}
             <Button
-              variant={chapter.nextChapterId ? "primary" : "ghost"}
+              variant={nextChapterId ? "primary" : "ghost"}
               onClick={handleNextChapter}
-              disabled={!chapter.nextChapterId}
+              disabled={!nextChapterId}
               className="h-10 flex-1 px-3 text-sm"
               title="Chương sau"
             >
