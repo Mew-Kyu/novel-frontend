@@ -42,7 +42,7 @@ export default function SearchPage() {
   // Filter states (chỉ dùng cho regular search)
   const [filterKeyword, setFilterKeyword] = useState("");
   const [selectedGenreId, setSelectedGenreId] = useState<number | undefined>(
-    genreIdParam ? Number(genreIdParam) : undefined
+    genreIdParam ? Number(genreIdParam) : undefined,
   );
   const [minRating, setMinRating] = useState<number | undefined>();
   const [sortBy, setSortBy] = useState<
@@ -54,6 +54,16 @@ export default function SearchPage() {
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
   const pageSize = 12;
+
+  // Sync selectedGenreId with URL params
+  useEffect(() => {
+    if (genreIdParam) {
+      setSelectedGenreId(Number(genreIdParam));
+    } else {
+      setSelectedGenreId(undefined);
+    }
+    setCurrentPage(0); // Reset to first page when genre changes
+  }, [genreIdParam]);
 
   // Fetch genres on mount
   useEffect(() => {
@@ -89,9 +99,9 @@ export default function SearchPage() {
             description: story.description || null,
             translatedDescription: story.translatedDescription || null,
             coverImageUrl: story.coverImageUrl || null,
-            averageRating: story.averageRating || null,
-            viewCount: story.viewCount || 0,
-            totalChapters: story.totalChapters || 0,
+            averageRating: null, // StoryDto doesn't have this
+            viewCount: 0, // StoryDto doesn't have this
+            totalChapters: 0, // StoryDto doesn't have this
             genres: story.genres
               ?.filter((g) => g.id && g.name)
               .map((g) => ({ id: g.id!, name: g.name! })),
@@ -109,7 +119,7 @@ export default function SearchPage() {
           // If not rate limit error, show generic error
           const errorMsg = getErrorMessage(
             error,
-            "Lỗi khi tìm kiếm nguyên nghĩa. Vui lòng thử lại."
+            "Lỗi khi tìm kiếm nguyên nghĩa. Vui lòng thử lại.",
           );
           toast.error(errorMsg);
         }
@@ -132,7 +142,7 @@ export default function SearchPage() {
           { page: currentPage, size: pageSize },
           filterKeyword || undefined,
           selectedGenreId,
-          undefined
+          undefined,
         );
 
         const data = response.data;
@@ -143,9 +153,9 @@ export default function SearchPage() {
           description: story.description || null,
           translatedDescription: story.translatedDescription || null,
           coverImageUrl: story.coverImageUrl || null,
-          averageRating: story.averageRating || null,
-          viewCount: story.viewCount || 0,
-          totalChapters: story.totalChapters || 0,
+          averageRating: story.averageRating ?? null,
+          viewCount: story.viewCount ?? 0,
+          totalChapters: story.totalChapters ?? 0,
           genres: story.genres
             ?.filter((g) => g.id && g.name)
             .map((g) => ({ id: g.id!, name: g.name! })),
@@ -196,8 +206,8 @@ export default function SearchPage() {
             {totalElements > 0
               ? `Tìm thấy ${totalElements} truyện`
               : isSemanticSearch
-              ? "Đang tìm kiếm với AI..."
-              : "Khám phá thư viện truyện"}
+                ? "Đang tìm kiếm với AI..."
+                : "Khám phá thư viện truyện"}
           </p>
         </div>
 
@@ -245,7 +255,7 @@ export default function SearchPage() {
                     value={selectedGenreId || ""}
                     onChange={(e) =>
                       setSelectedGenreId(
-                        e.target.value ? Number(e.target.value) : undefined
+                        e.target.value ? Number(e.target.value) : undefined,
                       )
                     }
                     aria-label="Chọn thể loại"
@@ -271,7 +281,7 @@ export default function SearchPage() {
                     value={minRating || ""}
                     onChange={(e) =>
                       setMinRating(
-                        e.target.value ? Number(e.target.value) : undefined
+                        e.target.value ? Number(e.target.value) : undefined,
                       )
                     }
                     aria-label="Chọn đánh giá tối thiểu"
@@ -375,7 +385,7 @@ export default function SearchPage() {
                     value={selectedGenreId || ""}
                     onChange={(e) =>
                       setSelectedGenreId(
-                        e.target.value ? Number(e.target.value) : undefined
+                        e.target.value ? Number(e.target.value) : undefined,
                       )
                     }
                     aria-label="Chọn thể loại"

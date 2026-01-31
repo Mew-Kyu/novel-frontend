@@ -82,18 +82,24 @@ export const StoryGrid: React.FC<StoryGridProps> = ({ stories }) => {
 
             {/* Stats */}
             <div className="flex items-center justify-between text-xs text-[rgb(var(--text-muted))] pt-3 border-t border-[rgb(var(--border))]">
-              <div className="flex items-center gap-1">
-                <Star className="w-3 h-3 text-yellow-500" />
-                <span>{story.averageRating?.toFixed(1) || "N/A"}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Eye className="w-3 h-3" />
-                <span>{story.viewCount}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <BookOpen className="w-3 h-3" />
-                <span>{story.totalChapters}</span>
-              </div>
+              {story.averageRating !== null && (
+                <div className="flex items-center gap-1">
+                  <Star className="w-3 h-3 text-yellow-500" />
+                  <span>{story.averageRating.toFixed(1)}</span>
+                </div>
+              )}
+              {story.viewCount > 0 && (
+                <div className="flex items-center gap-1">
+                  <Eye className="w-3 h-3" />
+                  <span>{story.viewCount}</span>
+                </div>
+              )}
+              {story.totalChapters > 0 && (
+                <div className="flex items-center gap-1">
+                  <BookOpen className="w-3 h-3" />
+                  <span>{story.totalChapters}</span>
+                </div>
+              )}
             </div>
           </Card>
         </Link>

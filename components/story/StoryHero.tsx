@@ -97,7 +97,7 @@ export function StoryHero({
   const [downloadMode, setDownloadMode] = useState<"all" | "range">("all");
   const [rangeStart, setRangeStart] = useState<string>("1");
   const [rangeEnd, setRangeEnd] = useState<string>(
-    story.totalChapters?.toString() || ""
+    story.totalChapters?.toString() || "",
   );
 
   const handleDownloadClick = () => {
@@ -134,7 +134,7 @@ export function StoryHero({
         end,
         {
           responseType: "blob",
-        }
+        },
       );
 
       // Download the blob

@@ -17,15 +17,43 @@ export default function StoryClientWrapper({
   children,
 }: StoryClientWrapperProps) {
   const [isFavorite, setIsFavorite] = useState(false);
+  const [currentStory, setCurrentStory] = useState(story);
   const { isAuthenticated } = useAuthStore();
 
+  // Update local story when prop changes
+  useEffect(() => {
+    setCurrentStory(story);
+  }, [story]);
+
+  // Increment view count when story is viewed
+  useEffect(() => {
+    if (!story.id) return;
+
+    const incrementView = async () => {
+      try {
+        await apiClient.stories.incrementViewCount(story.id!);
+        // Optimistically update the view count in local state
+        setCurrentStory((prev) => ({
+          ...prev,
+          viewCount: (prev.viewCount ?? 0) + 1,
+        }));
+      } catch (error) {
+        // Silently fail - view count increment is not critical
+        console.debug("Failed to increment view count:", error);
+      }
+    };
+
+    void incrementView();
+  }, [story.id]);
+
+  // Check favorite status
   useEffect(() => {
     if (!story.id || !isAuthenticated) return;
 
     const checkStatus = async () => {
       try {
         const response = await apiClient.favorites.checkFavoriteStatus(
-          story.id!
+          story.id!,
         );
         setIsFavorite(response.data.isFavorite || false);
       } catch (error) {
@@ -74,7 +102,7 @@ export default function StoryClientWrapper({
   return (
     <>
       <StoryHero
-        story={story}
+        story={currentStory}
         isFavorite={isFavorite}
         onToggleFavorite={handleToggleFavorite}
       />
