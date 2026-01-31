@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -60,6 +60,10 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
   const [translating, setTranslating] = useState(false);
   const [translationProgress, setTranslationProgress] = useState(0);
   const [translatingStory, setTranslatingStory] = useState(false);
+  const [translatingChapters, setTranslatingChapters] = useState<Set<number>>(
+    new Set(),
+  );
+  const pollingIntervalsRef = useRef<Map<number, NodeJS.Timeout>>(new Map());
   const [error, setError] = useState<string | null>(null);
   const [permissionError, setPermissionError] = useState(false);
   const [showCreateChapterModal, setShowCreateChapterModal] = useState(false);
@@ -84,6 +88,16 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
 
   const isAdmin = hasRole("ADMIN");
   const isModerator = hasRole("MODERATOR");
+
+  // Cleanup polling intervals on unmount
+  useEffect(() => {
+    return () => {
+      pollingIntervalsRef.current.forEach((interval) =>
+        clearInterval(interval),
+      );
+      pollingIntervalsRef.current.clear();
+    };
+  }, []);
 
   const {
     register,
@@ -177,7 +191,7 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
     if (current.includes(genreId)) {
       setValue(
         "genreIds",
-        current.filter((id) => id !== genreId)
+        current.filter((id) => id !== genreId),
       );
     } else {
       setValue("genreIds", [...current, genreId]);
@@ -211,7 +225,7 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
             // If not rate limit error, show generic error
             const errorMsg = getErrorMessage(
               embeddingError,
-              "Lỗi khi tạo embedding. Vui lòng thử lại."
+              "Lỗi khi tạo embedding. Vui lòng thử lại.",
             );
             toast.error(errorMsg);
           }
@@ -230,7 +244,7 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
 
   const handleTranslateUntranslated = () => {
     const untranslatedChapters = chapters.filter(
-      (ch) => ch.translateStatus !== "SUCCESS" && ch.id
+      (ch) => ch.translateStatus !== "SUCCESS" && ch.id,
     );
 
     if (untranslatedChapters.length === 0) {
@@ -241,7 +255,7 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
     const MAX_CHAPTERS_PER_BATCH = 3;
     const chaptersToTranslate = Math.min(
       untranslatedChapters.length,
-      MAX_CHAPTERS_PER_BATCH
+      MAX_CHAPTERS_PER_BATCH,
     );
     const remainingChapters = untranslatedChapters.length - chaptersToTranslate;
 
@@ -299,7 +313,7 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
     setTranslationProgress(0);
 
     const loadingToast = toast.loading(
-      `Đang dịch ${chaptersToTranslate} chương... Vui lòng đợi trong giây lát.`
+      `Đang dịch ${chaptersToTranslate} chương... Vui lòng đợi trong giây lát.`,
     );
 
     try {
@@ -324,7 +338,7 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
         toast.dismiss(loadingToast);
         toast.success(
           `Đã gửi yêu cầu dịch ${chaptersToTranslate} chương!\n\nQuá trình dịch đang diễn ra. Vui lòng quay lại sau vài phút để kiểm tra kết quả.`,
-          { duration: 8000 }
+          { duration: 8000 },
         );
         fetchChapters();
         setTranslating(false);
@@ -357,7 +371,7 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
         let timeLeft = retryAfterSeconds;
         const countdownToast = toast.error(
           `⚠️ ${errorMessage}\n\n⏱️ Vui lòng thử lại sau: ${timeLeft}s`,
-          { duration: retryAfterSeconds * 1000 }
+          { duration: retryAfterSeconds * 1000 },
         );
 
         const countdownInterval = setInterval(() => {
@@ -399,12 +413,34 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
   };
 
   const performReTranslateChapter = async (chapterId: number) => {
-    const loadingToast = toast.loading("Đang dịch lại chương...");
+    const loadingToast = toast.loading("Đang gửi yêu cầu dịch...");
     try {
-      await apiClient.chapters.translateChapter(storyId, chapterId);
+      const response = await apiClient.chapters.translateChapter(
+        storyId,
+        chapterId,
+      );
       toast.dismiss(loadingToast);
-      toast.success("Dịch lại chương thành công!", { duration: 5000 });
-      fetchChapters();
+
+      // Check translation status
+      const status = response.data?.translateStatus;
+      if (status === "PENDING") {
+        // Add to translating set
+        setTranslatingChapters((prev) => new Set(prev).add(chapterId));
+
+        toast("📝 Yêu cầu dịch đã được gửi! Đang theo dõi quá trình dịch...", {
+          duration: 5000,
+          icon: "⏳",
+        });
+
+        // Start polling for status
+        startPollingChapterStatus(chapterId);
+      } else if (status === "COMPLETED" || status === "SUCCESS") {
+        toast.success("Dịch chương thành công!", { duration: 5000 });
+        fetchChapters();
+      } else {
+        toast("Đã gửi yêu cầu dịch chương.", { duration: 5000 });
+        fetchChapters();
+      }
     } catch (error: unknown) {
       console.error("Re-translation failed:", error);
       toast.dismiss(loadingToast);
@@ -423,6 +459,73 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
         toast.error("❌ " + errorMessage, { duration: 5000 });
       }
     }
+  };
+
+  const startPollingChapterStatus = (chapterId: number) => {
+    // Clear existing interval if any
+    const existingInterval = pollingIntervalsRef.current.get(chapterId);
+    if (existingInterval) {
+      clearInterval(existingInterval);
+    }
+
+    let pollCount = 0;
+    const maxPolls = 60; // Poll for max 5 minutes (60 * 5s)
+
+    const interval = setInterval(async () => {
+      pollCount++;
+
+      try {
+        const response = await apiClient.chapters.getChapterById(
+          storyId,
+          chapterId,
+        );
+        const status = response.data?.translateStatus;
+
+        if (status === "SUCCESS" || status === "COMPLETED") {
+          // Translation completed
+          clearInterval(interval);
+          pollingIntervalsRef.current.delete(chapterId);
+          setTranslatingChapters((prev) => {
+            const newSet = new Set(prev);
+            newSet.delete(chapterId);
+            return newSet;
+          });
+
+          toast.success("✅ Dịch chương thành công!", { duration: 5000 });
+          fetchChapters();
+        } else if (status === "FAILED" || status === "ERROR") {
+          // Translation failed
+          clearInterval(interval);
+          pollingIntervalsRef.current.delete(chapterId);
+          setTranslatingChapters((prev) => {
+            const newSet = new Set(prev);
+            newSet.delete(chapterId);
+            return newSet;
+          });
+
+          toast.error("❌ Dịch chương thất bại!", { duration: 5000 });
+          fetchChapters();
+        } else if (pollCount >= maxPolls) {
+          // Timeout
+          clearInterval(interval);
+          pollingIntervalsRef.current.delete(chapterId);
+          setTranslatingChapters((prev) => {
+            const newSet = new Set(prev);
+            newSet.delete(chapterId);
+            return newSet;
+          });
+
+          toast(
+            "⏰ Quá trình dịch đang mất nhiều thời gian. Vui lòng tải lại trang để kiểm tra.",
+            { duration: 8000 },
+          );
+        }
+      } catch (error) {
+        console.error("Error polling chapter status:", error);
+      }
+    }, 5000); // Poll every 5 seconds
+
+    pollingIntervalsRef.current.set(chapterId, interval);
   };
 
   const handleTranslateStoryMetadata = () => {
@@ -464,7 +567,7 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
       // Handle other errors
       const errorMessage = getErrorMessage(
         error,
-        "Lỗi khi dịch thông tin truyện."
+        "Lỗi khi dịch thông tin truyện.",
       );
 
       if (errorMessage.includes("already being translated")) {
@@ -581,7 +684,7 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
       if (crawlRequest.startChapter && crawlRequest.endChapter) {
         if (crawlRequest.startChapter > crawlRequest.endChapter) {
           toast.error(
-            "Số chương bắt đầu phải nhỏ hơn hoặc bằng số chương kết thúc"
+            "Số chương bắt đầu phải nhỏ hơn hoặc bằng số chương kết thúc",
           );
           return;
         }
@@ -592,7 +695,7 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
     const loadingToast = toast.loading(
       autoCrawl
         ? "Đang tự động crawl chương tiếp theo..."
-        : "Các chương đang được crawl..."
+        : "Các chương đang được crawl...",
     );
 
     try {
@@ -608,7 +711,7 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
 
       toast.success(
         `Crawl hoàn tất: ${succeeded} thành công, ${failed} thất bại trong tổng số ${totalCrawled} chương`,
-        { duration: 5000 }
+        { duration: 5000 },
       );
 
       setCrawlStartChapter("");
@@ -864,12 +967,12 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
                     try {
                       await apiClient.stories.setFeatured(
                         storyId,
-                        e.target.checked
+                        e.target.checked,
                       );
                       toast.success(
                         e.target.checked
                           ? "Đã đánh dấu truyện nổi bật!"
-                          : "Đã bỏ đánh dấu truyện nổi bật!"
+                          : "Đã bỏ đánh dấu truyện nổi bật!",
                       );
                       fetchStory();
                     } catch (error) {
@@ -1037,7 +1140,7 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
             </button>
             <button
               onClick={handleTranslateUntranslated}
-              disabled={translating}
+              disabled={translating || translatingChapters.size > 0}
               className="flex-1 md:flex-none px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition whitespace-nowrap"
             >
               {translating ? (
@@ -1107,25 +1210,45 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
                   {chapter.translateStatus === "SUCCESS" ? (
                     <button
                       onClick={() => handleReTranslateChapter(chapter.id!)}
-                      className="px-3 py-1 text-sm text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition flex items-center gap-1"
+                      disabled={
+                        translatingChapters.has(chapter.id!) ||
+                        translatingChapters.size > 0
+                      }
+                      className="px-3 py-1 text-sm text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <RefreshCw size={14} />
-                      Dịch lại
+                      {translatingChapters.has(chapter.id!) ? (
+                        <Loader2 size={14} className="animate-spin" />
+                      ) : (
+                        <RefreshCw size={14} />
+                      )}
+                      {translatingChapters.has(chapter.id!)
+                        ? "Đang dịch..."
+                        : "Dịch lại"}
                     </button>
                   ) : (
                     <button
                       onClick={() => handleReTranslateChapter(chapter.id!)}
-                      className="px-3 py-1 text-sm text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30 rounded transition flex items-center gap-1"
+                      disabled={
+                        translatingChapters.has(chapter.id!) ||
+                        translatingChapters.size > 0
+                      }
+                      className="px-3 py-1 text-sm text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30 rounded transition flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <Languages size={14} />
-                      Dịch
+                      {translatingChapters.has(chapter.id!) ? (
+                        <Loader2 size={14} className="animate-spin" />
+                      ) : (
+                        <Languages size={14} />
+                      )}
+                      {translatingChapters.has(chapter.id!)
+                        ? "Đang dịch..."
+                        : "Dịch"}
                     </button>
                   )}
                   <button
                     onClick={() =>
                       handleDeleteChapter(
                         chapter.id!,
-                        chapter.title || `Chương ${chapter.chapterIndex}`
+                        chapter.title || `Chương ${chapter.chapterIndex}`,
                       )
                     }
                     className="px-3 py-1 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition flex items-center gap-1"
