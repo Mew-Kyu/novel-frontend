@@ -55,8 +55,13 @@ export const useAuthStore = create<AuthState>()(
             throw new Error("Phản hồi từ máy chủ không hợp lệ");
           }
 
-          // Save token
+          // Save token (this also saves to localStorage)
           apiClient.setToken(accessToken);
+
+          // Double-check token is saved
+          if (typeof window !== "undefined") {
+            localStorage.setItem("accessToken", accessToken);
+          }
 
           // Convert role to array of strings
           // Backend returns 'role' (singular) as RoleDto object, not 'roles' array
@@ -118,6 +123,10 @@ export const useAuthStore = create<AuthState>()(
 
       logout: () => {
         apiClient.clearToken();
+        // Also clear from localStorage directly
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("accessToken");
+        }
         set({
           user: null,
           isAuthenticated: false,
@@ -129,14 +138,23 @@ export const useAuthStore = create<AuthState>()(
         const token = apiClient.getToken();
         const { user, isAuthenticated } = get();
 
+        // Try to get token from localStorage if not in apiClient
+        let currentToken = token;
+        if (!currentToken && typeof window !== "undefined") {
+          currentToken = localStorage.getItem("accessToken");
+          if (currentToken) {
+            apiClient.setToken(currentToken);
+          }
+        }
+
         // If we have both token and user data (from persisted state), ensure sync
-        if (token && user) {
+        if (currentToken && user) {
           // Make sure apiClient has the token
-          apiClient.setToken(token);
+          apiClient.setToken(currentToken);
           if (!isAuthenticated) {
             set({ isAuthenticated: true });
           }
-        } else if (!token) {
+        } else if (!currentToken) {
           // No token - clear auth state
           set({ isAuthenticated: false, user: null });
         }
@@ -175,6 +193,6 @@ export const useAuthStore = create<AuthState>()(
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);
       },
-    }
-  )
+    },
+  ),
 );

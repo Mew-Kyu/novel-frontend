@@ -9,18 +9,21 @@ import {
   Loader2,
   Bookmark,
   BookmarkCheck,
+  ChevronDown,
+  List,
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import apiClient from "@/lib/generated-api";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { Modal } from "@/components/ui/Modal";
 
 const ThemeToggle = dynamic(
   () =>
     import("@/components/common/ThemeToggle").then((mod) => ({
       default: mod.ThemeToggle,
     })),
-  { ssr: false }
+  { ssr: false },
 );
 
 interface ChapterDetail {
@@ -32,6 +35,12 @@ interface ChapterDetail {
   storyTitle: string;
   previousChapterId?: number | null;
   nextChapterId?: number | null;
+}
+
+interface ChapterOption {
+  id: number;
+  chapterIndex: number;
+  title: string;
 }
 
 export default function ChapterReaderPage() {
@@ -50,6 +59,9 @@ export default function ChapterReaderPage() {
   const [isSavingBookmark, setIsSavingBookmark] = useState(false);
   const [showBookmarkSuccess, setShowBookmarkSuccess] = useState(false);
   const [showBookmarkButton, setShowBookmarkButton] = useState(false);
+  const [allChapters, setAllChapters] = useState<ChapterOption[]>([]);
+  const [loadingChapters, setLoadingChapters] = useState(false);
+  const [showChapterList, setShowChapterList] = useState(false);
 
   const contentRef = useRef<HTMLDivElement>(null);
   const lastSavedScrollRef = useRef(0);
@@ -68,7 +80,7 @@ export default function ChapterReaderPage() {
         // Fetch chapter detail
         const response = await apiClient.chapters.getChapterById(
           Number(storyId),
-          Number(chapterId)
+          Number(chapterId),
         );
 
         const data = response.data;
@@ -107,6 +119,33 @@ export default function ChapterReaderPage() {
 
     fetchChapter();
   }, [chapterId, storyId]);
+
+  // Fetch all chapters for the dropdown selector
+  useEffect(() => {
+    const fetchAllChapters = async () => {
+      try {
+        setLoadingChapters(true);
+        const response = await apiClient.chapters.getChaptersByStoryId(
+          Number(storyId),
+        );
+
+        const chaptersData = response.data || [];
+        const chapterOptions = chaptersData.map((ch) => ({
+          id: ch.id!,
+          chapterIndex: ch.chapterIndex || 0,
+          title: ch.title || ch.translatedTitle || `Chương ${ch.chapterIndex}`,
+        }));
+
+        setAllChapters(chapterOptions);
+      } catch (err) {
+        console.warn("Failed to fetch all chapters:", err);
+      } finally {
+        setLoadingChapters(false);
+      }
+    };
+
+    fetchAllChapters();
+  }, [storyId]);
 
   // Calculate scroll progress and auto-save bookmark
   const calculateProgress = useCallback(() => {
@@ -174,6 +213,11 @@ export default function ChapterReaderPage() {
     if (chapter?.nextChapterId) {
       router.push(`/story/${storyId}/chapter/${chapter.nextChapterId}`);
     }
+  };
+
+  const handleChapterChange = (id: number) => {
+    router.push(`/story/${storyId}/chapter/${id}`);
+    setShowChapterList(false);
   };
 
   const increaseFontSize = () => {
@@ -377,33 +421,100 @@ export default function ChapterReaderPage() {
       )}
 
       {/* Navigation Buttons (Fixed Bottom) */}
-      <div className="fixed bottom-0 left-0 right-0 bg-[rgb(var(--card))] border-t border-[rgb(var(--border))] shadow-lg">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between gap-4">
+      <div className="fixed bottom-0 left-0 right-0 bg-[rgb(var(--card))] border-t border-[rgb(var(--border))] shadow-lg z-30 pb-safe">
+        <div className="max-w-4xl mx-auto px-4 py-3">
+          <div className="flex items-center justify-between gap-3">
+            {/* Previous Chapter Button */}
             <Button
-              variant={chapter.previousChapterId ? "primary" : "ghost"}
-              size="md"
+              variant={chapter.previousChapterId ? "secondary" : "ghost"}
               onClick={handlePrevChapter}
               disabled={!chapter.previousChapterId}
-              className="flex-1"
+              className="h-10 flex-1 px-3 text-sm"
+              title="Chương trước"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Chương trước
+              <ArrowLeft className="w-4 h-4 md:mr-2" />
+              <span className="hidden md:inline">Chương trước</span>
             </Button>
 
+            {/* Chapter Selector Trigger - Central Button */}
+            <button
+              onClick={() => setShowChapterList(true)}
+              className="flex items-center justify-center gap-2 h-10 px-3 flex-1 max-w-[14rem] bg-[rgb(var(--bg))] hover:bg-[rgb(var(--card-hover))] border border-[rgb(var(--border))] rounded-lg font-medium text-[rgb(var(--text))] text-sm transition-all active:scale-95"
+            >
+              <List className="w-4 h-4 text-[rgb(var(--text-muted))]" />
+              <span className="truncate max-w-[10ch] md:max-w-[20ch]">
+                {loadingChapters ? "..." : `Chương ${chapter.chapterNumber}`}
+              </span>
+              <ChevronDown className="w-3 h-3 text-[rgb(var(--text-muted))]" />
+            </button>
+
+            {/* Next Chapter Button */}
             <Button
               variant={chapter.nextChapterId ? "primary" : "ghost"}
-              size="md"
               onClick={handleNextChapter}
               disabled={!chapter.nextChapterId}
-              className="flex-1"
+              className="h-10 flex-1 px-3 text-sm"
+              title="Chương sau"
             >
-              Chương sau
-              <ArrowRight className="w-4 h-4 ml-2" />
+              <span className="hidden md:inline">Chương sau</span>
+              <ArrowRight className="w-4 h-4 md:ml-2" />
             </Button>
           </div>
         </div>
       </div>
+
+      {/* Chapter Selection Modal */}
+      <Modal
+        isOpen={showChapterList}
+        onClose={() => setShowChapterList(false)}
+        title="Danh sách chương"
+        className="h-[80vh] md:h-[70vh] p-0"
+      >
+        <div className="flex-1 -mx-6 -my-6">
+          <div className="p-4 space-y-2">
+            {loadingChapters ? (
+              <div className="text-center py-8 text-[rgb(var(--text-muted))]">
+                <div className="flex justify-center mb-2">
+                  <Loader2 className="w-6 h-6 animate-spin" />
+                </div>
+                Đang tải danh sách...
+              </div>
+            ) : (
+              allChapters.map((ch) => (
+                <button
+                  key={ch.id}
+                  onClick={() => handleChapterChange(ch.id)}
+                  className={`w-full text-left px-4 py-3 rounded-lg transition-colors border ${
+                    Number(chapterId) === ch.id
+                      ? "bg-[rgb(var(--primary-light))] border-[rgb(var(--primary))] text-[rgb(var(--primary))]"
+                      : "bg-[rgb(var(--card))] hover:bg-[rgb(var(--card-hover))] border-[rgb(var(--border))]"
+                  }`}
+                >
+                  <div className="flex justify-between items-start gap-2">
+                    <span className="font-medium text-sm">
+                      Chương {ch.chapterIndex}
+                    </span>
+                    {Number(chapterId) === ch.id && (
+                      <span className="text-xs bg-[rgb(var(--primary))] text-white px-1.5 py-0.5 rounded">
+                        Đang đọc
+                      </span>
+                    )}
+                  </div>
+                  <div
+                    className={`text-base mt-1 truncate ${
+                      Number(chapterId) === ch.id
+                        ? "text-[rgb(var(--text))]"
+                        : "text-[rgb(var(--text-muted))]"
+                    }`}
+                  >
+                    {ch.title}
+                  </div>
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

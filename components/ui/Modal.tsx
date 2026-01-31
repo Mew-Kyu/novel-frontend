@@ -55,12 +55,12 @@ export function Modal({
     >
       <div
         className={cn(
-          "relative w-full max-w-lg bg-white dark:bg-zinc-900 border text-foreground rounded-lg shadow-lg animate-in zoom-in-95 duration-200",
-          className
+          "relative w-full max-w-lg bg-white dark:bg-zinc-900 border text-foreground rounded-lg shadow-lg animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]",
+          className,
         )}
         suppressHydrationWarning
       >
-        <div className="flex items-center justify-between p-6 border-b">
+        <div className="flex items-center justify-between p-6 border-b shrink-0">
           <h2 className="text-lg font-semibold leading-none tracking-tight">
             {title}
           </h2>
@@ -72,9 +72,9 @@ export function Modal({
             <span className="sr-only">Close</span>
           </button>
         </div>
-        <div className="p-6">{children}</div>
+        <div className="p-6 overflow-y-auto flex-1 min-h-0">{children}</div>
       </div>
     </div>,
-    document.body
+    document.body,
   );
 }

@@ -63,9 +63,6 @@ export class NovelApiClient {
       const storedToken = localStorage.getItem("accessToken");
       if (storedToken) {
         this.token = storedToken;
-        console.log("✅ ApiClient initialized with token from localStorage");
-      } else {
-        console.log("⚠️ ApiClient initialized without token");
       }
     }
 
@@ -80,21 +77,12 @@ export class NovelApiClient {
         const token = this.getToken();
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
-          console.log(
-            `🔑 Token attached to ${config.method?.toUpperCase()} ${config.url}`
-          );
-        } else {
-          console.warn(
-            `⚠️ No token found for ${config.method?.toUpperCase()} ${
-              config.url
-            }`
-          );
         }
         return config;
       },
       (error) => {
         return Promise.reject(error);
-      }
+      },
     );
 
     // Setup response interceptor to handle 401/403
@@ -108,7 +96,7 @@ export class NovelApiClient {
           }
         }
         return Promise.reject(error);
-      }
+      },
     );
 
     this.config = new Configuration({
@@ -120,104 +108,104 @@ export class NovelApiClient {
     this.readingHistory = new ReadingHistoryControllerApi(
       this.config,
       basePath,
-      this.axiosInstance
+      this.axiosInstance,
     );
     this.recommendationMetrics = new RecommendationMetricsApi(
       this.config,
       basePath,
-      this.axiosInstance
+      this.axiosInstance,
     );
     this.recommendations = new RecommendationsApi(
       this.config,
       basePath,
-      this.axiosInstance
+      this.axiosInstance,
     );
     this.health = new HealthControllerApi(
       this.config,
       basePath,
-      this.axiosInstance
+      this.axiosInstance,
     );
     this.latestChapters = new LatestChaptersControllerApi(
       this.config,
       basePath,
-      this.axiosInstance
+      this.axiosInstance,
     );
     this.ratings = new RatingControllerApi(
       this.config,
       basePath,
-      this.axiosInstance
+      this.axiosInstance,
     );
     this.user = new UserManagementApi(
       this.config,
       basePath,
-      this.axiosInstance
+      this.axiosInstance,
     );
     this.userOnboarding = new UserOnboardingApi(
       this.config,
       basePath,
-      this.axiosInstance
+      this.axiosInstance,
     );
     this.userProfileAnalytics = new UserProfileAnalyticsApi(
       this.config,
       basePath,
-      this.axiosInstance
+      this.axiosInstance,
     );
     this.stats = new StatsControllerApi(
       this.config,
       basePath,
-      this.axiosInstance
+      this.axiosInstance,
     );
     this.stories = new StoryManagementApi(
       this.config,
       basePath,
-      this.axiosInstance
+      this.axiosInstance,
     );
     this.authentication = new AuthenticationApi(
       this.config,
       basePath,
-      this.axiosInstance
+      this.axiosInstance,
     );
     this.chapters = new ChapterControllerApi(
       this.config,
       basePath,
-      this.axiosInstance
+      this.axiosInstance,
     );
     this.cloudinary = new CloudinaryApi(
       this.config,
       basePath,
-      this.axiosInstance
+      this.axiosInstance,
     );
     this.admin = new AdminControllerApi(
       this.config,
       basePath,
-      this.axiosInstance
+      this.axiosInstance,
     );
     this.ai = new AiControllerApi(this.config, basePath, this.axiosInstance);
     this.export = new ExportApi(this.config, basePath, this.axiosInstance);
     this.favorites = new FavoriteControllerApi(
       this.config,
       basePath,
-      this.axiosInstance
+      this.axiosInstance,
     );
     this.genres = new GenreControllerApi(
       this.config,
       basePath,
-      this.axiosInstance
+      this.axiosInstance,
     );
     this.comments = new CommentControllerApi(
       this.config,
       basePath,
-      this.axiosInstance
+      this.axiosInstance,
     );
     this.crawl = new CrawlControllerApi(
       this.config,
       basePath,
-      this.axiosInstance
+      this.axiosInstance,
     );
     this.crawlJobs = new CrawlJobControllerApi(
       this.config,
       basePath,
-      this.axiosInstance
+      this.axiosInstance,
     );
   }
 
@@ -237,15 +225,14 @@ export class NovelApiClient {
   }
 
   getToken(): string | null {
-    if (!this.token && typeof window !== "undefined") {
-      this.token = localStorage.getItem("accessToken");
-      if (this.token) {
-        console.log(
-          "🔑 Token loaded from localStorage:",
-          this.token.substring(0, 20) + "..."
-        );
+    // Always check localStorage first for most up-to-date token
+    if (typeof window !== "undefined") {
+      const storedToken = localStorage.getItem("accessToken");
+      if (storedToken && storedToken !== this.token) {
+        this.token = storedToken;
       }
     }
+
     return this.token;
   }
 
