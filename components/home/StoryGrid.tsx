@@ -82,7 +82,7 @@ export const StoryGrid: React.FC<StoryGridProps> = ({ stories }) => {
 
             {/* Stats */}
             <div className="flex items-center justify-between text-xs text-[rgb(var(--text-muted))] pt-3 border-t border-[rgb(var(--border))]">
-              {story.averageRating !== null && (
+              {story.averageRating != null && (
                 <div className="flex items-center gap-1">
                   <Star className="w-3 h-3 text-yellow-500" />
                   <span>{story.averageRating.toFixed(1)}</span>

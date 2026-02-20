@@ -66,10 +66,29 @@ export function StoryHero({
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [showDownloadModal, setShowDownloadModal] = useState(false);
+  const [firstChapterId, setFirstChapterId] = useState<number | null>(null);
+  const [lastChapterId, setLastChapterId] = useState<number | null>(null);
 
   useEffect(() => {
     setStory(initialStory);
   }, [initialStory]);
+
+  // Fetch first and last chapter IDs
+  useEffect(() => {
+    if (!initialStory.id) return;
+    apiClient.chapters
+      .getChaptersByStoryId(initialStory.id)
+      .then((res) => {
+        const chapters = res.data;
+        if (chapters && chapters.length > 0) {
+          setFirstChapterId(chapters[0].id ?? null);
+          setLastChapterId(chapters[chapters.length - 1].id ?? null);
+        }
+      })
+      .catch(() => {
+        // Silently fail; fallback handled below
+      });
+  }, [initialStory.id]);
 
   const handleRateSuccess = async () => {
     if (!story.id) return;
@@ -156,8 +175,8 @@ export function StoryHero({
     }
   };
 
-  const firstChapterId = story.latestChapter?.id || 1; // Fallback to 1 if no latest chapter
-  const latestChapterId = story.latestChapter?.id || 1;
+  const resolvedFirstChapterId = firstChapterId ?? story.latestChapter?.id ?? 1;
+  const resolvedLatestChapterId = lastChapterId ?? story.latestChapter?.id ?? 1;
 
   return (
     <div className="relative" suppressHydrationWarning>
@@ -364,14 +383,14 @@ export function StoryHero({
 
             {/* Action Buttons */}
             <div className="flex flex-wrap gap-3" suppressHydrationWarning>
-              <a href={`/story/${story.id}/chapter/${firstChapterId}`}>
+              <a href={`/story/${story.id}/chapter/${resolvedFirstChapterId}`}>
                 <Button size="lg">
                   <BookOpen className="w-4 h-4 mr-2" />
                   Đọc từ đầu
                 </Button>
               </a>
 
-              <a href={`/story/${story.id}/chapter/${latestChapterId}`}>
+              <a href={`/story/${story.id}/chapter/${resolvedLatestChapterId}`}>
                 <Button size="lg" variant="secondary">
                   Đọc mới nhất
                 </Button>
