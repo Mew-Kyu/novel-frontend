@@ -18,13 +18,23 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+  isColdStart: boolean;
+  onboardingRequired: boolean;
   _hasHydrated: boolean;
   setHasHydrated: (hasHydrated: boolean) => void;
   login: (email: string, password: string) => Promise<void>;
+  register: (
+    displayName: string,
+    email: string,
+    password: string,
+  ) => Promise<void>;
   logout: () => void;
   checkAuth: () => void;
   hasRole: (role: string) => boolean;
   setUser: (user: UserDto) => void;
+  setIsColdStart: (value: boolean) => void;
+  setOnboardingRequired: (value: boolean) => void;
+  refreshColdStartStatus: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -34,6 +44,8 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       isLoading: false,
       error: null,
+      isColdStart: false,
+      onboardingRequired: false,
       _hasHydrated: false,
 
       setHasHydrated: (hasHydrated: boolean) => {
@@ -48,7 +60,8 @@ export const useAuthStore = create<AuthState>()(
             password,
           });
 
-          const { accessToken, user } = response.data;
+          const { accessToken, user, isColdStart, onboardingRequired } =
+            response.data;
 
           // Validate response data
           if (!accessToken || !user) {
@@ -81,6 +94,8 @@ export const useAuthStore = create<AuthState>()(
             isAuthenticated: true,
             isLoading: false,
             error: null,
+            isColdStart: isColdStart ?? true,
+            onboardingRequired: onboardingRequired ?? false,
           });
         } catch (error: unknown) {
           let errorMessage = "Đăng nhập thất bại";
@@ -121,6 +136,70 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
+      register: async (
+        displayName: string,
+        email: string,
+        password: string,
+      ) => {
+        set({ isLoading: true, error: null });
+        try {
+          const response = await apiClient.authentication.register({
+            displayName,
+            email,
+            password,
+          });
+
+          const { accessToken, user, isColdStart, onboardingRequired } =
+            response.data;
+
+          if (!accessToken || !user) {
+            throw new Error("Phản hồi từ máy chủ không hợp lệ");
+          }
+
+          apiClient.setToken(accessToken);
+          if (typeof window !== "undefined") {
+            localStorage.setItem("accessToken", accessToken);
+          }
+
+          const rolesArray = user.role?.name ? [user.role.name] : ["USER"];
+
+          set({
+            user: {
+              id: user.id!,
+              email: user.email!,
+              displayName: user.displayName || user.email || "User",
+              roles: rolesArray,
+              avatarUrl: user.avatarUrl,
+              createdAt: user.createdAt,
+              active: user.active,
+            },
+            isAuthenticated: true,
+            isLoading: false,
+            error: null,
+            isColdStart: isColdStart ?? true,
+            onboardingRequired: onboardingRequired ?? true,
+          });
+        } catch (error: unknown) {
+          let errorMessage = "Đăng ký thất bại";
+          if (error instanceof Error && "response" in error) {
+            const apiError = error as {
+              response?: { data?: { message?: string } };
+            };
+            const apiMessage = apiError.response?.data?.message;
+            if (apiMessage) {
+              errorMessage = apiMessage;
+            }
+          }
+          set({
+            error: errorMessage,
+            isLoading: false,
+            isAuthenticated: false,
+            user: null,
+          });
+          throw new Error(errorMessage);
+        }
+      },
+
       logout: () => {
         apiClient.clearToken();
         // Also clear from localStorage directly
@@ -131,7 +210,29 @@ export const useAuthStore = create<AuthState>()(
           user: null,
           isAuthenticated: false,
           error: null,
+          isColdStart: false,
+          onboardingRequired: false,
         });
+      },
+
+      setIsColdStart: (value: boolean) => {
+        set({ isColdStart: value });
+      },
+
+      setOnboardingRequired: (value: boolean) => {
+        set({ onboardingRequired: value });
+      },
+
+      refreshColdStartStatus: async () => {
+        const token = apiClient.getToken();
+        if (!token) return;
+        try {
+          const response =
+            await apiClient.recommendations.checkColdStartStatus();
+          set({ isColdStart: response.data.isColdStart ?? false });
+        } catch {
+          // Silently ignore errors — keep existing state
+        }
       },
 
       checkAuth: () => {
@@ -189,6 +290,8 @@ export const useAuthStore = create<AuthState>()(
       partialize: (state) => ({
         user: state.user,
         isAuthenticated: state.isAuthenticated,
+        isColdStart: state.isColdStart,
+        onboardingRequired: state.onboardingRequired,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);

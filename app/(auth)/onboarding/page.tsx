@@ -7,11 +7,13 @@ import {
   OnboardingRecommendations,
 } from "@/components/onboarding";
 import { useOnboardingStatus } from "@/lib/hooks/useOnboarding";
+import { useAuthStore } from "@/lib/store/authStore";
 
 export default function OnboardingPage() {
   const router = useRouter();
   const [showRecommendations, setShowRecommendations] = useState(false);
   const { status, loading } = useOnboardingStatus();
+  const { setOnboardingRequired } = useAuthStore();
 
   // If already completed onboarding, redirect to home
   if (!loading && status?.completed) {
@@ -20,6 +22,8 @@ export default function OnboardingPage() {
   }
 
   const handleFormComplete = () => {
+    // Mark onboarding as done in global state
+    setOnboardingRequired(false);
     setShowRecommendations(true);
   };
 

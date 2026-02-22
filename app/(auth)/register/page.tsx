@@ -6,7 +6,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Link from "next/link";
-import apiClient from "@/lib/generated-api";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { useAuthStore } from "@/lib/store/authStore";
@@ -27,7 +26,7 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, register: registerUser } = useAuthStore();
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [successMessage, setSuccessMessage] = useState<string>("");
 
@@ -51,26 +50,18 @@ export default function RegisterPage() {
       setErrorMessage("");
       setSuccessMessage("");
 
-      await apiClient.authentication.register({
-        displayName: data.displayName,
-        email: data.email,
-        password: data.password,
-      });
+      await registerUser(data.displayName, data.email, data.password);
 
-      setSuccessMessage(
-        "Đăng ký thành công! Vui lòng đăng nhập để tiếp tục thiết lập tài khoản của bạn..."
-      );
-
-      // Redirect to login after 2 seconds (user will be redirected to onboarding after login)
-      setTimeout(() => {
-        router.push("/login?redirect=/onboarding");
-      }, 2000);
+      // After register, auto-login is done; redirect based on onboardingRequired
+      const { onboardingRequired } = useAuthStore.getState();
+      if (onboardingRequired) {
+        router.push("/onboarding");
+      } else {
+        router.push("/");
+      }
     } catch (error: unknown) {
       const errorMsg =
-        error instanceof Error && "response" in error
-          ? (error as { response?: { data?: { message?: string } } }).response
-              ?.data?.message || "Đăng ký thất bại"
-          : "Đăng ký thất bại";
+        error instanceof Error ? error.message : "Đăng ký thất bại";
       setErrorMessage(errorMsg);
     }
   };

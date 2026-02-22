@@ -42,7 +42,13 @@ export default function LoginPage() {
     try {
       setErrorMessage("");
       await login(data.email, data.password);
-      router.push(redirectUrl || "/");
+      // Read fresh state after login to decide redirect
+      const { onboardingRequired } = useAuthStore.getState();
+      if (onboardingRequired) {
+        router.push("/onboarding");
+      } else {
+        router.push(redirectUrl || "/");
+      }
     } catch (error: unknown) {
       setErrorMessage((error as Error).message || "Đăng nhập thất bại");
     }

@@ -20,7 +20,7 @@ import { ColdStartRecommendations } from "@/components/recommendations";
 import { useAuthStore } from "@/lib/store/authStore";
 
 export default function HomePage() {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, isColdStart } = useAuthStore();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -162,15 +162,13 @@ export default function HomePage() {
           <TrendingSection stories={trendingStories} />
         )}
 
-        {/* Cold-Start Recommendations or Personalized Recommendations - Only for authenticated users */}
-        {isAuthenticated && (
-          <>
-            {/* ColdStartRecommendations will auto-detect if user needs it */}
+        {/* Recommendations — cold-start OR personalized, never both */}
+        {isAuthenticated &&
+          (isColdStart ? (
             <ColdStartRecommendations limit={12} />
-            {/* If not cold-start, show personalized recommendations */}
+          ) : (
             <RecommendationSection limit={12} />
-          </>
-        )}
+          ))}
 
         {/* Latest Updates */}
         {latestChapters.length > 0 && (

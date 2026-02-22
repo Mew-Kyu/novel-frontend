@@ -2,7 +2,7 @@
 /* eslint-disable */
 /**
  * Novel Backend API
- * ## Novel Reading Platform API  Complete REST API for managing novels, chapters, users, and more.  ### Features: - ð Story and Chapter Management - ð JWT Authentication - â­ Favorites and Ratings - ð¬ Comments - ð Reading History - ð¤ AI-powered Recommendations - ð·ï¸ Web Crawling for content  ### Authentication: Most endpoints require JWT authentication. 1. Login via `/api/auth/login` 2. Use the returned `accessToken` in the Authorization header 3. Format: `Bearer {token}` 
+ * ## Novel Reading Platform API  Complete REST API for managing novels, chapters, users, and more.  ### Features: - ð Story and Chapter Management - ð JWT Authentication - â­ Favorites and Ratings - ð¬ Comments - ð Reading History - ð¤ AI-powered Recommendations - ð·ï¸ Web Crawling for content  ### Authentication: Most endpoints require JWT authentication. 1. Login via `/api/auth/login` 2. Use the returned `accessToken` in the Authorization header 3. Format: `Bearer {token}`
  *
  * The version of the OpenAPI document: 1.0.0
  * Contact: support@novel-backend.com
@@ -12,14 +12,20 @@
  * Do not edit the class manually.
  */
 
-
 // May contain unused imports in some cases
 // @ts-ignore
-import type { UserDto } from './user-dto';
+import type { UserDto } from "./user-dto";
 
 export interface AuthResponse {
-    'accessToken'?: string;
-    'refreshToken'?: string;
-    'user'?: UserDto;
+  accessToken?: string;
+  refreshToken?: string;
+  user?: UserDto;
+  /**
+   * True if this user does not yet have enough interactions for personalized recommendations
+   */
+  isColdStart?: boolean;
+  /**
+   * True if the user has not yet completed onboarding preferences
+   */
+  onboardingRequired?: boolean;
 }
-

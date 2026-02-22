@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  useColdStartStatus,
-  useColdStartRecommendations,
-} from "@/lib/hooks/useColdStart";
+import { useColdStartRecommendations } from "@/lib/hooks/useColdStart";
 import { StoryDto, GenreDto } from "@/lib/generated-api/generated";
 import Link from "next/link";
 import Image from "next/image";
@@ -16,18 +13,8 @@ interface ColdStartRecommendationsProps {
 export const ColdStartRecommendations = ({
   limit = 12,
 }: ColdStartRecommendationsProps) => {
-  const { status, loading: statusLoading } = useColdStartStatus();
   const { recommendations, loading, error, refetch } =
     useColdStartRecommendations(limit);
-
-  // Don't show if not in cold-start state
-  if (statusLoading) {
-    return null;
-  }
-
-  if (!status?.isColdStart) {
-    return null;
-  }
 
   if (loading) {
     return (
@@ -71,9 +58,7 @@ export const ColdStartRecommendations = ({
             </p>
             <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 text-sm">
               <span className="font-semibold">
-                {status.recommendedStrategy === "NEW_USER"
-                  ? "🆕 Truyện phổ biến nhất"
-                  : "🔥 Truyện mới nhất"}
+                🔥 Truyện phổ biến &amp; được đánh giá cao nhất
               </span>
             </div>
           </div>
@@ -88,9 +73,7 @@ export const ColdStartRecommendations = ({
             Gợi ý cho bạn
           </h3>
           <p className="text-gray-600 dark:text-gray-400">
-            {status.recommendedStrategy === "NEW_USER"
-              ? "Những truyện được yêu thích nhất trên hệ thống"
-              : "Những truyện mới cập nhật gần đây"}
+            Những truyện được yêu thích và đánh giá cao nhất trên hệ thống
           </p>
         </div>
         <Button onClick={refetch} variant="secondary">
