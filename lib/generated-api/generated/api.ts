@@ -33,6 +33,7 @@ export * from './api/recommendation-metrics-api';
 export * from './api/recommendations-api';
 export * from './api/stats-controller-api';
 export * from './api/story-management-api';
+export * from './api/user-controller-api';
 export * from './api/user-management-api';
 export * from './api/user-onboarding-api';
 export * from './api/user-profile-analytics-api';

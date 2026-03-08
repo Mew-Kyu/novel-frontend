@@ -21,6 +21,7 @@ import {
   RecommendationsApi,
   StatsControllerApi,
   StoryManagementApi,
+  UserControllerApi,
   UserManagementApi,
   UserOnboardingApi,
   UserProfileAnalyticsApi,
@@ -41,6 +42,7 @@ export class NovelApiClient {
   public latestChapters: LatestChaptersControllerApi;
   public ratings: RatingControllerApi;
   public user: UserManagementApi;
+  public userController: UserControllerApi;
   public userOnboarding: UserOnboardingApi;
   public userProfileAnalytics: UserProfileAnalyticsApi;
   public stats: StatsControllerApi;
@@ -138,6 +140,11 @@ export class NovelApiClient {
       this.axiosInstance,
     );
     this.user = new UserManagementApi(
+      this.config,
+      basePath,
+      this.axiosInstance,
+    );
+    this.userController = new UserControllerApi(
       this.config,
       basePath,
       this.axiosInstance,
