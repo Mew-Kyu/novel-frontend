@@ -78,6 +78,8 @@ export class NovelApiClient {
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
+        // Bypass ngrok browser warning page
+        config.headers["ngrok-skip-browser-warning"] = "true";
         return config;
       },
       (error) => {
@@ -253,7 +255,9 @@ export class NovelApiClient {
 }
 
 // Create singleton instance
-const apiClient = new NovelApiClient();
+const apiClient = new NovelApiClient(
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080",
+);
 
 export default apiClient;
 
