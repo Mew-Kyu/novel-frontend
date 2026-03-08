@@ -121,8 +121,10 @@ export const useAuthStore = create<AuthState>()(
               apiMessage?.toLowerCase().includes("inactive")
             ) {
               errorMessage = "Tài khoản đã bị vô hiệu hóa";
-            } else if (apiMessage) {
-              errorMessage = apiMessage;
+            } else if (status && status >= 500) {
+              errorMessage = "Lỗi máy chủ. Vui lòng thử lại sau.";
+            } else if (status === 429) {
+              errorMessage = "Quá nhiều yêu cầu. Vui lòng thử lại sau.";
             }
           }
 
@@ -180,14 +182,28 @@ export const useAuthStore = create<AuthState>()(
             onboardingRequired: onboardingRequired ?? true,
           });
         } catch (error: unknown) {
-          let errorMessage = "Đăng ký thất bại";
+          let errorMessage = "Đăng ký thất bại. Vui lòng thử lại sau.";
           if (error instanceof Error && "response" in error) {
             const apiError = error as {
-              response?: { data?: { message?: string } };
+              response?: { data?: { message?: string }; status?: number };
             };
-            const apiMessage = apiError.response?.data?.message;
-            if (apiMessage) {
-              errorMessage = apiMessage;
+            const apiMessage = apiError.response?.data?.message ?? "";
+            const status = apiError.response?.status;
+
+            if (
+              apiMessage.toLowerCase().includes("duplicate") ||
+              apiMessage.toLowerCase().includes("already exists") ||
+              apiMessage.toLowerCase().includes("unique constraint")
+            ) {
+              errorMessage =
+                "Email này đã được sử dụng. Vui lòng dùng email khác.";
+            } else if (status === 400) {
+              errorMessage =
+                "Thông tin đăng ký không hợp lệ. Vui lòng kiểm tra lại.";
+            } else if (status === 429) {
+              errorMessage = "Quá nhiều yêu cầu. Vui lòng thử lại sau.";
+            } else if (status && status >= 500) {
+              errorMessage = "Lỗi máy chủ. Vui lòng thử lại sau.";
             }
           }
           set({

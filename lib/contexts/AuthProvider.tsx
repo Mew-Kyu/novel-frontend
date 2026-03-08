@@ -32,6 +32,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const initializeAuth = () => {
       // Setup callback for 401/403 errors - auto logout and redirect
       apiClient.setUnauthorizedCallback(() => {
+        // Only handle if the user was actually logged in
+        const { isAuthenticated: currentlyAuthenticated } =
+          useAuthStore.getState();
+        if (!currentlyAuthenticated) {
+          return;
+        }
+
         // Prevent multiple simultaneous logout calls
         if (isLoggingOut) {
           return;
