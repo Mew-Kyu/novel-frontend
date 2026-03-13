@@ -1099,14 +1099,17 @@ export default function EditStoryPageClient({ storyId }: { storyId: number }) {
               <ul className="text-sm text-blue-700 dark:text-blue-400 space-y-2 ml-4 list-disc">
                 <li>
                   <strong>Để trống số chương:</strong> Hệ thống tự động crawl
-                  chapter tiếp theo
+                  chapter tiếp theo hoặc chapter đầu tiên nếu chưa từng crawl
+                  trước đó
                 </li>
                 <li>
                   <strong>Nhập số chương:</strong> Crawl theo khoảng từ chương X
                   đến Y
                   <ul className="ml-4 mt-1 space-y-1 list-circle">
+                    <li>Chỉ nhập `Chương bắt đầu` → Crawl chương đó</li>
                     <li>
-                      Chỉ nhập `Chương bắt đầu` → Crawl từ chương đó đến cuối
+                      Chỉ nhập `Chương kết thúc` → Crawl từ chương đầu tiên đến
+                      chương đó
                     </li>
                     <li>Nhập cả 2 → Crawl chính xác khoảng chỉ định</li>
                   </ul>

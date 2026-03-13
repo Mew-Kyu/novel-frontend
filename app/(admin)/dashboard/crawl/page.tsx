@@ -50,7 +50,7 @@ export default function CrawlManagerPage() {
       // Filter for MODERATOR: only show jobs created by them
       if (hasRole("MODERATOR") && !hasRole("ADMIN")) {
         jobsList = jobsList.filter(
-          (job: CrawlJobDto) => job.createdBy === user?.id
+          (job: CrawlJobDto) => job.createdBy === user?.id,
         );
       }
 
@@ -97,7 +97,7 @@ export default function CrawlManagerPage() {
     const loadingToast = toast.loading(
       autoCrawl
         ? "Đang tự động crawl chương tiếp theo..."
-        : "Các chương đang được crawl..."
+        : "Các chương đang được crawl...",
     );
 
     try {
@@ -134,7 +134,7 @@ export default function CrawlManagerPage() {
           if (crawlRequest.startChapter > crawlRequest.endChapter) {
             toast.dismiss(loadingToast);
             toast.error(
-              "Số chương bắt đầu phải nhỏ hơn hoặc bằng số chương kết thúc"
+              "Số chương bắt đầu phải nhỏ hơn hoặc bằng số chương kết thúc",
             );
             setCrawling(false);
             return;
@@ -154,7 +154,7 @@ export default function CrawlManagerPage() {
 
       toast.success(
         `Crawl hoàn tất: ${succeeded} thành công, ${failed} thất bại trong tổng số ${totalCrawled} chương`,
-        { duration: 5000 }
+        { duration: 5000 },
       );
 
       setCrawlUrl("");
@@ -356,14 +356,17 @@ export default function CrawlManagerPage() {
             <ul className="text-sm text-blue-700 dark:text-blue-400 space-y-2 ml-4 list-disc">
               <li>
                 <strong>Để trống số chương:</strong> Hệ thống tự động crawl
-                chapter tiếp theo
+                chapter tiếp theo hoặc chapter đầu tiên nếu chưa từng crawl
+                trước đó
               </li>
               <li>
                 <strong>Nhập số chương:</strong> Crawl theo khoảng từ chương X
                 đến Y
                 <ul className="ml-4 mt-1 space-y-1 list-circle">
+                  <li>Chỉ nhập `Chương bắt đầu` → Crawl chương đó</li>
                   <li>
-                    Chỉ nhập `Chương bắt đầu` → Crawl từ chương đó đến cuối
+                    Chỉ nhập `Chương kết thúc` → Crawl từ chương đầu tiên đến
+                    chương đó
                   </li>
                   <li>Nhập cả 2 → Crawl chính xác khoảng chỉ định</li>
                 </ul>
@@ -453,7 +456,7 @@ export default function CrawlManagerPage() {
                         {getStatusIcon(job.status)}
                         <span
                           className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                            job.status
+                            job.status,
                           )}`}
                         >
                           {getStatusLabel(job.status)}
