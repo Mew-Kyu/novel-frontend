@@ -17,6 +17,9 @@ export default function ProfilePage() {
   const { showToast } = useToast();
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const apiBaseUrl = (
+    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080"
+  ).replace(/\/+$/, "");
 
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -70,13 +73,13 @@ export default function ProfilePage() {
       setUser(response.data);
       showToast(
         "Cập nhật hồ sơ thành công! Email xác nhận đã được gửi.",
-        "success"
+        "success",
       );
     } catch (error) {
       showToast(
         (error as { response?: { data?: { message?: string } } })?.response
           ?.data?.message || "Không thể cập nhật hồ sơ",
-        "error"
+        "error",
       );
     } finally {
       setLoading(false);
@@ -117,16 +120,14 @@ export default function ProfilePage() {
       }
 
       // Direct fetch call to uploadAvatar endpoint
-      const axiosResponse = await fetch(
-        "http://localhost:8080/api/user/avatar",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        }
-      );
+      const axiosResponse = await fetch(`${apiBaseUrl}/api/user/avatar`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "ngrok-skip-browser-warning": "true",
+        },
+        body: formData,
+      });
 
       if (!axiosResponse.ok) {
         const errorData = await axiosResponse.json();
@@ -140,7 +141,7 @@ export default function ProfilePage() {
     } catch (error) {
       showToast(
         (error as Error)?.message || "Không thể tải ảnh đại diện",
-        "error"
+        "error",
       );
     } finally {
       setUploadingAvatar(false);
@@ -166,7 +167,7 @@ export default function ProfilePage() {
 
       showToast(
         "Đổi mật khẩu thành công! Email xác nhận đã được gửi.",
-        "success"
+        "success",
       );
       setShowPasswordModal(false);
       setCurrentPassword("");
@@ -176,7 +177,7 @@ export default function ProfilePage() {
       showToast(
         (error as { response?: { data?: { message?: string } } })?.response
           ?.data?.message || "Không thể đổi mật khẩu",
-        "error"
+        "error",
       );
     }
   };
