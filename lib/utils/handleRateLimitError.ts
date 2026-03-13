@@ -13,6 +13,16 @@ interface AxiosErrorResponse {
   };
 }
 
+const TECHNICAL_ERROR_PATTERNS = [
+  /https?:\/\//i,
+  /\b(GET|POST|PUT|PATCH|DELETE)\b/i,
+  /\b(NOT_FOUND|INTERNAL|UNAVAILABLE|TIMEOUT)\b/i,
+  /\b(Exception|Stack\s?trace|Traceback)\b/i,
+  /\b(ListModels|embedContent|semantic search)\b/i,
+  /<EOL>/i,
+  /\bcode\s*:\s*\d{3}\b/i,
+];
+
 const ERROR_MESSAGES: Record<string, string> = {
   translate:
     "Đã vượt quá giới hạn số lần gọi API dịch thuật. Vui lòng thử lại sau {seconds} giây.",
@@ -34,7 +44,7 @@ const ERROR_MESSAGES: Record<string, string> = {
  */
 export function handleRateLimitError(
   error: unknown,
-  type: keyof typeof ERROR_MESSAGES = "default"
+  type: keyof typeof ERROR_MESSAGES = "default",
 ): boolean {
   const axiosError = error as AxiosErrorResponse;
   const errorData = axiosError?.response?.data;
@@ -51,7 +61,7 @@ export function handleRateLimitError(
   let errorMessage = ERROR_MESSAGES[type] || ERROR_MESSAGES.default;
   errorMessage = errorMessage.replace(
     "{seconds}",
-    retryAfterSeconds.toString()
+    retryAfterSeconds.toString(),
   );
 
   // Show countdown toast
@@ -61,7 +71,7 @@ export function handleRateLimitError(
     {
       duration: retryAfterSeconds * 1000,
       id: `rate-limit-${type}-${Date.now()}`,
-    }
+    },
   );
 
   // Update countdown every second
@@ -93,13 +103,31 @@ export function handleRateLimitError(
  */
 export function getErrorMessage(
   error: unknown,
-  defaultMessage: string
+  defaultMessage: string,
 ): string {
   const axiosError = error as AxiosErrorResponse;
+  const statusCode = axiosError?.response?.status;
   const errorData = axiosError?.response?.data;
+  const candidateMessage = errorData?.message?.trim();
 
-  // Return API error message if available, otherwise use default
-  return errorData?.message || defaultMessage;
+  if (!candidateMessage) {
+    return defaultMessage;
+  }
+
+  // Hide raw server messages for server-side failures.
+  if (statusCode && statusCode >= 500) {
+    return defaultMessage;
+  }
+
+  // Avoid leaking technical backend payloads into user-facing toasts.
+  const hasTechnicalPattern = TECHNICAL_ERROR_PATTERNS.some((pattern) =>
+    pattern.test(candidateMessage),
+  );
+  if (hasTechnicalPattern || candidateMessage.length > 180) {
+    return defaultMessage;
+  }
+
+  return candidateMessage;
 }
 
 /**

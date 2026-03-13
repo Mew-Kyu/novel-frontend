@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Search, Filter, X } from "lucide-react";
 import toast from "react-hot-toast";
 import apiClient from "@/lib/generated-api";
-import { handleRateLimitError, getErrorMessage } from "@/lib/utils";
+import { handleRateLimitError } from "@/lib/utils";
 import { StoryGrid } from "@/components/home/StoryGrid";
 import { Button } from "@/components/ui/Button";
 import { Pagination } from "@/components/common/Pagination";
@@ -116,12 +116,7 @@ export default function SearchPage() {
 
         // Handle rate limit error with countdown
         if (!handleRateLimitError(error, "search")) {
-          // If not rate limit error, show generic error
-          const errorMsg = getErrorMessage(
-            error,
-            "Lỗi khi tìm kiếm nguyên nghĩa. Vui lòng thử lại.",
-          );
-          toast.error(errorMsg);
+          toast.error("Không thể tìm kiếm AI lúc này. Vui lòng thử lại sau.");
         }
       } finally {
         setLoading(false);
